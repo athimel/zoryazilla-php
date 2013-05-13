@@ -1,0 +1,30 @@
+//============================ ZZ POST CODE ======================================
+function setKarmaTroll() {
+	var troll = document.getElementsByName('ai_IDPJ')[0].value;		
+	MZ_appendNewScript(ZZDB+'/mzData.php?&TypeData=Karma&TiD='+troll);
+}
+
+function setDBMsgZZ(msg, infos) { 
+    var nodes = document.evaluate("//td/b[text() = 'Nombre de Meurtres']", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	if (nodes.snapshotLength > 0) {
+		var node = nodes.snapshotItem(0);
+		var nbm=node.parentNode.parentNode.firstChild.nextSibling.nextSibling.nextSibling.firstChild;
+
+	} else {
+		var nodes = document.evaluate("//dd[@class = 'meurtres']", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		var nbm=nodes.snapshotItem(0).firstChild;
+	}
+	
+	if (nodes.snapshotLength > 0) {
+		var kill=nbm.nodeValue;
+		var zzNode=document.createElement('span');
+		zzNode.innerHTML=kill+' <b><i>'+msg+'</b></i>';
+		zzNode.setAttribute("infos",infos);
+		zzNode.addEventListener("mouseover", showInfos,true);
+		zzNode.addEventListener("mouseout", hideInfos,true);
+		nbm.parentNode.replaceChild(zzNode, nbm.parentNode.firstChild);
+	}
+}
+
+/***********************************************************************************************************/
+setKarmaTroll();

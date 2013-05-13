@@ -1,0 +1,67 @@
+//============================ ZZ POST CODE ======================================
+
+function Anniversaire(){
+      //var pos_base = document.getElementsByTagName('p');
+      //pos_base[3].innerHTML="";
+      var annivURL = 'http://mountyzilla.tilk.info/scripts/anniv.php';
+      MZ_xmlhttpRequest({
+          method: 'GET',
+          url: annivURL,
+          headers: {
+              'User-agent': 'Mozilla/4.0 (compatible) ZoryaZilla',
+              'Accept': 'application/xml,text/xml',
+          },
+          onload: function(responseDetails) {
+            try
+            {
+               
+               var nomOK = MZ_getValue('LOGON_TROLL').toLowerCase();
+               var HappyBirthday=false;
+               if (parseInt(nomOK)) idOK=parseInt(nomOK);
+
+               var listetrolls = responseDetails.responseText.split("\n");
+               if(listetrolls.length==0)
+                  return;
+               var string = '<table width=98% border="0" class="mh_tdborder" cellspacing="1" cellpadding="1"><tr CLASS="mh_tdtitre"><td align="center"><b>Joyeux anniversaire !!</b></td></tr><tr CLASS="mh_tdpage"><td align="center">';
+               var first = true;
+               
+               
+               for(var i=0;i<listetrolls.length;i++)
+               {
+                  
+                  var infos = listetrolls[i].split(";");
+                  if(infos.length!=3 || 1*infos[2]==0)
+                     continue;
+                  var an = "ans";
+                  if(first)
+                     first=false;
+                  if(1*infos[2]==1)
+                     an = "an";
+                  if( (infos[1].toLowerCase() == nomOK) || (infos[0] == parseInt(nomOK)) )
+                  {
+                  	 HappyBirthday=true;
+	                 string += '<a href="javascript:EPV('+infos[0]+')"><span class="Echo_texte" style="font-weight: bold; color: Green ;">'+infos[1]+'</span></a> ('+infos[2]+' '+an+')';
+                  	 break;
+                  }
+               }
+               
+               
+               
+               string += '</td></tr></table>';
+               if (HappyBirthday) {
+	               var thisP = document.evaluate("//p/a/text()[contains(.,'messagerie')]/../..",   document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    	           var newP=document.createElement('p');
+        	       newP.setAttribute('align','center');;
+            	   thisP.parentNode.insertBefore(newP,thisP);
+               	   newP.innerHTML=string;
+               }
+            }
+            catch(e)
+            {
+               alert(e);
+            }
+         }
+      });
+}
+
+Anniversaire();

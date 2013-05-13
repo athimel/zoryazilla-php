@@ -1,0 +1,121 @@
+/*********************************************************************************
+*    This file is part of ZoryaZilla Fusion merged with mountyzilla              *
+*********************************************************************************/
+//============================ ZZ PRE CODE =======================================
+// Couverture du script (en nombre de caverne)
+var ZPREF="";
+ZPREF+="&ZTRO="+ZTRO;
+ZPREF+="&ZMON="+ZMON;
+ZPREF+="&ZTRE="+ZTRE;
+ZPREF+="&ZLIE="+ZLIE;
+//var ZTRO=MZ_getValue(numTroll+".pref.ZTRO");  if (!ZTRO) ZTRO=0;  ZPREF+="&ZTRO="+ZTRO;
+//var ZMON=MZ_getValue(numTroll+".pref.ZMON");  if (!ZMON) ZMON=5;  ZPREF+="&ZMON="+ZMON;
+//var ZTRE=MZ_getValue(numTroll+".pref.ZTRE");  if (!ZTRE) ZTRE=5;  ZPREF+="&ZTRE="+ZTRE;
+//var ZLIE=MZ_getValue(numTroll+".pref.ZLIE");  if (!ZLIE) ZLIE=15; ZPREF+="&ZLIE="+ZLIE;
+
+var NUM_TROLL=numTroll;			// Id du Troll
+var cg=new Array();				// Diplo des guildes
+var ct=new Array();				// Diplo des trolls
+var infosTrolls=new Array();	// Carac des Trolls de la coterie
+var MeInsulte=new Array();	    // Monstre insulte par les Trolls de la coterie
+var gogo = new Array();         // Pour les gowaps de la coterie
+var fam = new Array();        	// Pour les Familiers de la coterie
+var infosPieges = new Array();  // Pour les pieges
+var infosVue = new Array();  	// Pour le gestionnaire de vue
+var infosAlertePiege=false;		// Alert si piège à une case
+var infosAlerteTrou=false;		// Alert si trou a 1 case
+var tresorInfo=new Array();		// Carac des Trésros de la coterie
+var listeCDM=new Array();		// Tableaux des CdM
+var rowCdm=new Array();			// Tableau pour le popup des CdM
+//var isLevelComputed=false;		// Colonne des niveau des monstres
+var nbCDM=0;					// N° de CdM pour popup
+var incT=0;						// Décalage des colonnes sur les trolls
+var incM=0;						// Décalage des colonnes sur les monstres
+var bookedCase=new Array();		// Trésor occupé par un trolls ou monstres
+var listeEngage=new Array(); 	// Utilisé pour supprimer les monstres "engagés"
+var idMonstres="";				// Liste des monstres les plus proches
+var idMatos="";					// Liste du matos le plus proches
+var infoMonstreStep=0;			// pour steping de la fonction setInfosMonstres
+var externalVue=false; 			// Pour traitement spécifique des vues externes à MH
+var flowVueCtrl="Mon"; 			// Pour traitement du flux VUE
+var flowVueCtrlId=3; 			// Pour traitement du flux VUE
+var flowVueCtrlMaxId=0; 		// Pour traitement du flux VUE (affichage)
+
+var isStyleClass = MZ_getValue("USECSS") == "true";
+var MM_TROLL=MZ_getValue("MM_TROLL");
+var RM_TROLL = MZ_getValue("RM_TROLL");
+//var ITM_HandiZilla=MZ_getValue(NUM_TROLL+".pref.ITM_HandiZilla");
+//var SkinZZ=MZ_getValue(NUM_TROLL+".pref.SkinZZ"); if (!SkinZZ) SkinZZ=ZZDB+"/skin/";			// => dans libs_FF.js
+
+var totaltab=document.getElementsByTagName('table');
+var itbid=-1;	//Bidiview pas toujours présente
+for (i=0; i<totaltab.length; i++) {
+	var ttab="";	
+	try {ttab=totaltab[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].nodeValue;} catch (e) {}			
+	if (ttab=="LA VUE") { externalVue=true; }			
+	if ((ttab=="MA VUE")||(ttab=="LA VUE")) {var itinf=i+1; }			
+	if (ttab=="MONSTRES ERRANTS") {var itmon=i-1;}	
+	if (ttab=="TROLLS") {var ittro=i-1;}			
+	if (ttab=="TRÉSORS"){var ittre=i-1;}			
+	if (ttab=="CHAMPIGNONS") {var itcha=i-1;}		
+	if (ttab=="LIEUX PARTICULIERS") {var itlie=i-1;}
+	try {ttab=totaltab[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].nodeValue;} catch (e) {}			
+	if (ttab=="B I D I V I E W") {itbid=i;}			
+}
+
+// Pointeurs sur Tableaux Infos, Monstres, Trolls, Trésors, Champis et Lieux
+if (itbid>0) var tbid = totaltab[itbid];		
+var tinf = totaltab[itinf];
+var tmon = totaltab[itmon]; 
+var ttro = totaltab[ittro]; 
+var ttre = totaltab[ittre]; 
+var tcha = totaltab[itcha]; 
+var tlie = totaltab[itlie]; 
+
+function getTrollGuildeID(i) {
+	var shift = (incT == 0 ? 0 : 1);
+	if(x_trolls[i].childNodes[5+shift].firstChild.nodeName=="A")
+	{
+		var href = x_trolls[i].childNodes[5+shift].firstChild.getAttribute("href");
+		return href.substring(href.indexOf('(')+1,href.indexOf(","));
+	}
+	return 1;
+}
+
+function putRealDiplo() {
+	var useCss = MZ_getValue("USECSS") == "true";
+	for (var i = nbTrolls+1; --i >= 3;) {
+		var troll = x_trolls[i];
+		var cl = ct[getTrollID(i)];
+		var guildeID = getTrollGuildeID(i);
+		if (cl) {
+			if (useCss && cl == '#AAFFAA')
+				troll.setAttribute('class', 'mh_trolls_amis');
+			else if (useCss && cl == '#FFAAAA')
+				troll.setAttribute('class', 'mh_trolls_ennemis');
+			else if (useCss && cl == '#FFD3D3')
+				troll.setAttribute('class', 'mh_trolls_conflit');
+			else {
+				troll.setAttribute('class', '');
+				troll.style.backgroundColor = cl;
+			}
+		} else if (guildeID!=1) {
+			cl = cg[guildeID];
+			if (!cl)
+				continue;
+			if (useCss && cl == '#AAFFAA')
+				troll.setAttribute('class', 'mh_guildes_amis');
+			else if (useCss && cl == '#FFAAAA')
+				troll.setAttribute('class', 'mh_guildes_ennemis');
+			else if (useCss && cl == '#BBBBFF')
+				troll.setAttribute('class', 'mh_guildes_perso');
+			else if (useCss && cl == '#FFD3D3')
+				troll.setAttribute('class', 'mh_guildes_conflit');
+			else {
+				troll.setAttribute('class', '');
+				troll.style.backgroundColor = cl;
+			}
+		}
+	}
+}
+

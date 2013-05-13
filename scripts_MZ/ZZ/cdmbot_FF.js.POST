@@ -1,0 +1,4 @@
+
+
+//============================ ZZ POST CODE ======================================
+if (ZZcatchCdm!="") appendNewScript(ZZDB+'/mzCdM.php?'+ZZcatchCdm);   

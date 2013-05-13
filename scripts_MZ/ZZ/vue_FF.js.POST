@@ -1,0 +1,1549 @@
+//============================ ZZ POST CODE ======================================
+
+//----------------------------------------------------------------------------------------------------
+function ZZcompoEM(Monstre) {
+     var compo="";
+	for (var i=0; i<tabEM.length; i++) {
+	 	if (tabEM[i][0].toLowerCase()==Monstre.toLowerCase()) {
+	 	    if (tabEM[i][4]==1)
+			    compo="<IMG SRC='"+SkinZZ+"smallEM_variable.gif'> Divers composants <b>"+tabEM[i][1]+" "+tabEM[i][0]+" </b>("+tabEM[i][2]+")";
+  		    else
+			    compo="<IMG SRC='"+SkinZZ+"smallEM_fixe.gif'> <b>"+tabEM[i][1]+" "+tabEM[i][0]+"</b> (Qualité "+tabQualite[tabEM[i][3]]+") pour l'écriture de <b>"+tabEM[i][2]+"</b>";
+		}
+	}
+	return compo;     
+}
+
+function getMonstreDef(nom){
+	for (var k = 0; k < tabMonstres.length; k++) {
+		if (nom.indexOf(tabMonstres[k][0]+" ") != -1) {	
+			return k;
+		}
+	}
+	return -1;
+}
+
+//----------------------------------------------------------------------------------------------------
+function createInsulteIMG(MeInsulte) {
+		var myImg=document.createElement('img');
+  		myImg.setAttribute('src',SkinZZ+'greenball.gif');
+  		//if (ITM_HandiZilla=='oui') {
+  		//	myImg.setAttribute('height','15');
+	  	//	myImg.setAttribute('width','15');
+	  	//} else {
+	  		myImg.setAttribute('height','10');
+	  		myImg.setAttribute('width','10');
+		//}
+  		var comment='Insulté par '+MeInsulte[1]+' [RM'+MeInsulte[2]+'] ('+MeInsulte[0]+')';
+  		myImg.setAttribute('title',comment);
+  		return myImg;
+}
+  
+function createImageSize(url, w, h)
+{
+	var img = document.createElement('img');
+	img.setAttribute('src',url);
+	img.setAttribute('width', w);	
+	img.setAttribute('height', h);
+	return img;
+}
+  
+function createBarrePV(color, pvr, pv, comment) { //color: 0=red, 1=gris
+	if (pvr>pv) pvr=pv;
+    var size=Math.floor((50*pvr)/pv); if ((size<50) && (size>48)) size=48;   // pour rendre plus joli
+	if (comment=='') var text=pvr+'/'+pv+' PV';	else var text=comment;    
+
+	if (color==0) var imgG='/skin/red.gif'; else if (color==1) var imgG='/skin/grey.gif'; else imgG='/skin/white.gif';
+    if (color==-3) var imgD='/skin/green.gif';  else var imgD='/skin/white.gif'; 
+
+	var myTableI=document.createElement('span');
+	myTableI.setAttribute('title',text);
+	myTableI.setAttribute('align','ABSMIDDLE');
+
+	var img1 = createImageSize(ZZDB+'/skin/black.gif', 1, 10);
+	myTableI.appendChild(img1);
+	var img2 = createImageSize(ZZDB+imgG, size, 10);
+	myTableI.appendChild(img2);		
+	var img3 = createImageSize(ZZDB+'/skin/black.gif', 1, 10);
+	myTableI.appendChild(img3);
+	var img4 = createImageSize(ZZDB+imgD, 50-size, 10);
+	myTableI.appendChild(img4);
+	if (size<50) {
+		var img5 = createImageSize(ZZDB+'/skin/black.gif', 1, 10);
+		myTableI.appendChild(img5);
+	}
+	return myTableI;
+}
+
+function createTablePV(color, pvr, pv, comment) { //color: 0=red, 1=gris
+		if (pvr>pv) pvr=pv;
+        var size=Math.floor((50*pvr)/pv); if ((size<50) && (size>48)) size=48;   // pour rendre plus joli
+		var myTable=document.createElement('table');
+		myTable.setAttribute('width','50');
+		myTable.setAttribute('border','0');
+		myTable.setAttribute('cellspacing','1');
+		myTable.setAttribute('cellpadding','0');
+		myTable.setAttribute('bgcolor','#000000'); 
+		var myTr=document.createElement('tr');
+		myTable.appendChild(myTr);
+		var myTd=document.createElement('td');
+		if (color==0) myTd.setAttribute('bgcolor','#FF0000'); else if (color==1) myTd.setAttribute('bgcolor','#AAAAAA'); else myTd.setAttribute('bgcolor','#FFFFFF');
+		myTd.setAttribute('border','0');
+		myTd.setAttribute('cellspacing','0');
+		myTd.setAttribute('cellpadding','0');
+		myTd.setAttribute('height','10');
+		myTd.setAttribute('width',size);
+		myTr.appendChild(myTd);
+		if (size<50) {
+			var myTd2=document.createElement('td');
+			myTd2.setAttribute('border','0');
+			myTd2.setAttribute('cellspacing','0');
+			myTd2.setAttribute('cellpadding','0');
+			if (color==-3) myTd2.setAttribute('bgcolor','#00FF00'); else myTd2.setAttribute('bgcolor','#FFFFFF');
+			myTd2.setAttribute('height','10');
+			myTd2.setAttribute('width',50-size);
+			myTr.appendChild(myTd2);
+		}
+		if (comment=='') 
+			myTable.setAttribute('title',pvr+'/'+pv+'PV ');
+		else 
+			myTable.setAttribute('title',comment);
+		return myTable;
+}
+
+function createTableI(myImg, myTable) {		
+		var myTableI=document.createElement('span');
+		if (myTable) myTableI.appendChild(myTable);
+		myTableI.appendChild(document.createTextNode(" "));
+		if (myImg) myTableI.appendChild(myImg);
+		return(myTableI);		
+}
+
+function createTableT(myText, myTable) {			
+		var myTableT=document.createElement('table');
+		myTableT.setAttribute('border','0');
+		myTableT.setAttribute('cellspacing','1');
+		myTableT.setAttribute('cellpadding','0');
+		var myTr=document.createElement('tr');
+		myTableT.appendChild(myTr);
+		var myTd=document.createElement('td');
+		myTd.appendChild(myTable);
+		myTr.appendChild(myTd);
+		var myTd=document.createElement('td');
+		var iTexte=document.createElement('div')
+		iTexte.innerHTML = myText
+		myTd.appendChild(iTexte);
+		myTr.appendChild(myTd);	
+		return(myTableT)
+}
+
+
+function createNewTroll(key, dist, infosTroll) {
+		var trvITM = document.createElement('TR');
+		if (document.getElementsByName('deldiplo')[0].checked == false) {
+			if (isStyleClass)
+				trvITM.setAttribute('class','mh_trolls_invisibles');   //Color des invisibles
+			else
+				trvITM.setAttribute('bgcolor','#CCC102');   //Color des invisibles
+		} else {
+	      	trvITM.style.backgroundColor="";			// pas de diplo couleur standard
+      		trvITM.setAttribute('class','mh_tdpage');
+      	}
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[0].appendChild(document.createTextNode(dist));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[1].appendChild(document.createTextNode(key));
+		trvITM.appendChild(document.createElement('TD')); //boite pour Message Privé
+   	 	trvITM.childNodes[2].setAttribute( 'align', 'center' );
+	    var cb=document.createElement('INPUT');
+		cb.setAttribute('type','checkbox');
+		cb.setAttribute('name','mp_'+key);
+		trvITM.childNodes[2].appendChild(cb);
+		trvITM.appendChild(document.createElement('TD'));
+	    trvITM.childNodes[3].appendChild(document.createElement('A'));
+	    trvITM.childNodes[3].childNodes[0].setAttribute('CLASS','AllLinks');
+	    trvITM.childNodes[3].childNodes[0].setAttribute('href','javascript:EPV('+key+')');
+	   	trvITM.childNodes[3].childNodes[0].appendChild(document.createTextNode(infosTroll[5]));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[4].appendChild(document.createTextNode(infosTroll[11]));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[5].appendChild(document.createTextNode(infosTroll[10]));
+		trvITM.appendChild(document.createElement('TD'));
+		if (infosTroll[9]==0) {
+		 		trvITM.childNodes[6].innerHTML ='<I>'+infosTroll[2]+'</I>:<B><FONT COLOR=#990000> '+infosTroll[4]+'</B></FONT> PA=> <FONT COLOR=#990000><B>'+infosTroll[3]+'</B></FONT> [hors vue]';
+		} else {
+		 		trvITM.childNodes[6].innerHTML ='<I>'+infosTroll[2]+'</I>:<B><FONT COLOR=#990000> '+infosTroll[4]+'</B></FONT> PA=> <FONT COLOR=#990000><B>'+infosTroll[3]+'</B></FONT> [camouflé]';
+		}
+		var myTable=createBarrePV(0, infosTroll[0], infosTroll[1], '');
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[7].appendChild(myTable);
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[8].setAttribute('align','center');
+		trvITM.childNodes[8].appendChild(document.createTextNode(infosTroll[6]));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[9].setAttribute('align','center');
+		trvITM.childNodes[9].appendChild(document.createTextNode(infosTroll[7]));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[10].setAttribute('align','center');
+		trvITM.childNodes[10].appendChild(document.createTextNode(infosTroll[8]));
+        return trvITM;
+}
+
+//----------------------------------------------------------------------------------------------------
+function createForm(url,nom) {
+  var myForm=document.createElement('form');
+  myForm.setAttribute('method','post');
+  myForm.setAttribute('align','right');
+  myForm.setAttribute('action',url);
+  myForm.setAttribute('name',nom);
+  return myForm;
+}  
+
+function createMsgPXBouton() {
+  var myForm=createForm('../Messagerie/MH_Messagerie.php?&dest=', 'sendMP');
+  appendSubmit(myForm, 'Envoyer un MP', function() {document.getElementsByName('sendMP')[0].action=sendMessagePrive(3);});
+  myForm.appendChild(document.createTextNode(" "));
+  appendSubmit(myForm, 'Partage PX', function() {document.getElementsByName('sendMP')[0].action=sendMessagePrive(8);});
+  myForm.appendChild(document.createTextNode(" "));
+  appendSubmit(myForm, 'Partage ZZ', function() {document.getElementsByName('sendMP')[0].action=grantPartageZZ();});
+  return myForm;
+}  
+
+
+function grantPartageZZ() {
+  var MP=ZZDB+"/zoryazilla.php?&Source=MH&action=MyShare&TypeShr=NewShr&User=";
+  for ( var i = 0; i < x_trolls.length-1;i++)
+  {		
+		if ( x_trolls[2+i].childNodes[2].firstChild.checked ) {
+			MP += x_trolls[2+i].childNodes[1].childNodes[0].nodeValue+','; 
+		}
+  }  
+//  document.sendMP.action=MP;
+  return MP;	
+} 
+
+function sendMessagePrive(cat) {
+  var MP="../Messagerie/MH_Messagerie.php?cat="+cat+"&dest=";
+  for ( var i = 0; i < x_trolls.length-2;i++)
+  {  
+		if ( x_trolls[2+i].childNodes[2].firstChild.checked ) {
+			if (cat==8) MP += '%2C'+x_trolls[2+i].childNodes[1].childNodes[0].nodeValue; 
+			else MP += '+'+x_trolls[2+i].childNodes[1].childNodes[0].nodeValue+'%2C'; 
+		}
+  }  
+  if (cat==8) MP=MP.replace("=%2C", "=");
+//  document.sendMP.action=MP;
+  return MP;	
+} 
+
+
+//Le bouton pour Message/Distrib PX
+function putMsgPXBouton(arrtable) {
+  arrtable.parentNode.insertBefore(createMsgPXBouton(),arrtable);     
+
+}
+
+
+//----------------------------------------------------------------------------------------------------
+function setInfosTrolls() {
+  if (x_trolls.length<3) return;		// cas du fumeux qui rend aveugle !!!
+  var used=false;
+  incT=2;		//ITM: decalage des X,Y,N (des trolls à cause de la barre de PV)  + MP
+  var PosX, PosY, PosN;
+ 
+  var newB = document.createElement( 'b' );
+  newB.appendChild( document.createTextNode( 'PV' ) );
+  var newTd = document.createElement( 'td' );
+  newTd.setAttribute( 'width', '55' );
+  newTd.appendChild( newB );
+  x_trolls[1].insertBefore( newTd, x_trolls[1].childNodes[6] );	
+
+  var newB = document.createElement( 'b' );
+  newB.appendChild( document.createTextNode( 'MP' ) );
+  var newTd = document.createElement( 'td' );
+  newTd.setAttribute( 'width', '5' );
+  newTd.setAttribute( 'align', 'center' );
+  newTd.appendChild( newB );
+  x_trolls[1].insertBefore( newTd, x_trolls[1].childNodes[2] );
+ // x_trolls[1].parentNode.parentNode.childNodes[0].childNodes[0].childNodes[0].setAttribute('colspan','11');
+  //setAllTags=ZZsetAllTags;    //on veride a cause de la collone supplémentaire 
+
+  // inserer le troll dans la vue (le tableau d'entré est trié par distance croissante
+  var infosTrollID=new Array(); var nbIT=0;  for (var key in infosTrolls) {infosTrollID[nbIT]=key; nbIT++;}
+  var zzTroll=0;
+
+  for ( var i = 0; i < x_trolls.length-2;i++) {
+     var num = x_trolls[2+i].childNodes[1].childNodes[0].nodeValue;
+
+     var newTd = document.createElement( 'td' );		// Pour la box MP
+     newTd.setAttribute( 'width', '5' );
+	 newTd.setAttribute( 'align', 'center' );
+
+     // Marquer la case occupé!
+    var PosX=x_trolls[2+i].childNodes[4+incT].childNodes[0].nodeValue;
+    var PosY=x_trolls[2+i].childNodes[5+incT].childNodes[0].nodeValue;
+    var PosN=x_trolls[2+i].childNodes[6+incT].childNodes[0].nodeValue;
+    bookedCase[PosX+','+PosY+','+PosN]=true;
+
+	if (!setCheckBoxCookie(checkBoxDiplo, "NODIPLO")) {		// affichage de la diplo si demandé
+    	if(ct[num]) { //Diplo des trolls
+      		if(isStyleClass && ct[num]=='#AAFFAA') x_trolls[2+i].setAttribute('class','mh_trolls_amis'); 
+			else if(isStyleClass && ct[num]=='#FFAAAA') x_trolls[2+i].setAttribute('class','mh_trolls_ennemis');
+			else if(isStyleClass && ct[num]=='#FFD3D3') x_trolls[2+i].setAttribute('class','mh_trolls_conflit');
+      		else { x_trolls[2+i].setAttribute('class',''); x_trolls[2+i].style.backgroundColor=ct[num]; }
+	    }     
+    	else if(x_trolls[2+i].childNodes[5].childNodes[0].nodeName=="A") {
+      		var lien = x_trolls[2+i].childNodes[5].childNodes[0].getAttribute('href');
+      		lien=lien.substring(lien.indexOf('(')+1,lien.indexOf(','));
+      		if(cg[lien]) {
+         		if(isStyleClass && cg[lien]=='#AAFFAA')  x_trolls[2+i].setAttribute('class','mh_guildes_amis');
+         		else if(isStyleClass && cg[lien]=='#FFAAAA') x_trolls[2+i].setAttribute('class','mh_guildes_ennemis');
+         		else if(isStyleClass && cg[lien]=='#BBBBFF') x_trolls[2+i].setAttribute('class','mh_guildes_perso');
+         		else if(isStyleClass && cg[lien]=='#FFD3D3') x_trolls[2+i].setAttribute('class','mh_guildes_conflit');
+         		else { x_trolls[2+i].setAttribute('class',''); x_trolls[2+i].style.backgroundColor=cg[lien]; }
+      		}     
+    	}
+	}
+	 
+     if(infosTrolls[num])
+     {
+        used=true;
+        var infosTroll=infosTrolls[num];
+		infosTroll[9]=-1;  // si on le voit, le troll n'est pas camouflé ou est sur notre case
+
+		var guilde=""; try {guilde=x_trolls[2+i].childNodes[5].childNodes[0].childNodes[0].nodeValue;} catch (e) {}
+		var lien=x_trolls[2+i].childNodes[5].innerHTML;
+        lien=lien.substring(lien.indexOf('(')+1,lien.indexOf(')'));
+		var eITM=document.createElement('A');
+		eITM.innerHTML ='<SPAN TITLE="'+guilde+'"><FONT COLOR=#000000><I>'+infosTroll[2]+'</I>:<B></FONT><FONT COLOR=#990000> '+infosTroll[4]+'</B></FONT><FONT COLOR=#000000> PA=> </FONT><FONT COLOR=#990000><B>'+infosTroll[3]+'</B></FONT></SPAN>';
+		eITM.setAttribute('href','javascript:EAV('+lien+')');
+ 	 	x_trolls[2+i].childNodes[5].replaceChild(eITM,x_trolls[2+i].childNodes[5].firstChild);
+ 
+		var myTable=createBarrePV(0, infosTroll[0], infosTroll[1], '');
+		x_trolls[2+i].insertBefore(document.createElement('td'),x_trolls[2+i].childNodes[6]);
+		x_trolls[2+i].childNodes[6].appendChild(myTable);
+     }
+     else
+     {
+        x_trolls[2+i].insertBefore(document.createElement('td'),x_trolls[2+i].childNodes[6]);
+     }
+
+     x_trolls[2+i].insertBefore(newTd,x_trolls[2+i].childNodes[2]);
+	 var cb=document.createElement('INPUT');
+	 cb.setAttribute('type','checkbox');
+	 cb.setAttribute('name','mp_'+num);
+  	 x_trolls[2+i].childNodes[2].appendChild(cb);
+  	 
+  } 
+  for ( var i = 0; i < x_trolls.length-2;i++) {
+  	 // on ajoute les copain si pas en vue
+  	 while (zzTroll<nbIT) 
+  	 { 
+  		var flagNewTroll=false;
+	  	var key=infosTrollID[zzTroll];
+//  		if (key==num) { zzTroll++;  if (zzTroll>=nbIT) break; key=infosTrollID[zzTroll]; }
+    	var infosTroll=infosTrolls[key];
+  		while ((key==num)||(infosTroll[9]<0)) { zzTroll++;  if (zzTroll>=nbIT) break; key=infosTrollID[zzTroll]; infosTroll=infosTrolls[key]; }
+		if (zzTroll>=nbIT) break;
+        var dist=Math.max(Math.abs(ZPOSX-infosTroll[6]), Math.abs(ZPOSY-infosTroll[7]),Math.abs(ZPOSN-infosTroll[8]));
+        var xdist = x_trolls[2+i].childNodes[0].childNodes[0].nodeValue;
+        if (dist<xdist) flagNewTroll=true;
+        else if (dist==xdist){
+           	if (x_trolls[2+i].childNodes[10].childNodes[0].nodeValue>=infosTroll[8]) flagNewTroll=true;
+	        else if (x_trolls[2+i].childNodes[10].childNodes[0].nodeValue==infosTroll[8]){
+	           	if (x_trolls[2+i].childNodes[8].childNodes[0].nodeValue<=infosTroll[6]) flagNewTroll=true; 
+		        else if (x_trolls[2+i].childNodes[8].childNodes[0].nodeValue==infosTroll[6]){
+		           	if (x_trolls[2+i].childNodes[9].childNodes[0].nodeValue<infosTroll[7]) flagNewTroll=true; 
+		        }
+	         }
+         }
+         
+         if (flagNewTroll==false) {
+		 	break;
+		 } else {	       
+			used=true;
+            var trvITM = createNewTroll(key, dist, infosTroll);
+			x_trolls[2+i].parentNode.insertBefore(trvITM, x_trolls[2+i]) ;		 		// insertion dans la liste
+			nbTrolls++; 	// Un troll de plus pour MZ 
+			zzTroll++;		// voir pour positionner le troll suivant
+			i++;			// on bypass le troll que l'on vient d'affciher
+	  	}
+     }
+  } // fin de boucle sur la liste des trolls
+  
+  // afficher tous ceux qui sont trop loin donc hors vue!
+  while (zzTroll<nbIT) 
+  { 
+			used=true;
+  			var key=infosTrollID[zzTroll];  
+	    	var infosTroll=infosTrolls[key];
+	        var dist=Math.max(Math.abs(ZPOSX-infosTroll[6]), Math.abs(ZPOSY-infosTroll[7]),Math.abs(ZPOSN-infosTroll[8]));
+            var trvITM = createNewTroll(key, dist, infosTroll);
+			x_trolls[x_trolls.length-1].parentNode.appendChild(trvITM)
+			nbTrolls++; 	// Un troll de plus pour MZ 
+			zzTroll++;		// voir pour positionner le troll suivant
+			i++;			// on bypass le troll que l'on vient d'affciher
+  }
+  if(!used) removeInfosTrolls();
+}
+
+function removeInfosTrolls() {
+  //x_trolls[2+0].parentNode.parentNode.childNodes[0].childNodes[0].childNodes[0].setAttribute('colspan','10');
+  for ( var i = 0; i < x_trolls.length-1;i++) x_trolls[1+i].removeChild(x_trolls[1+i].childNodes[7] );
+  incT=1; 
+}
+
+
+//----------------------------------------------------------------------------------------------------
+function analyseIG(idx) {
+   idx=1*idx;		// conversion en int
+   var Id=x_monstres[1+idx].childNodes[1].childNodes[0].nodeValue;
+   var analyse="<b>Gowap de:</b> "+gogo[Id][1]+"<BR>";
+   if (gogo[Id][8]!=0) {
+       var charge=parseInt(((gogo[Id][9]*2)/gogo[Id][8])*100);	
+       var dispo=parseInt((gogo[Id][8]-2*gogo[Id][9])/2);	
+   	   analyse+="<font size=-2>"+ gogo[Id][2]+":</FONT> Chargé à <B>"+charge+"%</B><font size=-2><I> (reste "+dispo+" min dispo)</I></FONT><BR>";
+   }
+
+   if ((gogo[Id][4]!=0)||(gogo[Id][5]!=0)||(gogo[Id][6]!=0)||(gogo[Id][7]!=0)) {
+   	   analyse+="<BR><b><i><u>les ordres:</i></b></u><BR>";
+	   if ((gogo[Id][4]!=0)||(gogo[Id][5]!=0)||(gogo[Id][6]!=0)) {
+	   	   analyse+="Va en direction de X=<B>"+gogo[Id][4]+"</B> Y=<B>"+gogo[Id][5]+"</B> N=<B>"+gogo[Id][6]+"</B><BR>";
+   	   }
+	   if (gogo[Id][7]!=0) {
+	   	   analyse+="Va ramasser le trésor #"+gogo[Id][7]+"<BR>";
+   	   }
+   } 
+   return analyse;
+}
+
+function showPopup4(evt) {
+	var id = this.getAttribute("id");
+
+	var texte = analyseIG(id);
+	if(texte=="") return;
+	popup.innerHTML = texte;
+	popup.style.left = Math.min(evt.pageX + 15,window.innerWidth-400) + 'px';
+	popup.style.top = evt.pageY-30 + 'px';
+	popup.style.visibility = "visible";
+}
+
+function analyseIT(idx) {
+   idx=1*idx;		// conversion en int
+   var analyse="";
+   var Id=x_tresors[2+idx].childNodes[1].childNodes[0].nodeValue;
+   var tx=x_tresors[2+idx].childNodes[3].childNodes[0].nodeValue;
+   var ty=x_tresors[2+idx].childNodes[4].childNodes[0].nodeValue;
+   var tn=x_tresors[2+idx].childNodes[5].childNodes[0].nodeValue;
+   for (var key in gogo) {
+	  g=gogo[key];
+      if (Id==g[7])  {
+		   analyse+="Le gowap (<font size=-2>de <B>"+g[1]+"</B></font>) <B>#"+key+"</B> va ramasser ce trésor<br>";
+      } else if ((tx==g[4])&&(ty==g[5])&&(tn==g[6]))  {
+		   analyse+="Le gowap (<font size=-2>de <B>"+g[1]+"</B></font>) <B>#"+key+"</B> va dans cette caverne<br>";
+      }
+   }
+   return analyse;
+}
+
+function showPopup3(evt) {
+	var id = this.getAttribute("id");
+
+	var texte = analyseIT(id);
+	if(texte=="") return;
+	popup.innerHTML = texte;
+	popup.style.left = Math.min(evt.pageX + 15,window.innerWidth-400) + 'px';
+	popup.style.top = evt.pageY-30 + 'px';
+	popup.style.visibility = "visible";
+}
+
+//----------------------------------------------------------------------------------------------------
+function requestTresors() { 
+	//alert(ZZDB+"/mzTresor.php?&num="+numTroll+"&MatosId="+idMatos);
+	MZ_xmlhttpRequest({
+		    method: 'GET',
+		    url:  ZZDB+"/mzTresor.php?&num="+numTroll+"&MatosId="+idMatos,
+		    headers: {
+		        'User-agent': 'Mozilla/4.0 (compatible) Mountyzilla',
+		        'Accept': 'application/xml,text/xml',
+		    },
+		    onload: function(responseDetails) {
+				try
+					{
+						var texte = responseDetails.responseText;
+						var lines = texte.split(";");
+						if(lines.length==0)
+							return;
+						for(var j=0;j<lines.length;j++)
+						{
+								var  xl = lines[j].split("]=");
+								if (xl.length==2) 
+								{
+									var varname=xl[0].substr(0,xl[0].indexOf("["));
+								    var idx=xl[0].substr(xl[0].indexOf("[")+1);
+									var xv=xl[1].slice(xl[1].indexOf('("')+2, xl[1].length-1);
+									var values=xv.split('","');
+
+									if (varname=="tresorInfo") {
+	 									tresorInfo[idx]=values;
+	 								} 
+								} 
+						}
+						setInfosTresorsIdent();
+					}
+					catch(e) {alert(e);} 
+			}
+		});
+}		
+
+function showPopup6(evt) {
+	//var tresorInfo=new Array();		// Carac des Trésros de la coterie  => Global
+ 
+ 	var MatosId = this.getAttribute("MatosId");
+	popup.innerHTML = "<IMG SRC='"+SkinZZ+"loading.png'>";
+	popup.style.left = Math.min(evt.pageX + 15,window.innerWidth-400) + 'px';
+	popup.style.top = evt.pageY-30 + 'px';
+	popup.style.visibility = "visible";
+
+	MZ_xmlhttpRequest({
+				method: 'GET',
+				url: ZZDB+"/mzTresor.php?&num="+numTroll+"&MatosId="+MatosId,	
+				headers : {
+					'User-agent': 'Mozilla/4.0 [FusionZoryaZilla] (compatible) Greasemonkey',
+					'Accept': 'application/atom+xml,application/xml,text/xml'
+				},
+				onload: function(responseDetails) {
+					try
+					{
+						var texte = responseDetails.responseText;
+
+						var lines = texte.split(";");
+						if(lines.length==0)
+							return;
+						for(var j=0;j<lines.length;j++)
+						{
+								var  xl = lines[j].split("]=");
+								if (xl.length==2) 
+								{
+									var varname=xl[0].substr(0,xl[0].indexOf("["));
+								    var idx=xl[0].substr(xl[0].indexOf("[")+1);
+									var xv=xl[1].slice(xl[1].indexOf('("')+2, xl[1].length-1);
+									var values=xv.split('","');
+									if (varname=="tresorInfo") {
+	 									tresorInfo[idx]=values;
+	 								} 
+								} 
+						}
+
+						if (tresorInfo[MatosId]) {
+								var tresor=tresorInfo[MatosId];
+								if (tresor[5]!="0") tresor[5]="Gowap #"+tresor[5]+" de "; else tresor[5]="";
+								if (tresor[2].indexOf(':')>0) var type=tresor[2].substr(0, tresor[2].indexOf(':')-1); else var type='';
+								var span="<B>"+tresor[2]+"<BR>Caractéristiques : "+tresor[3]+"<BR>"+tresor[4]+"<BR>Vu par : "+tresor[5]+tresor[6]+" le "+tresor[0]+"</B>";
+								if (skinTresor[type]) 
+									popup.innerHTML = '<table><tr><td><img src="'+SkinZZ+skinTresor[type]+'"</td><td>'+span+'</td></tr></table>';
+								else
+									popup.innerHTML = span;
+							} else {
+								popup.innerHTML = "<B>Ce trésor n'a pas été vu auparavant</B>";
+						 	}
+					}
+					catch(e) {} 
+				}
+				});
+
+}
+
+function setInfosTresorsIdent() {
+    for (var i=0;i<x_tresors.length-2;i++) {
+        var dist=x_tresors[2+i].childNodes[0].childNodes[0].nodeValue;
+        var idt=x_tresors[2+i].childNodes[1].childNodes[0].nodeValue;
+
+	    if ((ZTRE>0) && (dist>ZTRE)) return;
+	  
+	    if (tresorInfo[idt]) {
+			var tresor=tresorInfo[idt];
+	  		var tr = x_tresors[i+2].childNodes[2];
+	  		if (tresor[2].indexOf(":")>0) tresor[2]=tresor[2].substring(tresor[2].indexOf(":"));
+			tr.appendChild(document.createTextNode(" "+tresor[2]));
+	    }
+	}	
+}
+
+function setInfosTresors() {
+
+    for (var i=0;i<x_tresors.length-2;i++) {
+      var dist=x_tresors[2+i].childNodes[0].childNodes[0].nodeValue;
+      var idt=x_tresors[2+i].childNodes[1].childNodes[0].nodeValue;
+      var tx=x_tresors[2+i].childNodes[3].childNodes[0].nodeValue;
+      var ty=x_tresors[2+i].childNodes[4].childNodes[0].nodeValue;
+      var tn=x_tresors[2+i].childNodes[5].childNodes[0].nodeValue;
+
+	  if ((ZTRE==0) || (dist<=ZTRE)) idMatos+=idt+',';		
+	
+      if (!bookedCase[tx+','+ty+','+tn]) {
+         x_tresors[2+i].setAttribute('class',''); 
+         if (ZPOSN==tn) {
+			if (isStyleClass) x_tresors[2+i].setAttribute('class','mh_tresors_teleks'); else x_tresors[2+i].style.backgroundColor='#EDE080';  //'#D1CE8C';
+		 } else {
+			if (isStyleClass) x_tresors[2+i].setAttribute('class','mh_tresors_gogos'); else x_tresors[2+i].style.backgroundColor='#EFE7A7';  //'#FFFDAA';
+		 }
+      }
+
+	  for (var key in gogo) {
+		  g=gogo[key];
+	      if ((idt==g[7])||((tx==g[4])&&(ty==g[5])&&(tn==g[6])))  {
+	          	x_tresors[2+i].childNodes[1].setAttribute('style','color:red');
+	          	//x_tresors[2+i].childNodes[1].setAttribute('onmouseover','afficheIG('+i+',analyseIT, event)');
+	          	//x_tresors[2+i].childNodes[1].setAttribute('onmouseout','cacherIG()');
+				x_tresors[2+i].childNodes[1].setAttribute("id",i);
+				x_tresors[2+i].childNodes[1].addEventListener("mouseover", showPopup3, true);
+				x_tresors[2+i].childNodes[1].addEventListener("mouseout", hidePopup, true);
+	          	break;  // sortie des gogos voir trésor suivants 
+	      }
+      }
+
+	  var tresor=x_tresors[2+i].childNodes[2].childNodes[0].childNodes[0].nodeValue;
+	  if ((tresor.length>1) && (tresor.indexOf("Gigot")<0)) {
+			var myImg=document.createElement('img');
+  			myImg.setAttribute('src',SkinZZ+'question.png');
+			myImg.setAttribute("MatosId",idt);
+			//myImg.setAttribute("onclick","javascript:Enter('/mountyhall/View/TresorHistory2.php?ai_IDTresor="+idt+"',750,500)");
+			myImg.addEventListener("mouseover", showPopup6, true);
+			myImg.addEventListener("mouseout", hidePopup, true);
+			x_tresors[2+i].childNodes[2].appendChild(myImg);
+	  }
+   }
+}
+
+//----------------------------------------------------------------------------------------------------
+function requestPortails() { 
+	//alert(ZZDB+"/mzPortail.php?&num="+numTroll+"&PortailId="+idPortails);
+	MZ_xmlhttpRequest({
+		    method: 'GET',
+		    url:  ZZDB+"/mzPortail.php?&num="+numTroll+"&PortailId="+idPortails,
+		    headers: {
+		        'User-agent': 'Mozilla/4.0 (compatible) Mountyzilla',
+		        'Accept': 'application/xml,text/xml',
+		    },
+		    onload: function(responseDetails) {
+				try
+					{
+						var texte = responseDetails.responseText;
+						var lines = texte.split(";");
+						if(lines.length==0)
+							return;
+						for(var j=0;j<lines.length;j++)
+						{
+								var  xl = lines[j].split("]=");
+								if (xl.length==2) 
+								{
+									var varname=xl[0].substr(0,xl[0].indexOf("["));
+								    var idx=xl[0].substr(xl[0].indexOf("[")+1);
+									var xv=xl[1].slice(xl[1].indexOf('("')+2, xl[1].length-1);
+									var values=xv.split('","');
+
+									if (varname=="portailInfo") {
+	 									portailInfo[idx]=values;
+	 								} 
+								} 
+						}
+						setInfosPortailsIdent();
+					}
+					catch(e) {alert(e);} 
+			}
+		});
+}
+	
+
+function showPopup7(evt) {
+	//var tresorInfo=new Array();		// Carac des Trésros de la coterie  => Global
+ 
+ 	var PortailId = this.getAttribute("PortailId");
+	popup.innerHTML = "<IMG SRC='"+SkinZZ+"loading.png'>";
+	popup.style.left = Math.min(evt.pageX + 15,window.innerWidth-400) + 'px';
+	popup.style.top = evt.pageY-30 + 'px';
+	popup.style.visibility = "visible";
+
+	//alert(ZZDB+"/mzPortail.php?&num="+numTroll+"&PortailId="+PortailId);
+	MZ_xmlhttpRequest({
+				method: 'GET',
+				url: ZZDB+"/mzPortail.php?&num="+numTroll+"&PortailId="+PortailId,	
+				headers : {
+					'User-agent': 'Mozilla/4.0 [FusionZoryaZilla] (compatible) Greasemonkey',
+					'Accept': 'application/atom+xml,application/xml,text/xml'
+				},
+				onload: function(responseDetails) {
+					try
+					{
+						var texte = responseDetails.responseText;
+						var lines = texte.split(";");
+						if(lines.length==0)
+							return;
+						for(var j=0;j<lines.length;j++)
+						{
+								var  xl = lines[j].split("]=");
+								if (xl.length==2) 
+								{
+									var varname=xl[0].substr(0,xl[0].indexOf("["));
+								    var idx=xl[0].substr(xl[0].indexOf("[")+1);
+									var xv=xl[1].slice(xl[1].indexOf('("')+2, xl[1].length-1);
+									var values=xv.split('","');
+								
+									if (varname=="portailInfo") {
+	 									portailInfo[idx]=values;
+	 								} 
+								} 
+						}
+
+						if (portailInfo[PortailId]) {
+								var portail=portailInfo[PortailId];
+								var span="Vu la première fois par : <b>"+portail[2]+"</b> le <b>"+portail[0]+"</b>";
+							    span=span+" <i>("+portail[3]+"</i>) ";
+								popup.innerHTML = span ;
+							} else {
+								popup.innerHTML = "<B>Ce portail n'a pas été vu auparavant</B>";
+						 	}
+					}
+					catch(e) {} 
+				}
+				});
+
+}
+
+function setInfosPortailsIdent() {
+    for (var i=0;i<x_lieux.length-2;i++) {
+        var dist=x_lieux[2+i].childNodes[0].childNodes[0].nodeValue;
+        var idt=x_lieux[2+i].childNodes[1].childNodes[0].nodeValue;
+
+	    if ((ZLIE>0) && (dist>ZLIE)) return;
+	  
+	    if (idt>0) {
+	    	var flagNew=false;
+			if (portailInfo[idt]) {
+				var portail=portailInfo[idt];
+				if (portail[3]=="aujourd'hui")	flagNew=true;
+				else if (portail[3]=="hier") {	// hier on tag avec une autre couleur!
+	        		x_lieux[2+i].setAttribute('class',''); 
+					if (isStyleClass) x_lieux[2+i].setAttribute('class','mh_pieges_vieux'); else x_lieux[2+i].style.backgroundColor='#9DA8C6';  
+				}
+			} else {
+		    	var portail=x_lieux[i+2].childNodes[2].childNodes[1].firstChild;
+			  	if (portail.nodeName != 'A') if (portail.nodeValue.indexOf("Portail")>=0) flagNew=true; 
+			}
+									
+			if(flagNew) {
+	        	x_lieux[2+i].setAttribute('class',''); 
+				if (isStyleClass) x_lieux[2+i].setAttribute('class','mh_pieges_actifs'); else x_lieux[2+i].style.backgroundColor='#FF5E28';  
+			}
+	    }
+	}	
+}	
+
+function setInfosPortails() {
+
+	for (var i=0;i<x_lieux.length-2;i++) {
+		var dist=x_lieux[2+i].childNodes[0].childNodes[0].nodeValue;
+	    var idt=x_lieux[2+i].childNodes[1].childNodes[0].nodeValue;
+	    var tx=x_lieux[2+i].childNodes[3].childNodes[0].nodeValue;
+	    var ty=x_lieux[2+i].childNodes[4].childNodes[0].nodeValue;
+	    var tn=x_lieux[2+i].childNodes[5].childNodes[0].nodeValue;
+	    
+	    
+	
+	  	if (idt>0) {
+	    	var portail=x_lieux[i+2].childNodes[2].childNodes[1].firstChild;
+		  	if (portail.nodeName != 'A') {
+				if (portail.nodeValue.indexOf("Portail")>=0) {
+
+					if ((ZLIE==0) || (dist<=ZLIE)) idPortails+=idt+',';		// pour la request groupée!
+
+					var myImg=document.createElement('img');
+		  			myImg.setAttribute('src',SkinZZ+'question.png');
+					myImg.setAttribute("PortailId",idt);
+					myImg.addEventListener("mouseover", showPopup7, true);
+					myImg.addEventListener("mouseout", hidePopup, true);
+					x_lieux[2+i].childNodes[2].appendChild(myImg);
+				}
+	  	  	}
+	  	}
+    }
+}
+
+//----------------------------------------------------------------------------------------------------
+function getAllText(Element) {
+   if(Element.nodeName == "#text") {
+      var thisText=Element.nodeValue.replace(/[\t\n\r]/gi,' ');
+      thisText=thisText.replace(/[ ]+/gi,' ');
+      if(thisText==" ") return '';
+      return thisText;
+   }
+   if(Element.nodeName.toLowerCase() == "script" || Element.nodeName.toLowerCase() == "noframes") return "";
+   var string=''
+   if(Element.nodeName.toLowerCase() == "tbody" || Element.nodeName.toLowerCase() == "center" || Element.nodeName.toLowerCase() == "br") string='\n';
+   if(Element.nodeName.toLowerCase() == "li") string='';
+   for(var i=0;i<Element.childNodes.length;i++) {
+     //string+=' '+Element.nodeName+' : ';
+     string+=getAllText(Element.childNodes[i]);
+     if(Element.nodeName.toLowerCase() == "tbody" && i<Element.childNodes.length-1) string+='\n';
+     else if(Element.nodeName.toLowerCase() =='tr' && i<Element.childNodes.length-1) string+=' ';
+   }
+   if(Element.nodeName.toLowerCase() == "center" || Element.nodeName.toLowerCase() == "li") string+='\n';
+   return string;
+}
+
+function createNewLieu(dist, infosLieu) {
+		var cDate = new Date();
+		var pDate = new Date(infosLieu[0].substring(5,7)+" "+infosLieu[0].substring(8,10)+", "+infosLieu[0].substring(0,4)+" "+infosLieu[0].substring(11,16)+":00");
+		var trvITM = document.createElement('TR');
+		if (((cDate-pDate)/1000/60/60/24)<30) {	// Un mois dangeureux!
+			if (isStyleClass) trvITM.setAttribute('class','mh_pieges_actifs');   //Color des pieges CSS
+			else trvITM.setAttribute('bgcolor','#FF5E28');   //Color des pieges ROUGE Explosif
+		} else {
+			if (isStyleClass) trvITM.setAttribute('class','mh_pieges_vieux');   //Color des pieges CSS
+			else trvITM.setAttribute('bgcolor','#9DA8C6');   //Color des pieges Gris (plus de 30 jours)
+		}
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[0].appendChild(document.createTextNode(dist));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[1].setAttribute('align','center');
+		trvITM.childNodes[1].appendChild(document.createTextNode('0'));
+		trvITM.appendChild(document.createElement('TD'));
+
+		var chance="";
+	    var _mm=infosLieu[5]*1;
+		if ((MZ_getValue("RM_TROLL")!="") && (_mm>0)) {
+			var _rm=MZ_getValue("RM_TROLL")*1;
+			if(_mm<0) _sr="10"; else if(_rm<_mm) _sr=Math.max(10,Math.floor((_rm/_mm)*50)); else _sr=Math.min(90,Math.floor(100-(_mm/_rm)*50));
+			chance=" (chance de résister: "+_sr+"%)";
+		}
+ 		trvITM.childNodes[2].innerHTML ='<I>'+infosLieu[0]+'</I><span> Piège à '+infosLieu[6]+'</span>: <B><FONT COLOR=#2850FF> '+infosLieu[4]+'</B></FONT> a posé ce piège ';
+ 		if (_mm>0) trvITM.childNodes[2].innerHTML +='<FONT COLOR=#2850FF><B> MM='+infosLieu[5]+'</B></FONT>'+chance;
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[3].setAttribute('align','center');
+		trvITM.childNodes[3].appendChild(document.createTextNode(infosLieu[1]));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[4].setAttribute('align','center');
+		trvITM.childNodes[4].appendChild(document.createTextNode(infosLieu[2]));
+		trvITM.appendChild(document.createElement('TD'));
+		trvITM.childNodes[5].setAttribute('align','center');
+		trvITM.childNodes[5].appendChild(document.createTextNode(infosLieu[3]));
+        return trvITM;
+}
+
+
+function setInfosLieux() {
+  
+  for (var i=0; i<x_lieux.length-2; i++) {	//vérif des trous de météorites
+		if (x_lieux[2+i].childNodes[0].childNodes[0].nodeValue>1) break;
+		var nom = getAllText(x_lieux[2+i].childNodes[2]);
+		if (nom=="Trou de Météorite") infosAlerteTrou=true;
+  }
+
+
+  if (infosPieges.length<=0) return;
+  var used=false;				  
+  // affichage des Pieges
+  for (var key in infosPieges) {
+     var infosPiege=infosPieges[key];
+     var dist=Math.max(Math.abs(ZPOSX-infosPiege[1]), Math.abs(ZPOSY-infosPiege[2]),Math.abs(ZPOSN-infosPiege[3]));
+     if (dist>0) {
+      	 if (dist==1) infosAlertePiege=true; //attention au piege
+         var ilig=x_lieux.length-2;
+         for ( var i = 0; i < x_lieux.length-2;i++)  {
+             var xdist = x_lieux[2+i].childNodes[0].childNodes[0].nodeValue;
+             if (dist<xdist) {
+                 ilig=i;
+                 break;
+             }
+         }
+         // Préparer une nouvelle entrée tableau pour le piege
+		var trvITM = createNewLieu(dist, infosPiege) ;
+        //tlie.childNodes[1].insertBefore(trvITM, tlie.childNodes[1].childNodes[ilig]);
+
+		if (ilig==x_lieux.length-2) x_lieux[1+ilig].parentNode.appendChild(trvITM) ;		// ajout en fin de liste
+		else x_lieux[2+ilig].parentNode.insertBefore(trvITM, x_lieux[2+ilig]) ;		 		// insertion dans la liste
+		nbLieux++; 	// Un lieu de plus pour MZ 
+        used=true;		        
+     }
+  }
+}
+
+//----------------------------------------------------------------------------------------------------
+function showPopup5(evt) {
+   var id = this.getAttribute("id");
+	var texte = analyseCDM(id);
+	if(texte=="") return;
+	popup.innerHTML = texte;
+	popup.style.left = Math.min(evt.pageX + 15,window.innerWidth-400) + 'px';
+	popup.style.top = evt.pageY-30 + 'px';
+	popup.style.visibility = "visible";
+}
+
+function analyseCDM (idx) {
+   idx=1*idx-1;		// conversion en int			//FZZCHG
+   var id=x_monstres[2+idx].childNodes[1].childNodes[0].nodeValue;
+   var fullname=x_monstres[2+idx].childNodes[3].childNodes[0].childNodes[0].nodeValue;
+
+   if (x_monstres[2+idx].childNodes[2].childNodes[0].nodeValue=="-") return;		// pas de CdM possible
+   if ((fullname.indexOf("Gowap")>=0) &&(cmdMonstre[11]!='???')) return;		// Gowap sans CdM
+
+   //les infos de la bulle:
+   var cmdMonstre = listeCDM[id];  
+
+   var Bestiaire="BESTIAIRE"; 
+   var barrePV;
+   var Blessure;
+   if (cmdMonstre[11].indexOf("%")>0) {
+
+    	Bestiaire="CDM du <br><b>"+cmdMonstre[11].slice(cmdMonstre[11].indexOf('le')+2)+"</b>";
+		Blessure="&nbsp&nbsp&nbsp"+bbcode(cmdMonstre[11]); 
+		if (cmdMonstre[11].indexOf("%")!=-1) {
+			var b=1*cmdMonstre[11].slice(cmdMonstre[11].indexOf("[b]")+3,  cmdMonstre[11].indexOf(" %"));
+			if ((b!=0) && (cmdMonstre[2].indexOf("-")!=-1)) {
+		        var pv2 = cmdMonstre[2].substring(0,cmdMonstre[2].indexOf("-"))*1;
+		        var pv1 = cmdMonstre[2].substring(cmdMonstre[2].indexOf("-")+1,cmdMonstre[2].indexOf(" -->"))*1;
+		        var p1=92.5;  if (b!=95) p1=b-5; if (p1<0) p1=0;
+		        var pva1 = Math.floor(pv1 * (100 - p1) / 100);
+		        var p2=92.5;  if (b!=90) p2=b+5; if (p2>100) p2=100;
+		     	var pva2 = Math.floor(pv2 * (100 - p2) / 100)+1;
+		     	var pvm = Math.floor((pva1+pva2)/2);
+		        Blessure="&nbsp&nbsp&nbsp<b>"+b+"%</b> =><b>"+pvm+"</b> PV (entre <b>"+pva2+"</b> et <b>"+pva1+"</b>)"; 
+		    } else if ((b!=0) && (cmdMonstre[2].indexOf("[b]")!=-1)) {
+				var pv1=1*cmdMonstre[2].slice(cmdMonstre[2].indexOf("[b]")+3, cmdMonstre[2].indexOf("[/b]"));
+		        var p1=92.5;  if (b!=95) p1=b-5; if (p1<0) p1=0;
+		        var pva1 = Math.floor(pv1 * (100 - p1) / 100);
+		        var p2=92.5;  if (b!=90) p2=b+5; if (p2>100) p2=100;
+		     	var pva2 = Math.floor(pv1 * (100 - p2) / 100)+1;
+		        Blessure="&nbsp&nbsp&nbsp<b>"+b+"%</b> reste entre <b>"+pva1+"</b> et <b>"+pva2+"</b> PV"; 
+		    }
+		}
+		
+    	var pv=100-cmdMonstre[11].substring(cmdMonstre[11].indexOf(']')+1,cmdMonstre[11].indexOf('%'));
+    	var barrePV=createBarrePV(0, pv, 100, ''); 
+   }
+   
+   // information de SR
+   var cdmRM=bbcode(cmdMonstre[9]);
+   if((cmdMonstre[9].indexOf("[b]")!=-1) && (MM_TROLL!="")) {
+		var v=0;
+		var mrm=1*cmdMonstre[9].slice(cmdMonstre[9].indexOf("[b]")+3,  cmdMonstre[9].indexOf("[/b]"));
+		var tmm=MM_TROLL*1;
+		if(tmm<0) v="10";
+		else if(mrm<tmm) v=Math.max(10,Math.floor((mrm/tmm)*50));
+		else v=Math.min(90,Math.floor(100-(tmm/mrm)*50));
+	    cdmRM+=" <font size=-2>("+v+"%)</font>";
+   }   
+
+   var cdmMM="";
+   // information de SR
+   var cdmMM=cmdMonstre[18];
+   if((cmdMonstre[18].indexOf("[b]")!=-1) && (RM_TROLL!="")) {
+		var v=0;
+		var mmm=1*cmdMonstre[12].slice(cmdMonstre[12].indexOf("[b]")+3,  cmdMonstre[12].indexOf("[/b]"));
+		var trm=RM_TROLL*1;
+		if(trm<0) v="90";
+		else if(trm<mmm) v=Math.max(10,Math.floor((trm/mmm)*50));
+		else v=Math.min(90,Math.floor(100-(mmm/trm)*50));
+	    cdmMM=bbcode(cdmMM)+" <font size=-2>("+v+"%)</font>";
+   }   
+
+   var idMonstre = getMonstreDef(fullname);
+   if (idMonstre>=0) var photo=SkinZZ+'/monstres/'+skinBEAST[tabMonstres[idMonstre][3]]; else photo=SkinZZ+'/monstres/'+skinBEAST[0];
+
+	// recherche du template familliale cogneur, Spectrale et autre...
+	var famille=cmdMonstre[1];
+	var templateFamilly="";
+	if (tmpltFamilly[famille] && caracFamilly[famille]) {
+		var tmplt=tmpltFamilly[famille];
+		var carac=caracFamilly[famille]; 
+ 		for (var k = 0; k < tmplt.length; k++) {
+		if (fullname.indexOf(" "+tmplt[k]+" ") != -1) {	
+				if (carac[k][1]!="") templateFamilly=tmplt[k]+': '+carac[k][1];
+				break;
+			}
+		}
+	}	
+
+	var vlc="non"; var attdist=""; var att=""; var vit=""; var equip=""; var dla=""; var tour=""; var AM=""; var BM=""; var pouvoir=""; var range=""; var vole=""; var SF=""; var attmag="";
+	if (cmdMonstre[12]==1) vlc="oui"; else if (cmdMonstre[12]==0) vlc="non"; else vlc="";
+	if(cmdMonstre[13]==1) attdist="oui"; else if(cmdMonstre[13]==0) attdist="non"; else attdist="";
+	//if(cmdMonstre[14]==1) att=1; else if(cmdMonstre[14]>1 && cmdMonstre[14]<=6) att=cmdMonstre[14]; else if(cmdMonstre[14]>6) attdist="Beaucoup";
+	if(cmdMonstre[14]) att=cmdMonstre[14];
+	if(cmdMonstre[15]!="") vit=bbcode(cmdMonstre[15]); 
+	if(cmdMonstre[17] && cmdMonstre[17].length>0) equip=bbcode(cmdMonstre[17]);
+	if(cmdMonstre[16]) range=bbcode(cmdMonstre[16]);
+	if(cmdMonstre[10]) pouvoir=bbcode(cmdMonstre[10]);
+	if(cmdMonstre[19]) dla=bbcode(cmdMonstre[19]);
+	if(cmdMonstre[20]) BM=bbcode(cmdMonstre[20]);
+	if(cmdMonstre[21]) tour=bbcode(cmdMonstre[21]);
+	if(cmdMonstre[22]) AM=bbcode(cmdMonstre[22]);
+	if(cmdMonstre[23]) { if (cmdMonstre[23]==1) vole="oui"; else if (cmdMonstre[23]==0) vole="non"; else vole=""; }
+	if(cmdMonstre[24]) SF=bbcode(cmdMonstre[24]);
+	if(cmdMonstre[25]) { if (cmdMonstre[25]==1) attmag="oui"; else if (cmdMonstre[25]==0) attmag="non"; else attmag=""; } 
+	
+   var strCDM ='<TABLE class="mh_tdborder" width="690" BORDER="0" CELLSPACING="1" CELLPADDING="2">';
+   strCDM+='<TR class="mh_tdtitre"><TD>NIV: '+bbcode(cmdMonstre[0]) + analysePX(bbcode(cmdMonstre[0]))+'</td><TD colspan="4">'+id+' '+fullname+'</TD><TD colspan="2" align="center">'+bbcode(cmdMonstre[1])+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD rowspan="8" align="center" valign="center"><IMG SRC="'+photo+'"></td><TD class="mh_tdtitre">PdV:</TD><TD>'+bbcode(cmdMonstre[2])+'</TD><TD colspan="4">';
+   if (cmdMonstre[11].indexOf("%")>0) strCDM+=barrePV.innerHTML+" "+Blessure; strCDM+='</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre">ATT:</TD><TD>'+bbcode(cmdMonstre[3])+'</TD><TD class="mh_tdtitre">VUE:</TD><TD>'+bbcode(cmdMonstre[8])+'</TD><TD colspan="2" rowspan="2" class="mh_tdtitre" align="center" valign="center">'+Bestiaire+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre">ESQ:</TD><TD>'+bbcode(cmdMonstre[4])+'</TD><TD class="mh_tdtitre">VLC:</TD><TD>'+vlc+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre">DEG:</TD><TD>'+bbcode(cmdMonstre[5])+'</TD><TD class="mh_tdtitre">M.M:</TD><TD>'+cdmMM+'</TD><TD class="mh_tdtitre">VIT:</TD><TD>'+vit+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre">REG:</TD><TD>'+bbcode(cmdMonstre[6])+'</TD><TD class="mh_tdtitre">R.M:</TD><TD>'+cdmRM+'</TD><TD class="mh_tdtitre">TR.:</TD><TD>'+tour+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre">ARM:</TD><TD>'+bbcode(cmdMonstre[7])+'</TD><TD class="mh_tdtitre">Att:</TD><TD>'+att+'</TD><TD class="mh_tdtitre">DLA:</TD><TD>'+dla+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre" width=30>A.M:</TD><TD width="180">'+AM+'</TD><TD class="mh_tdtitre" width="30">Dist.:</TD><TD width="180">'+attdist+'</TD><TD class="mh_tdtitre" width="30">Mag.:</TD><TD width="90">'+attmag+'</TD></TR>';
+   strCDM+='<TR class="mh_tdpage"><TD class="mh_tdtitre" width=30>Charg.:</TD><TD width="180">'+equip+'</TD><TD class="mh_tdtitre" width="30">S.F.:</TD><TD width="180">'+SF+'</TD><TD class="mh_tdtitre" width="30">Vole:</TD><TD width="90">'+vole+'</TD></TR>';
+
+   if (BM!="")  strCDM+='<TR class="mh_tdpage"><TD colspan="7">Bonus/Malus: '+BM+'</TD></TR>';
+   strCDM+='<TR height=15 class="mh_tdtitre"><TD width="150">Pouvoir '+range+':</TD><TD width="540" colspan="6">'+pouvoir+'</td></TR>';
+   if (templateFamilly!="")  strCDM+='<TR class="mh_tdpage"><TD colspan="7">'+templateFamilly+'</TD></TR>';
+
+
+	var TypeMonstre=getEM(fullname);
+	var infosCompo="";
+	if (TypeMonstre!="") {
+	   infosCompo=ZZcompoEM(TypeMonstre);
+	   strCDM+='<TR class=mh_tdpage><TD colspan=7>Composant: '+infosCompo+'</TD></TR>';
+	}
+    strCDM+='</TABLE>';
+	return strCDM;
+}
+
+function setInfosMonstres(step) {			// step=1 pour retrieveCDMs() et step=2 putInfoVUE() 
+  infoMonstreStep=infoMonstreStep+step;			
+  if (infoMonstreStep<3) return;		
+
+  var newB = document.createElement( 'b' );
+  newB.appendChild( document.createTextNode( 'Ins. / PV' ) );
+  var newTd = document.createElement( 'td' );
+  newTd.setAttribute( 'width', '68' );
+  newTd.appendChild( newB );
+
+  var noeud=tmon.parentNode.childNodes[4].childNodes[1].childNodes[0].childNodes[0].childNodes[1].childNodes[1].childNodes[0];
+  noeud.insertBefore( newTd, noeud.childNodes[4] );  
+  //x_monstres[2+0].parentNode.parentNode.childNodes[0].childNodes[0].childNodes[0].setAttribute('colspan','8');
+
+  incM=1;		//ITM: decalage des X,Y,N (des monstres à cause de la barre de PV) 
+  var PosX, PosY, PosN;
+  var used=false;
+  var cDate = new Date();
+
+  for ( var i = 1; i < x_monstres.length-1;i++) {
+     var num = x_monstres[1+i].childNodes[1].childNodes[0].nodeValue;
+ 	 var myImg=''; 	    
+     if (gogo[num]) { // Affichage des info de Gowap (les gowap ne sont pas insultés
+    	  used=true;    // on garde la colone des PV qui sert au chargement gowap
+          x_monstres[1+i].childNodes[1].setAttribute('style','color:red');
+          x_monstres[1+i].childNodes[1].setAttribute("id",i);
+          x_monstres[1+i].childNodes[1].addEventListener("mouseover", showPopup4, true);
+          x_monstres[1+i].childNodes[1].addEventListener("mouseout", hidePopup, true);
+
+		  // pour eviter le changement de couleur des cases sur lesquelles on passe la souris
+		  if (MZ_getValue("NOLEVEL")) {
+		      x_monstres[1+i].childNodes[2].setAttribute('onmouseover', "this.style.cursor = 'pointer';");
+    		  x_monstres[1+i].childNodes[2].setAttribute('onmouseout', "");
+		  }
+
+	      if (gogo[num][0]==NUM_TROLL) { // Dilpo des Gogos
+    	     x_monstres[1+i].setAttribute('class','');   
+  			 if (isStyleClass) x_monstres[1+i].setAttribute('class','mh_mes_gogos'); else x_monstres[1+i].style.backgroundColor='#AAFFAA';  
+      	 } else {
+         	x_monstres[1+i].setAttribute('class','');  
+  			if (isStyleClass) x_monstres[1+i].setAttribute('class','mh_gogos_coterie'); else x_monstres[1+i].style.backgroundColor='#BBBBFF';
+         }
+          
+     } else { // popup CDM
+
+          x_monstres[1+i].childNodes[1].setAttribute("id",i);
+          x_monstres[1+i].childNodes[1].addEventListener("mouseover", showPopup5, true);
+          x_monstres[1+i].childNodes[1].addEventListener("mouseout", hidePopup, true);
+
+	    if  (MeInsulte[num]) { // spot insulte
+	    	used=true;    
+   	    	var myImg=createInsulteIMG(MeInsulte[num]);   	    
+   	    }
+     } 
+
+     if (fam[num]) {
+		  // pour eviter le changement de couleur des cases sur lesquelles on passe la souris
+		  if (MZ_getValue("NOLEVEL")) {
+		      x_monstres[1+i].childNodes[2].setAttribute('onmouseover', "this.style.cursor = 'pointer';");
+    		  x_monstres[1+i].childNodes[2].setAttribute('onmouseout', "");
+		  }
+         if (fam[num][0]==NUM_TROLL) { 
+         	x_monstres[1+i].setAttribute('class','');  
+  		 	if (isStyleClass) x_monstres[1+i].setAttribute('class','mh_mes_fams'); else x_monstres[1+i].style.backgroundColor='#99B599';
+         } else {
+         	x_monstres[1+i].setAttribute('class','');  
+  		 	if (isStyleClass) x_monstres[1+i].setAttribute('class','mh_fams_coterie'); else x_monstres[1+i].style.backgroundColor='#9C9CAF';
+         }
+	 }  
+
+     if(listeCDM[num]) { // On a une les infos d'un bestiaire!
+
+        var fullname=x_monstres[1+i].childNodes[3].childNodes[0].childNodes[0].nodeValue;
+        if (fullname.indexOf("Gowap")<0) x_monstres[1+i].childNodes[1].setAttribute('style','color:blue');
+
+        var infosMonstre=listeCDM[num];
+		var blessure=infosMonstre[11];
+
+
+
+		// Ajout Codage netWorms (affiché les monstres qui nous voient)
+        if ((fullname.indexOf("Gowap")<0) && (fullname.indexOf("Familier")<0)) {
+            var infosTroll=infosTrolls[NUM_TROLL];
+            var vue = infosMonstre[8];
+            var distance = eval(x_monstres[1+i].childNodes[0].childNodes[0].nodeValue);
+
+            if((distance==0) || !infosTroll || ((!infosTroll[9]) || (infosMonstre[14]=='Oui'))) {
+                var minmax = 1;
+                if(vue.indexOf('-')<0) minmax = 0;
+
+                var vueRe;
+                if (minmax == 0) { vueRe = /(\d+)/; } else { vueRe = /(\d+)-(\d+)/; }
+
+                var vueArr = vue.match(vueRe);
+                if (vueArr) {
+                    if (eval(vueArr[1]) >= distance) {
+					  	// pour eviter le changement de couleur des cases sur lesquelles on passe la souris
+					  	if (MZ_getValue("NOLEVEL")) {
+		    				x_monstres[1+i].childNodes[2].setAttribute('onmouseover', "this.style.cursor = 'pointer';");
+			    			x_monstres[1+i].childNodes[2].setAttribute('onmouseout', "");
+					  	}
+                      	x_monstres[1+i].setAttribute('class','');
+                        if (isStyleClass) x_monstres[1+i].setAttribute('class','mh_vue_monstre1'); else x_monstres[1+i].style.backgroundColor='#FFBBBB';		//#FF9999
+                    }
+                    if ((minmax == 1) && (eval(vueArr[1]) < distance && eval(vueArr[2]) >= distance)) {
+					  	if (MZ_getValue("NOLEVEL")) {
+		    				x_monstres[1+i].childNodes[2].setAttribute('onmouseover', "this.style.cursor = 'pointer';");
+			    			x_monstres[1+i].childNodes[2].setAttribute('onmouseout', "");
+					  	}
+                        x_monstres[1+i].setAttribute('class','');
+                        if (isStyleClass) x_monstres[1+i].setAttribute('class','mh_vue_monstre2'); else x_monstres[1+i].style.backgroundColor='#FFD3D3';		//#FFBBBB
+                    }
+                }
+            }
+        } // Fin codage netWorms
+
+
+		var myTableCharge='';
+	  	if (gogo[num]) {
+ 	    	 var g=gogo[num];
+		     if(g[8]>0) {
+		         var charge=parseInt(((g[9]*2)/g[8])*100);	
+ 		       	 var dispo=parseInt((g[8]-2*g[9])/2);	
+                 myTableCharge=createBarrePV(-3, g[9]*2, g[8], 'Reste: '+dispo+' min dispo ('+g[2]+')');	     
+             }
+		}
+
+		if (blessure.indexOf('%')<0) { 
+	        x_monstres[1+i].insertBefore(document.createElement('td'),x_monstres[1+i].childNodes[4]);
+			var myTableI=createTableI(myImg, myTableCharge);
+			x_monstres[1+i].childNodes[4].appendChild(myTableI);				// barre de charge			
+		} else {
+	        var pv=100-blessure.substring(blessure.indexOf(']')+1,blessure.indexOf('%'));
+	        var tpv=blessure.substring(blessure.indexOf('e')+1);
+	        var oDate = new Date(tpv.substring(4,6)+" "+tpv.substring(1,3)+", 20"+tpv.substring(7,9)+" "+tpv.substring(12,17)+":00");
+
+        	used=true;
+	        var rpv=infosMonstre[2];
+	        if ((rpv.indexOf('>')>0) && (rpv.indexOf('/')>0)) {
+	        	rpv=Math.floor(rpv.substring(rpv.indexOf('>')+5,rpv.indexOf('/')-1));
+	        	var rpvr=Math.floor(pv*rpv/100);
+	        	tpv='~'+rpvr+'/'+rpv+' ('+tpv+')';
+	        } else {
+	          	tpv=100-pv+'% de '+rpv+' ('+tpv+')';
+			}
+			tpv=tpv.replace('[b]', '').replace('[/b]', '');		// pas de bbcode dans le span			
+			x_monstres[1+i].insertBefore(document.createElement('td'),x_monstres[1+i].childNodes[4]);
+			if (((((cDate-oDate)/1000/60/60/24)<5)||(pv==100))&&(myTableCharge!='')) var myTable=myTableCharge; // cas d'un gogo non blessé récement
+			else if (((cDate-oDate)/1000/60/60/24)<5) var myTable=createBarrePV(0, pv, 100, tpv); else var myTable=createBarrePV(1, pv, 100, tpv);
+			var myTableI=createTableI(myImg, myTable);			
+			x_monstres[1+i].childNodes[4].appendChild(myTableI);					// barre de PV
+	    }
+     }
+     else
+     {
+        x_monstres[1+i].insertBefore(document.createElement('td'),x_monstres[1+i].childNodes[4]);
+		var myTableI=createTableI(myImg, '');
+		x_monstres[1+i].childNodes[4].appendChild(myTableI);		// case vide (ni PV ni charge)
+     }
+  }
+
+  if(!used) removeInfosMonstres();
+}
+
+function removeInfosMonstres() {  
+  //x_monstres[3+0].parentNode.parentNode.childNodes[0].childNodes[0].childNodes[0].setAttribute('colspan','7');		//FZZCHG
+  for ( var i = 0; i < x_monstres.length-1;i++) x_monstres[1+i].removeChild(x_monstres[1+i].childNodes[4] );			//FZZCHG	
+  incM=0;
+}
+
+//----------------------------------------------------------------------------------------------------
+function setInfosInfos() {
+	//var ZPOS = getPosition();
+	//var ZVUE = getPorteVue();
+
+	if ((infosAlertePiege==true)||(infosAlerteTrou==true)) {
+	    if (infosAlerteTrou==false) var MessageInf="INFORMATIONS => /!\\ ATTENTION :  Il y a un piège dans une caverne voisine !!";
+	    else if (infosAlertePiege==false) var MessageInf="INFORMATIONS => /!\\ ATTENTION :  Il y a un trou dans une caverne voisine !!";
+	    else var MessageInf="INFORMATIONS => /!\\ ATTENTION :  Il y a pièges et des trous autour de toi !!";
+	 	tinf.childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].nodeValue = MessageInf ;
+		if (isStyleClass) {
+			tinf.childNodes[0].childNodes[0].childNodes[0].setAttribute('class','mh_pieges_actifs');   //Color des pieges CSS
+			tinf.childNodes[0].childNodes[0].childNodes[0].setAttribute('onmouseout', "this.className='mh_pieges_actifs';");
+		} else {
+			tinf.childNodes[0].childNodes[0].childNodes[0].setAttribute('bgcolor','#FF5E28');
+		}	
+		tinf.childNodes[0].childNodes[0].childNodes[0].setAttribute('onmouseout', "");
+		tinf.childNodes[0].childNodes[0].childNodes[0].setAttribute('onmouseover', "this.style.cursor='pointer';");
+	} //else tinf.childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].nodeValue = "INFORMATIONS => Position : X = "+ZPOS[0]+", Y = "+ZPOS[1]+", N = "+ZPOS[2]+" --- Vue : "+ZVUE[0]+"/"+ZVUE[1]+" ("+ZVUE[2]+"/"+ZVUE[3]+")";
+}
+
+
+//----------------------------------------------------------------------------------------------------
+function putSendVueBouton() {
+ 	if (externalVue) return;		// on envoi pas les vues etrangères.. elles y sont déjà!
+
+	// créer le support
+	var myForm = document.createElement('span');
+	myForm.appendChild(document.createTextNode(" "));
+
+	// créer le bouton (Attention: du type inpout et non submit!!!!)
+	var button = document.createElement('input');
+	button.setAttribute('type', 'button');
+	button.setAttribute('name', 'sendZZVue');
+	button.setAttribute('class', 'mh_form_submit');
+	button.setAttribute('value', 'Envoyer la Vue à ZZ');
+	button.addEventListener("click",function() {sendVue(0); return false}, true);
+	myForm.appendChild(button);
+
+	// l'inserer après le bouton de Vue2D
+	document.getElementsByTagName('form')[0].appendChild(myForm);
+}
+ 
+function setInfosVue() {
+	if (infosVue.length<=0) return true;		// si on a aucune info, il faut envoyer une vue!
+
+	var vueselect = '&nbsp;&nbsp;&nbsp;&nbsp;<b><font size=-1>Gestionnaire de vue:&nbsp;&nbsp;</font></b>';
+	var ZZVueId=0; 
+	if (document.URL.indexOf("VueId=")>=0) {
+ 		ZZVueId=document.URL.substring(document.URL.indexOf("VueId=")+6);
+ 		ZZMaVue=document.URL.substring(document.URL.indexOf("MaVue=")+6, document.URL.indexOf("&VueId="))  
+ 		ZZVuePG=document.URL.substring(document.URL.indexOf("PG=")+3, document.URL.indexOf("&MaVue="))  
+		vueselect += '<select onChange="if (this.selectedIndex==0) location.href=\''+ZZMaVue+'\'; else location.href=\''+ZZDB+'/Play_vue.php?&PG='+ZZVuePG+'&MaVue='+ZZMaVue+'&VueId=\'+this.options[this.selectedIndex].value+\'\';">';
+		if (ZZMaVue!='zoryazilla.php') vueselect += '<option value=-1>MA VUE</option>';
+	} else {
+ 		// détection du Pack graphique utilisé, pour rester dans les tons....
+		var PG="";
+		var nodesPG = document.evaluate("//img[contains(@src,'contenu/header.jpg')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+		if (nodesPG.snapshotLength==1) {
+			PG=nodesPG.snapshotItem(0).src;
+			PG=URLencode(PG.substring(0, PG.length-19));
+		}
+		vueselect += '<select onChange="location.href=\''+ZZDB+'/Play_vue.php?&PG='+PG+'&MaVue=\'+document.URL+\'&VueId=\'+this.options[this.selectedIndex].value+\'\';"><option value=-1>Sélectionner une vue</option>';
+ 	}
+
+	var lastView="";
+	for (i = 0; i < infosVue.length; i++) {
+		var infos = infosVue[i];
+		var selected='';
+		if (infos[4]+'*'+infos[3]==ZZVueId) selected='selected';
+		vueselect += '<option value="'+infos[4]+'*'+infos[3]+'" '+selected+'>'+infos[2]+' de '+infos[1]+' du '+infos[0]+'</option>';
+		if ((infos[2]=='VUE') && (infos[4]==NUM_TROLL) && (lastView=="")) lastView=infos[0];
+ 	}
+	vueselect += '</select>';
+
+	var Now = new Date();
+	var cDate = new Date(lastView.replace(/-/gi, "/"));
+
+	var sselect = document.createElement('B');
+	sselect.innerHTML = vueselect ;
+	document.getElementsByTagName('B')[0].appendChild(sselect);  
+
+	if ((!externalVue) && ((lastView=="") || ((Now.getTime()-cDate.getTime())>3600000)))
+		return true;
+	else 
+		return false;
+}
+
+function sendVue(VueId) { 
+
+	var flow="VUE";
+	var maxRow=10;
+	var nrow=0;
+	var LF=String.fromCharCode(28);
+	var TB=String.fromCharCode(29);
+
+	if(VueId==0) { 		// supprimer le bouton s'il état là et afficher un petit message d'état.. 
+		var arr = document.getElementsByName('sendZZVue');
+		if (arr[0]) arr[0].parentNode.removeChild(arr[0]);
+		var myForm = document.createElement('span');
+		myForm.appendChild(document.createTextNode(" Vue en cours d'envoi à ZZ..."));
+		myForm.setAttribute('name', 'sendZZVue');
+		document.getElementsByTagName('form')[0].appendChild(myForm);
+		flowVueCtrlMaxId=x_monstres.length;
+	}
+
+	var txtMon="";
+	if (flowVueCtrl=="Mon") {
+ 		while ((flowVueCtrlId<x_monstres.length) && (nrow<maxRow)) {
+			if (txtMon=="") txtMon="&Monstres=";
+			txtMon += getMonstreID(flowVueCtrlId) + TB + getMonstreNom(flowVueCtrlId) + TB + getPositionStr(getMonstrePosition(flowVueCtrlId)).replace(/;/gi,TB) + LF;
+			nrow++; 			
+			flowVueCtrlId++;
+ 		}
+  		if (flowVueCtrlId>=x_monstres.length) { flowVueCtrl="Tro";  flowVueCtrlId=3; flowVueCtrlMaxId=x_trolls.length;} 
+	}
+
+	var txtTro="";
+	if (flowVueCtrl=="Tro") {
+		var shift = (incT == 0 ? 0 : 1);
+ 		while ((flowVueCtrlId<x_trolls.length) && (nrow<maxRow)) {
+			if (txtTro=="") txtTro="&Trolls=";			
+			txtTro += x_trolls[flowVueCtrlId].childNodes[1].firstChild.nodeValue + TB +x_trolls[flowVueCtrlId].childNodes[2+shift].firstChild.firstChild.nodeValue + TB + x_trolls[flowVueCtrlId].childNodes[3+shift].firstChild.nodeValue + TB + x_trolls[flowVueCtrlId].childNodes[4+shift].firstChild.nodeValue + TB + x_trolls[flowVueCtrlId].childNodes[6+incT].firstChild.nodeValue + TB + x_trolls[flowVueCtrlId].childNodes[7+incT].firstChild.nodeValue +  TB + x_trolls[flowVueCtrlId].childNodes[8+incT].firstChild.nodeValue + LF ;
+			nrow++; 			
+			flowVueCtrlId++;
+ 		}
+  		if (flowVueCtrlId>=x_trolls.length) { flowVueCtrl="Tre";  flowVueCtrlId=3; flowVueCtrlMaxId=x_tresors.length;} 
+ 	}
+
+	var txtTre="";
+	if (flowVueCtrl=="Tre") {
+ 		while ((flowVueCtrlId<x_tresors.length) && (nrow<maxRow)) {
+			if (txtTre=="") txtTre="&Tresors=";
+			txtTre += x_tresors[flowVueCtrlId].childNodes[1].firstChild.nodeValue + TB + getTresorNom(flowVueCtrlId) + TB + x_tresors[flowVueCtrlId].childNodes[3].firstChild.nodeValue + TB + x_tresors[flowVueCtrlId].childNodes[4].firstChild.nodeValue + TB + x_tresors[flowVueCtrlId].childNodes[5].firstChild.nodeValue + LF ;
+			nrow++; 			
+			flowVueCtrlId++;
+ 		}
+  		if (flowVueCtrlId>=x_tresors.length) { flowVueCtrl="Cha";  flowVueCtrlId=3; flowVueCtrlMaxId=x_champis.length;} 
+ 	}
+
+	var txtCha="";
+	if (flowVueCtrl=="Cha") {
+ 		while ((flowVueCtrlId<x_champis.length) && (nrow<maxRow)) {
+			if (txtCha=="") txtCha="&Champis=";
+			txtCha += '0' + TB +x_champis[flowVueCtrlId].childNodes[1].firstChild.nodeValue + TB + x_champis[flowVueCtrlId].childNodes[2].firstChild.nodeValue + TB + x_champis[flowVueCtrlId].childNodes[3].firstChild.nodeValue + TB + x_champis[flowVueCtrlId].childNodes[4].firstChild.nodeValue + LF ;
+			nrow++; 			
+			flowVueCtrlId++;
+ 		}
+  		if (flowVueCtrlId>=x_champis.length) { flowVueCtrl="Lie";  flowVueCtrlId=3; flowVueCtrlMaxId=x_lieux.length;} 
+ 	}
+
+	var txtLie="";
+	if (flowVueCtrl=="Lie") {
+ 		while ((flowVueCtrlId<x_lieux.length) && (nrow<maxRow)) {
+			if (txtLie=="") txtLie="&Lieux=";
+			txtLie += x_lieux[flowVueCtrlId].childNodes[1].firstChild.nodeValue + TB + getLieuNom(flowVueCtrlId) + TB + x_lieux[flowVueCtrlId].childNodes[3].firstChild.nodeValue + TB + x_lieux[flowVueCtrlId].childNodes[4].firstChild.nodeValue + TB + x_lieux[flowVueCtrlId].childNodes[5].firstChild.nodeValue + LF ;
+			nrow++; 			
+			flowVueCtrlId++;
+ 		}
+ 		if (flowVueCtrlId>=x_lieux.length) { flowVueCtrl="";  flowVueCtrlId=3; flow="END"; } 
+ 	}
+	if (nrow<maxRow) flow="END"; 		// au cas ou il n'y a pas de lieux en vue!
+
+	var data="&flow="+flow+"&VueId="+VueId+txtMon+txtTro+txtTre+txtCha+txtLie;
+	if (flow=="END") {					// sur le dernier flux on envoi les données de positionnemetn!
+		var vueHV=getPorteVue();
+ 		data='&Vue='+ZPOSX+TB+ZPOSY+TB+ZPOSN+TB+vueHV[0]+TB+vueHV[1]+TB+data;
+		//alert(ZZDB+"/mzVision.php?"+data);
+	}
+
+	MZ_xmlhttpRequest({
+		    method: 'GET',
+		    url:  ZZDB+"/mzVision.php?"+data,
+		    headers: {
+		        'User-agent': 'Mozilla/4.0 (compatible) Mountyzilla',
+		        'Accept': 'application/xml,text/xml',
+		    },
+		    onload: function(responseDetails) {
+				try
+					{
+						var Id = responseDetails.responseText;
+						if(Id.length==0) 
+						{ 
+							var arr = document.getElementsByName('sendZZVue');		// suppression du premier message
+							arr[0].parentNode.removeChild(arr[0]);
+
+							var myForm = document.createElement('span');
+							myForm.appendChild(document.createTextNode(" Vue envoyée dans la DB ZZ!"));
+							myForm.setAttribute('name', 'sendZZVue');
+
+							// l'inserer après le bouton de Vue2D
+							document.getElementsByTagName('form')[0].appendChild(myForm);
+
+							return;				// fin du flux de donnée!
+						}	else {
+ 							document.getElementsByName("sendZZVue")[0].childNodes[0].nodeValue=" Vue en cours d'envoi à ZZ: ("+flowVueCtrl+ ": "+flowVueCtrlId+" / "+flowVueCtrlMaxId+ ")";
+ 						}				
+
+						sendVue(Id);							// envoyer la suite!!!
+					}
+					catch(e) {alert(e);} 
+			}
+		});
+
+}  
+
+
+//----------------------------------------------------------------------------------------------------
+function putInfosVUE() { 
+  // en fusion setInfosMonstres() est appelé dans le code MZ
+  //if (listeCDM.length>0) setInfosMonstres();	// barre de PV et CdM
+  //else delayInfosMonstres();				// on est passé avant MZ, on va attendre un peu
+  setInfosMonstres(2) ; 	
+  setInfosTrolls();		// Coterie
+  setInfosTresors();
+  setInfosLieux();
+  setInfosInfos();		// alerte
+  setInfosPortails();
+  requestTresors();		// affichage des infos trésors (request en background)
+  if (ShrVUE) requestPortails();	// affichage des infos portails (request en background)
+  if ((setInfosVue())&&(ShrVUE)) sendVue(0); else putSendVueBouton();					// // Gestionnaire de vue!!! ou Mettre un bouton pour forcer l'envoye de la vue 
+}  
+
+
+//----------------------------------------------------------------------------------------------------
+// TABLES REPLIABLES Overided to be compliant with ZZ feature!
+function toggleTableau(num) {
+	if(cursorOnLink) return;
+
+    var off=1;	  if (num==itinf) off=1;
+
+    if (num==itmon) ttab=tmon;
+    else if (num==ittro) ttab=ttro;
+    else if (num==ittre) ttab=ttre;
+    else if (num==itcha) ttab=tcha;
+    else if (num==itlie) ttab=tlie;
+    else if (num==itinf) ttab=tinf;
+    else ttab=totaltab[num];
+
+	var tbody=ttab.childNodes[off];
+	if(num==itinf)
+	{
+		MZ_setValue("INFOPLIE",!tbody.getAttribute('style') || tbody.getAttribute('style') == '');
+		if(!tbody.getAttribute('style') || tbody.getAttribute('style') == '')
+		{
+			var vues = getPorteVue();
+			var pos = getPosition();
+			appendText(totaltab[num].childNodes[0].firstChild.firstChild," => Position : X = "+pos[0]+", Y = "+pos[1]+", N = "+pos[2]+" --- Vue : "+vues[0]+"/"+vues[1]+" ("+vues[2]+"/"+vues[3]+")",1);
+		}
+		else
+		{
+			texte = totaltab[num].childNodes[0].firstChild.firstChild.childNodes[1];
+			texte.parentNode.removeChild(texte);
+		}
+		tbody.setAttribute('style', !tbody.getAttribute('style') || tbody.getAttribute('style') == '' ? 'display:none;' : '');
+	} else {	
+		tbody.setAttribute('style', !tbody.getAttribute('style') || tbody.getAttribute('style') == '' ? 'display:none;' : '');
+	}
+	
+}
+
+//----------------------------------------------------------------------------------------------------	    
+function creerZZThead( num ) { // correction Bug MZ => Pas de Pliage sur les liens
+    var noeud = totaltab[num].childNodes[0].firstChild;
+	var links=noeud.getElementsByTagName('a');
+	for(var i=1;i<links.length;i++)	{
+	 	links[i].addEventListener("mouseover", function() {cursorOnLink=true;},true);
+	 	links[i].addEventListener("mouseout", function() {cursorOnLink=false;},true);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------
+// Overided to be compliant with ZZ feature!
+function getMonstrePosition(i) {
+	var tds = x_monstres[i].childNodes;	
+	var j = tds.length;
+	return new Array(tds[j - 3].firstChild.nodeValue, tds[j - 2].firstChild.nodeValue, tds[j - 1].firstChild.nodeValue);
+}
+
+// Overided car diplo prise en compte par ZZ maintenant
+function refreshDiplo() {
+	if (setCheckBoxCookie(checkBoxDiplo, "NODIPLO")) {
+		for (var i = nbTrolls+1; --i >= 3;) {
+			x_trolls[i].style.backgroundColor = "";
+			x_trolls[i].setAttribute('class', 'mh_tdpage');
+		}
+		return;
+	}
+	if (isDiploComputed == true) putRealDiplo();	
+}
+
+//----------------------------------------------------------------------------------------------------
+var ZPOSX=MZ_getValue(numTroll+".position.X");
+var ZPOSY=MZ_getValue(numTroll+".position.Y");
+var ZPOSN=MZ_getValue(numTroll+".position.N");
+var MM_TROLL = MZ_getValue("MM_TROLL");	
+
+
+//creerZZThead( itmon ); //creerZZThead( ittro ); creerZZThead( ittre ); creerZZThead( itcha ); creerZZThead( itlie );
+putMsgPXBouton(totaltab[8]);		// les bouton de distribution de PX, MP et partage
+
+
+
+//recherche des monstres à proximité (pour insultes)
+for (var i = 2; i < x_monstres.length; i++) {
+
+	if (getMonstreDistance(i) <= ZMON) {
+ 		idMonstres+='&MeID[]='+getMonstreID(i);
+ 	} else break;
+}
+
+
+var TimeStamp=trim(totaltab[totaltab.length-1].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue).substr(27,19).replace(" ", "_");
+//alert(ZZDB+"/mzVue.php?&TimeStamp="+TimeStamp+"&num="+numTroll+"&X="+ZPOSX+"&Y="+ZPOSY+"&N="+ZPOSN+idMonstres+ZPREF);
+MZ_xmlhttpRequest({
+				method: 'GET',
+				url: ZZDB+"/mzVue.php?&TimeStamp="+TimeStamp+"&num="+numTroll+"&X="+ZPOSX+"&Y="+ZPOSY+"&N="+ZPOSN+idMonstres+ZPREF,	
+				headers : {
+					'User-agent': 'Mozilla/4.0 [FusionZoryaZilla] (compatible) Greasemonkey',
+					'Accept': 'application/atom+xml,application/xml,text/xml'
+				},
+				onload: function(responseDetails) {
+					try
+					{
+						var texte = responseDetails.responseText;
+						var lines = texte.split(";");
+						if(lines.length==0)
+							return;
+						for(var j=0;j<lines.length;j++)
+						{
+								var  xl = lines[j].split("]=");
+								if (xl.length==2) 
+								{
+									var varname=xl[0].substr(0,xl[0].indexOf("["));
+								    //var idx=xl[0].slice(xl[0].indexOf("[")+1, xl[0].indexOf("]"));
+								    var idx=xl[0].substr(xl[0].indexOf("[")+1);
+									var xv=xl[1].slice(xl[1].indexOf('("')+2, xl[1].length-1);
+									var values=xv.split('","');
+									var val=xl[1].substr(1, xl[1].length-2);
+									if (varname=="infosTrolls") {
+	 									infosTrolls[idx]=values;
+	 								} else if (varname=="gogo") {
+	 									gogo[idx]=values;
+	 								} else if (varname=="fam") {
+	 									fam[idx]=values;
+	 								} else if (varname=="infosPieges") {
+	 									infosPieges[idx]=values;
+	 								} else if (varname=="MeInsulte") {
+	 									MeInsulte[idx]=values;
+	 								} else if (varname=="infosVue") {
+	 									infosVue[idx]=values;
+	 								} else if (varname=="cg") {
+	 									cg[idx]=val;
+	 								} else if (varname=="ct") {
+	 									ct[idx]=val;
+	 								} 
+								} 
+						}
+						isDiploComputed = true;
+	 					putInfosVUE(); 
+					}
+					catch(e)
+					{
+						alert("mzVue: "+e+"/"+url);
+					} 
+				}
+				});
+

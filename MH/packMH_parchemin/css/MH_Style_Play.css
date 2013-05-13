@@ -1,0 +1,212 @@
+BODY {
+	margin: 0px;
+	background-color: #f0f0f0;
+ 	color: #000000;
+	font-size: 12px;
+	scrollbar-3d-light-color: #000000;
+	scrollbar-arrow-color: #000000;
+	scrollbar-base-color: #000000;
+	scrollbar-dark-shadow-color: #000000;
+	scrollbar-face-color: #FFCC99;
+	scrollbar-highlight-color: #000000;
+	scrollbar-shadow-color: #000000;
+	FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif; 
+	background-image: url(../fond/fond2.jpg);
+
+}
+
+a:active {  text-decoration: none; COLOR: #990000; }
+a:link {  text-decoration: none; COLOR: #990000;}
+a:visited {  text-decoration: none; COLOR: #990000; }
+a:hover { text-decoration: underline; COLOR: #FFFFCC; }
+
+a.AllLinks:active { color: #0000FF; text-decoration: none; font-weight: bold}
+a.AllLinks:link { color: #0000FF; text-decoration: none; font-weight: bold}
+a.AllLinks:visited { color: #0000FF; text-decoration: none; font-weight: bold}
+a.AllLinks:hover { color: #990000; text-decoration: underline; font-weight: bold}
+
+.titre { font-size: 36px; font-style: normal; line-height: normal; font-weight: bold; }
+.titre2 { font-size: 24px; font-style: normal; line-height: normal; font-weight: bold; }
+.titre3 { font-size: 16px; font-style: normal; line-height: normal; font-weight: bold; }
+.titre4 { font-size: 14px; font-style: normal; line-height: normal; font-weight: bold; color: #FFCC33; text-decoration: none}
+.titre5 { font-size: 12px; font-style: normal; line-height: normal; }
+.MoLinks { color: #993300; text-decoration: none }
+.PJLinks0 { color: #008040; text-decoration: none }
+.ForumLinks { color: #003399; text-decoration: none; font-size: 12px}
+.PJLinks1 { color: #0000FF; text-decoration: none }
+.TextboxV1 {
+	border: 1px solid #1E2A63;
+	font-size: 12px;
+	background-color: #FFFFCC;
+	padding: 1px;
+}
+.TextboxV2 {
+	border: 1px solid #1E2A63;
+	font-size: 12px;
+	background-color: #FFFFEE;
+	padding: 1px;
+}
+.TextareaboxV2 {
+	border: 1px solid #1E2A63;
+	font-size: 12px;
+	background-color: #FFFFEE;
+	padding: 4px;
+}
+.SelectboxV2 {
+	font-size: 12px;
+	background-color: #FFFFEE;
+	padding: 1px;
+}
+.TextMessagerie {
+	color: #0000FF;
+	text-decoration: none;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+td {
+		FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif; 
+		font-size: 12px;
+}
+
+.mh_links { color: #990000; text-decoration: none; font-weight: bold}
+.mh_tdborder {
+	background-color:#000000 ;
+}
+.mh_tdtitre {
+	background-image: url(../tableau/tableau2.jpg);
+	background-color:#EBEDAB ;
+}
+.mh_tdpage {
+	background-image: url(../tableau/tableau1.jpg);
+	background-color:#FFFFEE ;
+}
+.mh_titre1 { font-size: 36px; font-style: normal; line-height: normal; font-weight: bold; }
+.mh_titre2 { font-size: 24px; font-style: normal; line-height: normal; font-weight: bold; }
+.mh_titre3 { font-size: 16px; font-style: normal; line-height: normal; font-weight: bold; }
+.mh_titre4 { font-size: 14px; font-style: normal; line-height: normal; font-weight: bold; }
+.mh_form_submit { FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif;  font-size: 11px; background-color: #666633; color: #FFFFFF; border-width: 1; border-top-color: #CCCC00; border-left-color: #CCCC00; border-right-color: #330000; border-bottom-color: #330000; border-style: outset; border-width: 1; }
+.mh_textbox {
+	border: 1px solid #1E2A63;
+	font-size: 12px;
+	background-color: #FFFFEE;
+	padding: 1px;
+		FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif; 
+}
+.mh_textareabox {
+	border: 1px solid #1E2A63;
+	font-size: 12px;
+	background-color: #FFFFEE;
+	padding: 4px;
+		FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif; 
+}
+.mh_selectbox {
+	font-size: 12px;
+	background-color: #FFFFEE;
+	padding: 1px;
+		FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif; 
+}
+
+.mh_dropdown1{
+	background-color:#E4DDCA; 
+	color: #000000
+}
+.mh_dropdown2{
+	background-color:#CBC5AD; 
+	color: #000000
+}
+
+a.mh_monstres:visited { color: #993300; text-decoration: none; font-weight: bold }
+a.mh_monstres:link{ color: #993300; text-decoration: none; font-weight: bold }
+a.mh_monstres:active { color: #993300; text-decoration: none; font-weight: bold }
+a.mh_monstres:hover { color: #993300; text-decoration: underline; font-weight: bold }
+
+a.mh_trolls_0:visited { color: #008040; text-decoration: none; font-weight: bold }
+a.mh_trolls_0:link { color: #008040; text-decoration: none; font-weight: bold }
+a.mh_trolls_0:active { color: #008040; text-decoration: none; font-weight: bold }
+a.mh_trolls_0:hover { color: #008040; text-decoration: underline; font-weight: bold }
+
+a.mh_trolls_1:visited { color: #0000FF; text-decoration: none; font-weight: bold }
+a.mh_trolls_1:link { color: #0000FF; text-decoration: none; font-weight: bold }
+a.mh_trolls_1:active { color: #0000FF; text-decoration: none; font-weight: bold }
+a.mh_trolls_1:hover { color: #0000FF; text-decoration: underline; font-weight: bold }
+
+.titreMenu {FONT-WEIGHT: bold; Z-INDEX: 1; POSITION: absolute; TOP: 13px; LEFT: 20px; WIDTH: 160px; COLOR: #ffffcc; FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif;  FONT-SIZE:15px;}
+.infoMenu {FONT-WEIGHT: bold; Z-INDEX: 1; POSITION: absolute; TOP: 520px; LEFT: 20px; WIDTH: 160px; COLOR: #ffffcc; FONT-FAMILY: "Trebuchet MS", "Times New Roman", Times, serif; FONT-SIZE:10px;}
+
+.Action {COLOR: #ffffff; FONT-SIZE:11px;}
+a.Action:active {  text-decoration: none; COLOR: #ffffcc; }
+a.Action:link {  text-decoration: none; COLOR: #ffffcc;}
+a.Action:visited {  text-decoration: none; COLOR: #ffffcc; }
+a.Action:hover { text-decoration: underline; COLOR: #ffffcc; }
+
+.TableEq {
+	background-color: #ffffff;
+	background-image: url(../fond/bg_equipement.jpg);
+	background-repeat: no-repeat;
+	background-position: left center;
+}
+.TitreEqTable {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.mh_tdborder_fo {
+	background-color:#003399;
+}
+
+.mh_tdtitre_fo
+{
+	background-color: #99CCFF;
+}
+.mh_tdpage_fo
+{
+	background-color: #FFFFEE;
+}
+.msgErreur
+{
+	color:#FF0000;
+}
+
+.mh_guildes_perso {
+	background-color: #BBBBFF;
+}
+.mh_guildes_ennemis {
+	background-color: #FFAAAA;
+}
+.mh_guildes_amis {
+	background-color: #AAFFAA;
+}
+.mh_trolls_amis {
+	background-color: #AAFFAA;
+}
+.mh_trolls_ennemis {
+	background-color: #FFAAAA;
+}
+.mh_tresors_teleks {
+	background-color: #EDE080;
+}
+.mh_tresors_gogos {
+	background-color: #EFE7A7;
+}
+.mh_trolls_invisibles {
+	background-color: #CCC102;
+}
+.mh_pieges_actifs {
+	background-color: #FF5E28;
+}
+.mh_pieges_vieux {
+	background-color: #9DA8C6;
+}
+.mh_mes_gogos {
+	background-color: #AAFFAA;
+}
+.mh_gogos_coterie {
+	background-color: #BBBBFF;
+}
+.mh_mes_fams {
+	background-color: #99B599;
+}
+.mh_fams_coterie {
+	background-color: #9C9CAF;
+}

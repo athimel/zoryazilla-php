@@ -1,0 +1,46 @@
+/*********************************************************************************
+*    This file is part of ZoryaZilla Fusion merged with mountyzilla              *
+*********************************************************************************/
+//============================ ZZ PRE CODE =======================================
+function delBoutonBestiaire() {
+ document.getElementsByName('bClose')[0].parentNode.removeChild(document.getElementsByName('bClose')[0].parentNode.childNodes[1]);
+}
+
+function setDBMsgZZ(msg) { 
+	var td = document.evaluate("//td/text()[contains(.,'MOUNTYHALL - La Terre des')]/..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+	if (!td) return false;
+	td.innerHTML+="<br><br>"+msg;
+}
+
+function catchCdM() {
+	var td = document.evaluate("//td/text()[contains(.,'Le Monstre ciblé fait partie des')]/..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+	if (!td) return "";
+		
+	var cdm = td.innerHTML;
+	var nom=trim(cdm.substring(cdm.indexOf("CONNAISSANCE DES MONSTRES sur")+33));
+	nom=nom.substring(0,nom.indexOf(")")+1);
+	nom=nom.replace("(", " - N°");
+	
+	var famille=cdm.substring(cdm.indexOf("Le Monstre ciblé"));
+	famille=famille.substring(0,famille.indexOf("<br>"));
+	
+	var TimeStamp=cdm.substring(cdm.indexOf("Il était alors"));
+    TimeStamp=TimeStamp.substring(TimeStamp.indexOf(":")+2);
+	TimeStamp=TimeStamp.substring(0,TimeStamp.indexOf(".")).replace(" ", "_");
+	
+	cdm=cdm.substring(cdm.indexOf("Niveau"));
+	cdm=famille+" ("+nom+"<br>"+cdm.substring(0, cdm.indexOf("****"));
+
+	cdm=cdm.replace("Blessure", "Blessure (Approximatif)");
+	cdm=cdm.replace("(approximativement)", "");
+	cdm=cdm.replace(/<br>/g, "\n");
+	
+  	var data="&TimeStamp="+TimeStamp;
+    data+="&TiD="+MZ_getValue("NUM_TROLL");
+    data+="&cdm="+escape(cdm); // cdm est préparé par MZ
+    return(data);
+}      
+
+//-------------------------------------------------------------------------------
+var ZZcatchCdm=catchCdM();    
+

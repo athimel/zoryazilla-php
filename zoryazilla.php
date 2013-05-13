@@ -382,11 +382,11 @@ if ($action=="DlgBoxResetMDP") {
 	</TD></TR></TABLE></TD></TR></TABLE>
 		
 		<BR><BR>
-		<I><FONT COLOR=BLUE><U><B><FONT SIZE=+1>Password du Troll</FONT></B></U> : Vous devez saisir un mot de passe \"sp&eacute;cifique\" qui sera utilis&eacute; une seule fois.<BR>
+		<I><FONT COLOR=BLUE><U><B><FONT SIZE=+1>Password du Troll</FONT></B></U> : Vous devez saisir un mot de passe 'sp&eacute;cifique' qui sera utilis&eacute; une seule fois.<BR>
 	    PS:	Ce mot de passe ne sera pas stock&eacute;, il sert juste pour une premi&egrave;re authentification <BR>(v&eacute;rification par scripts public MH)<BR><BR>
 
 		Tous savoir sur les scripts publics: <a target=_blank href=http://sp.mountyhall.com>http://sp.mountyhall.com</A><BR>
-		Tous savoir sur le MdP restreint: <a target=\"_blank\" href=\"http://sp.mountyhall.com/hashing.php\">http://sp.mountyhall.com/hashing.php</A>	    
+		Tous savoir sur le MdP restreint: <a target=_blank href=http://sp.mountyhall.com/hashing.php>http://sp.mountyhall.com/hashing.php</A>	    
 		</FONT>
 		");
 #========================================================================================

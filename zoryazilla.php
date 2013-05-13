@@ -375,18 +375,18 @@ if ($action=="DlgBoxResetMDP") {
 		</TD></TR></TABLE>
 		</FORM>
 		
-		<BR><FONT SIZE=+1 COLOR=RED><B><I><sup>*</sup><U>PS</I></U></B> : Le mot de passe du Troll n'est pas stocké! </FONT><FONT COLOR=RED><I>(voir ci-dessous)</I></FONT>
+		<BR><FONT SIZE=+1 COLOR=RED><B><I><sup>*</sup><U>PS</I></U></B> : Le mot de passe du Troll n'est pas stock&eacute;! </FONT><FONT COLOR=RED><I>(voir ci-dessous)</I></FONT>
 		<BR><FONT SIZE=+1 COLOR=RED><U><B><I>ATTENTION</I></U></B> : </FONT><FONT COLOR=RED>
 		<BR>!!! Il y aura un appel au script public de Mountyhall (donc, attention si vous utilisez d'autres interfaces) !!!</FONT>
 		<BR>
 	</TD></TR></TABLE></TD></TR></TABLE>
 		
 		<BR><BR>
-		<I><FONT COLOR=BLUE><U><B><FONT SIZE=+1>Password du Troll</FONT></B></U> : le cryptage en md5 est accepté (pour les paranos)<BR>
-	    PS:	Le mot de passe du Troll n'est pas stocké, il sert juste à l'authentification <BR>(vérification par scripts public MH)<BR><BR>
+		<I><FONT COLOR=BLUE><U><B><FONT SIZE=+1>Password du Troll</FONT></B></U> : Vous devez saisir un mot de passe \"sp&eacute;cifique\" qui sera utilis&eacute; une seule fois.<BR>
+	    PS:	Ce mot de passe ne sera pas stock&eacute;, il sert juste pour une premi&egrave;re authentification <BR>(v&eacute;rification par scripts public MH)<BR><BR>
 
 		Tous savoir sur les scripts publics: <a target=_blank href=http://sp.mountyhall.com>http://sp.mountyhall.com</A><BR>
-		Tous savoir sur le MdP restreint: <a target=_blank href=http://games.mountyhall.com/mountyhall/ScriptPublic/md5.php>http://games.mountyhall.com/mountyhall/ScriptPublic/md5.php</A>	    
+		Tous savoir sur le MdP restreint: <a target=\"_blank\" href=\"http://sp.mountyhall.com/hashing.php\">http://sp.mountyhall.com/hashing.php</A>	    
 		</FONT>
 		");
 #========================================================================================

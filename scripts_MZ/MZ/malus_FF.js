@@ -15,13 +15,7 @@
 *    along with Mountyzilla; if not, write to the Free Software                  *
 *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  *
 *********************************************************************************/
-
-/*********************************************************************************
-* v1.2.2 by Dabihul - 2012-08-02                                                 *
-* - màn, gestion complète décumuls, enregistrement des bm fat en string (AM)     *
-* - correction TP et Amnésie pas décumulés, modif tri, corr diverses             *
-* TODO apu                                                                       *
-*********************************************************************************/
+/* v1.2.3 by Dab - 2013-05-03 */
 
 function decumul(bmt, nbr) {
 	var bmr;
@@ -191,9 +185,7 @@ function triecaracs(a,b) { // version Yoyor, mod by Dab
 
 function traiteMalus() {
 	var listeBM = document.getElementsByClassName('mh_tdpage');
-	var uniListe = new Array();
-	var listeDurees = new Array();
-	var listeDecumuls = new Array();
+	var uniListe = [], listeDurees = [], listeDecumuls = [];
 	/* Suppression des BM de fatigue stockés */
 	if (MZ_getValue(numTroll+'.bm.fatigue'))
 		MZ_removeValue(numTroll+'.bm.fatigue');
@@ -214,10 +206,10 @@ function traiteMalus() {
 		var phymag = tr.childNodes[9].textContent;
 		var duree = parseInt( tr.childNodes[11].textContent.match(/\d+/) );
 		
-		uniListe[nb] = new Array();
+		uniListe[nb] = [];
 		uniListe[nb]['duree'] = duree;
 		uniListe[nb]['nom'] = nom;
-		uniListe[nb]['caracs'] = new Array();
+		uniListe[nb]['caracs'] = [];
 		for (var i=0 ; i<effetsT.length ; i++) {
 			if (effetsT[i].indexOf(':')==-1)
 				continue;
@@ -232,16 +224,14 @@ function traiteMalus() {
 		}
 
 	/* Gestion des décumuls et cumuls des durées */
-	var toursGeres = new Array();
+	var toursGeres = [];
 	for (var d in listeDurees) toursGeres.push(d);
 	toursGeres.sort( function (a, b){return a-b;} );
 	
 	var strfat = ''; // pour sauvegarder les bm de fatigue
-	var node = document.getElementsByTagName('tfoot')[0].childNodes[1]; // pour affichage
 	for (var i=0 ; i<toursGeres.length ; i++) {
 		var tour = toursGeres[i];
-		var effetsCeTour = new Array();
-		var decumulsCeTour = new Array();
+		var effetsCeTour = []; decumulsCeTour = [];
 		for (var nb=1 ; nb<uniListe.length ; nb++) {
 			if (uniListe[nb]['duree']<toursGeres[i]) // si durée pvr < durée analysée, on passe
 				continue;
@@ -256,7 +246,7 @@ function traiteMalus() {
 				var typecarac = carac.substring(carac.indexOf('.')+1);
 				var bm = uniListe[nb]['caracs'][carac];
 				if (effetsCeTour[nomcarac]==null) {
-					effetsCeTour[nomcarac] = new Array();
+					effetsCeTour[nomcarac] = [];
 					effetsCeTour[nomcarac]['Physique'] = 0;
 					effetsCeTour[nomcarac]['Magie'] = 0;
 					}
@@ -271,7 +261,7 @@ function traiteMalus() {
 		
 		/* Création du bilan du tour */
 		var texte = '';
-		var caracGerees = new Array();
+		var caracGerees = [];
 		for (var k in effetsCeTour)
 			caracGerees.push(k);
 		caracGerees.sort( triecaracs );
@@ -308,13 +298,16 @@ function traiteMalus() {
 			}
 		
 		/* Affichage */
-		node = node.parentNode.insertBefore(document.createElement('tr'),node.nextSibling);
-		node.setAttribute('class','mh_tdpage');
-		var td = appendTdText(node, texte);
-		td.setAttribute('colspan',5);
+		// adpatation affichage dynamique (footable.js)
+		var thead = document.getElementsByTagName('thead')[0];
+		var nbHidden = document.evaluate("./tr/th[@style='display: none;']", thead, null, 7, null).snapshotLength;
+		var tfoottr = document.getElementsByTagName('tfoot')[0].childNodes[1];
+		var tr = insertTr(tfoottr.nextSibling, 'mh_tdpage');
+		var td = appendTdText(tr, texte);
+		td.setAttribute('colspan',5-nbHidden);
 		texte = toursGeres[i]+' Tour';
 		if (toursGeres[i]>1) {texte += 's';}
-		appendTdText(node, texte);
+		appendTdText(tr, texte);
 		}
 	
 	if (strfat) // stockage fatigue : tour-fatigue;tour-fatigue;...

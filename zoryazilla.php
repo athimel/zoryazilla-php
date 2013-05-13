@@ -342,6 +342,7 @@ _print("
 # Page de Creation de compte
 if ($action=="DlgBoxResetMDP") {
 	// Cycle => DlgBoxResetMDP => ResetMDP 
+	$DialogBox="ResetMDP";
 	
 	if ($TiD!="") {
 		$mysql=_sqlconnect();	# -------------- Ouverture DB  
@@ -477,9 +478,11 @@ if ($action=="DlgBoxResetMDP") {
 	}
    
     #on crypte format md5 si le gus ne l'a pas fait!
-    if (strlen($TrollPWD)<30) $pwd=md5("$TrollPWD"); else $pwd=$TrollPWD;
-    $SP_Profil="http://games.mountyhall.com/mountyhall/ScriptPublic/SP_Profil2.php";
-    $Url="$SP_Profil?&Numero=$ZZ_TID&Motdepasse=$pwd";
+    //if (strlen($TrollPWD)<30) $pwd=md5("$TrollPWD"); else 
+	$pwd=$TrollPWD;
+    //$SP_Profil="http://games.mountyhall.com/mountyhall/ScriptPublic/SP_Profil2.php";
+    $SP_Profil="http://sp.mountyhall.com/SP_Profil2.php?";
+    $Url="$SP_Profil?&Numero=$ZZ_TID&Motdepasse=$pwd";  
     if ($byPassMH==false) $handle = @fopen("$Url", "r"); else $handle=true;
     if ($handle==false) {
 	  $mysql=_sqlconnect();	# -------------- Ouverture DB  

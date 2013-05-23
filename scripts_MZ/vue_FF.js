@@ -1660,32 +1660,50 @@ function creerTableauInfos() {
 
 
 
-
 function putFiltresBoutons() {
 
     var thead = document.createElement('thead');
 
-    var tr = appendTr(thead, 'mh_tdtitre');
+    var tr1 = appendTr(thead, 'mh_tdtitre');
 
-    tr.addEventListener('click', function () {
-        toggleTableauInfos();
-    }, true);
+//    tr.addEventListener('click', function () {
+//        toggleTableauInfos();
+//    }, true);
 
+    var td1 = appendTd(tr1);
 
+    var table = document.createElement('table');
+    td1.appendChild(table);
+    table.setAttribute('width', '100%');
 
-    var td = appendTdText(tr, 'INFORMATIONS', true);
+    var tbody = document.createElement('tbody');
+    table.appendChild(tbody);
+
+    var tr2 = appendTr(tbody);
+
+    var td2 = appendTd(tr2);
+    td2.setAttribute('width', '25');
+
+    var a = document.createElement('a');
+    td2.appendChild(a);
+    a.className = "AllLinks";
+    a.setAttribute('href', "javascript:afficheDetailTrPlus('zz_vue_infos','mh_vue_plus_infos');");
+    a.setAttribute('id', 'mh_vue_plus_infos');
+    a.innerHTML = "[-]";
+
+    var td3 = appendTdText(tr2, 'INFORMATIONS', true);
 
     mainTabs[0].removeChild(mainTabs[0].firstChild);
 
     insertBefore(mainTabs[0].firstChild, thead);
+    mainTabs[0].firstChild.nextSibling.setAttribute('id', 'zz_vue_infos');
 
 
+    td1.setAttribute('colspan', '9');
 
-    td.setAttribute('colspan', '9');
+//    td1.setAttribute('onmouseover', "this.style.cursor = 'pointer'; this.className = 'mh_tdpage';");
 
-    td.setAttribute('onmouseover', "this.style.cursor = 'pointer'; this.className = 'mh_tdpage';");
-
-    td.setAttribute('onmouseout', "this.className='mh_tdtitre';");
+//    td1.setAttribute('onmouseout', "this.className='mh_tdtitre';");
 
 
 
@@ -1695,7 +1713,7 @@ function putFiltresBoutons() {
 
     tr.setAttribute('class', 'mh_tdpage');
 
-    td = tr.childNodes[1];
+    var td = tr.childNodes[1];
 
     tr.removeChild(td);
 
@@ -1768,7 +1786,7 @@ function putFiltresBoutons() {
 }
 
 function toggleTableauInfos() {
-//    AThimel : methode non définie mais utilisée : WTF ?
+    afficheDetailTrPlus('zz_vue_infos','mh_vue_plus_infos');
 }
 
 
@@ -6548,3 +6566,5 @@ MZ_xmlhttpRequest({
     }
 
 });
+
+

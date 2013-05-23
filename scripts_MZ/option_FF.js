@@ -16,17 +16,13 @@
 *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  *
 *********************************************************************************/
 
-function updateIT(node,value)
-{
+var tdBricol;
+
+function updateIT(node,value) {
 	var child = node.childNodes[5];
 	if (value == "none") {
 		child.removeChild(child.childNodes[1]);
 		child.appendChild(tdVide);
-		if (node.childNodes.length > 11)
-			node.removeChild(node.childNodes[6]);
-	} else if (value == "ssgg") {
-		child.removeChild(child.childNodes[1]);
-		child.appendChild(tdSSGG);
 		if (node.childNodes.length > 11)
 			node.removeChild(node.childNodes[6]);
 	} else if (value == "bricol") {
@@ -212,162 +208,149 @@ function insertTitle(next, txt) {
 	insertBefore(next, div);
 }
 
-start_script(712);
 
-appendNewScript(ZZDB+'/scripts/md5.js');
+/*********************************************************************************
+*                                    OPTIONS                                     *
+*********************************************************************************/
 
-// OPTIONS
+function insertOptionTable() {
+	var form = document.createElement('form');
+	insertBefore(insertPoint, form);
+	var table = document.createElement('table');
+	table.setAttribute('width', '98%');
+	table.setAttribute('border', '0');
+	table.setAttribute('align', 'center');
+	table.setAttribute('cellpadding', '2');
+	table.setAttribute('cellspacing', '1');
+	table.setAttribute('class', 'mh_tdborder');
+	form.appendChild(table);
 
-var aList = document.getElementsByTagName('A');
-var insertPoint = aList[aList.length - 1].parentNode.parentNode.parentNode.parentNode;
+	var tbody = document.createElement('tbody');
+	table.appendChild(tbody);
 
-insertTitle(insertPoint, 'Options du script Mountyzilla');
+	var tr = appendTr(tbody, 'mh_tdtitre');
+	appendText(appendTdCenter(tr), 'Lien 1 :');
+	appendTextbox(appendTdCenter(tr), 'text', 'url1', '50', '150', MZ_getValue("URL1"));
+	appendText(appendTdCenter(tr), 'Nom :');
+	appendTextbox(appendTdCenter(tr), 'text', 'nom1', '50', '150', MZ_getValue("NOM1"));
 
-var form = document.createElement('form');
-insertBefore(insertPoint, form);
-var table = document.createElement('table');
-table.setAttribute('width', '98%');
-table.setAttribute('border', '0');
-table.setAttribute('align', 'center');
-table.setAttribute('cellpadding', '2');
-table.setAttribute('cellspacing', '1');
-table.setAttribute('class', 'mh_tdborder');
-form.appendChild(table);
+	tr = appendTr(tbody, 'mh_tdtitre');
+	appendText(appendTdCenter(tr), 'Lien 2 :');
+	appendTextbox(appendTdCenter(tr), 'text', 'url2', '50', '150', MZ_getValue("URL2"));
+	appendText(appendTdCenter(tr), 'Nom :');
+	appendTextbox(appendTdCenter(tr), 'text', 'nom2', '50', '150', MZ_getValue("NOM2"));
 
-var tbody = document.createElement('tbody');
-table.appendChild(tbody);
+	tr = appendTr(tbody, 'mh_tdtitre');
+	appendText(appendTdCenter(tr), 'Lien 3 :');
+	appendTextbox(appendTdCenter(tr), 'text', 'url3', '50', '150', MZ_getValue("URL3"));
+	appendText(appendTdCenter(tr), 'Nom :');
+	appendTextbox(appendTdCenter(tr), 'text', 'nom3', '50', '150', MZ_getValue("NOM3"));
 
-var tr = appendTr(tbody, 'mh_tdtitre');
-appendText(appendTdCenter(tr), 'Lien 1 :');
-appendTextbox(appendTdCenter(tr), 'text', 'url1', '50', '150', MZ_getValue("URL1"));
-appendText(appendTdCenter(tr), 'Nom :');
-appendTextbox(appendTdCenter(tr), 'text', 'nom1', '50', '150', MZ_getValue("NOM1"));
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendText(td, "Vue externe : ");
+	var select = document.createElement('SELECT');
+	select.setAttribute('id', 'vueext');
+	td.appendChild(select);
+	var listeVues2D = ['Bricol\' Vue','Vue du CCM','Vue Gloumfs 2D','Vue Gloumfs 3D','Grouky Vue!'];
+	for (var i=0 ; i<listeVues2D.length ; i++)
+		{ appendOption(select, listeVues2D[i], listeVues2D[i]); }
+	appendOption(select, 'Aucune', 'Aucune');
+	if (MZ_getValue('VUEEXT'))
+		{ select.value = MZ_getValue('VUEEXT'); }
+	td = appendTdCenter(tr, 2);
+	appendCheckBox(td, 'usecss', MZ_getValue("USECSS") == "true")
+	appendText(td, " Utiliser la CSS pour les couleurs de la diplomatie");
 
-tr = appendTr(tbody, 'mh_tdtitre');
-appendText(appendTdCenter(tr), 'Lien 2 :');
-appendTextbox(appendTdCenter(tr), 'text', 'url2', '50', '150', MZ_getValue("URL2"));
-appendText(appendTdCenter(tr), 'Nom :');
-appendTextbox(appendTdCenter(tr), 'text', 'nom2', '50', '150', MZ_getValue("NOM2"));
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendText(td, "Nombre de niveaux de monstres à afficher : ");
+	appendTextbox(td, 'text', 'max_level', '5', '10', (MZ_getValue("MAX_LEVEL") == "" || MZ_getValue("MAX_LEVEL") == null)? 5000 : MZ_getValue("MAX_LEVEL"));
+	td = appendTdCenter(tr, 2);
+	appendCheckBox(td, 'format_time',  MZ_getValue("FORMAT_TIME") == null || MZ_getValue("FORMAT_TIME") == '' || MZ_getValue("FORMAT_TIME") == "oui")
+	appendText(td, " Utiliser les dates Mountyhall");
 
-tr = appendTr(tbody, 'mh_tdtitre');
-appendText(appendTdCenter(tr), 'Lien 3 :');
-appendTextbox(appendTdCenter(tr), 'text', 'url3', '50', '150', MZ_getValue("URL3"));
-appendText(appendTdCenter(tr), 'Nom :');
-appendTextbox(appendTdCenter(tr), 'text', 'nom3', '50', '150', MZ_getValue("NOM3"));
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendText(td, "Interface Tactique : ");
+	select = document.createElement('SELECT');
+	select.addEventListener("change",modifyIT,true);
+	select.setAttribute('id', 'tactic');
+	select.setAttribute('name', 'tactic');
+	td.appendChild(select);
+	appendOption(select, 'none', 'Aucune');
+	appendOption(select, 'ssgg', 'SSGG');
+	appendOption(select, 'bricol', 'Système Tactique des Bricol\'Trolls');
 
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendText(td, "Vue externe : ");
-var select = document.createElement('SELECT');
-select.setAttribute('id', 'vueext');
-td.appendChild(select);
-appendOption(select, 'bricol', 'Bricol\' Vue');
-appendOption(select, 'ccm', 'Vue du CCM');
-appendOption(select, 'evo', 'Vue Evolution');
-appendOption(select, 'garush', 'Vue Garush');
-appendOption(select, 'gloumfs2d', 'Vue Gloumfs 2D');
-appendOption(select, 'gloumfs3d', 'Vue Gloumfs 3D');
-appendOption(select, 'grouky', 'Grouky Vue');
-appendOption(select, 'kilamo', 'Vue KiLaMo');
-appendOption(select, 'lxgt', 'Vue LXGT');
-appendOption(select, 'otan', 'Vue OTAN');
-appendOption(select, 'relaismago', 'Vue R&M');
-appendOption(select, 'xtrolls', 'Vue X Trolls');
-appendOption(select, 'noone', 'Aucune');
-if (MZ_getValue("VUEEXT") != "" && MZ_getValue("VUEEXT")!= null)
-	select.value = MZ_getValue("VUEEXT");
-td = appendTdCenter(tr, 2);
-appendCheckBox(td, 'usecss', MZ_getValue("USECSS") == "true")
-appendText(td, " Utiliser la CSS pour les couleurs de la diplomatie");
+	var tdSSGG = appendTdCenter(null, 2);
+	appendText(tdSSGG, "Mot de passe pour le SSGG : ");
+	appendTextbox(tdSSGG, 'password', 'mdpssgg', '20', '50');
 
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendText(td, "Nombre de niveaux de monstres à afficher : ");
-appendTextbox(td, 'text', 'max_level', '5', '10', (MZ_getValue("MAX_LEVEL") == "" || MZ_getValue("MAX_LEVEL") == null)? 5000 : MZ_getValue("MAX_LEVEL"));
-td = appendTdCenter(tr, 2);
-appendCheckBox(td, 'format_time',  MZ_getValue("FORMAT_TIME") == null || MZ_getValue("FORMAT_TIME") == '' || MZ_getValue("FORMAT_TIME") == "oui")
-appendText(td, " Utiliser les dates Mountyhall");
+	var trBricol = document.createElement('TR');
+	trBricol.setAttribute('class', 'mh_tdtitre');
+	tdBricol = appendTdCenter(trBricol, 2);
+	appendText(tdBricol, "Nom du système : ");
+	appendTextbox(tdBricol, 'text', 'urlbricol', '20', '50');
+	tdBricol = appendTdCenter(trBricol, 2);
+	appendText(tdBricol, "Login du compte : ");
+	appendTextbox(tdBricol, 'text', 'loginbricol', '20', '50');
+	tdBricol = appendTdCenter(trBricol, 2);
+	appendText(tdBricol, "Mot de passe du compte : ");
+	appendTextbox(tdBricol, 'password', 'passbricol', '20', '50');
 
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendText(td, "Interface Tactique : ");
-select = document.createElement('SELECT');
-select.addEventListener("change",modifyIT,true);
-select.setAttribute('id', 'tactic');
-select.setAttribute('name', 'tactic');
-td.appendChild(select);
-appendOption(select, 'none', 'Aucune');
-appendOption(select, 'ssgg', 'SSGG');
-appendOption(select, 'bricol', 'Système Tactique des Bricol\'Trolls');
+	var tdVide = appendTdCenter(tr, 2);
 
-var tdSSGG = appendTdCenter(null, 2);
-appendText(tdSSGG, "Mot de passe pour le SSGG : ");
-appendTextbox(tdSSGG, 'password', 'mdpssgg', '20', '50');
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendCheckBox(td, 'usepoiss', MZ_getValue("POISS_" + numTroll) != "" && MZ_getValue("POISS_" + numTroll) != null)
+	appendText(td, " Envoyer vos jets de dé au ");
+	var link = document.createElement('A');
+	link.setAttribute('href', 'http://minitilk.fur4x-hebergement.net');
+	link.setAttribute('target', '_blank');
+	td.appendChild(link);
+	appendText(link, "Poissotron");
+	td = appendTdCenter(tr, 2);
+	appendText(td, "Mot de passe pour le Poissotron : ");
+	appendTextbox(td, 'password', 'passpoiss', '20', '50');
 
-var trBricol = document.createElement('TR');
-trBricol.setAttribute('class', 'mh_tdtitre');
-var tdBricol = appendTdCenter(trBricol, 2);
-appendText(tdBricol, "Nom du système : ");
-appendTextbox(tdBricol, 'text', 'urlbricol', '20', '50');
-tdBricol = appendTdCenter(trBricol, 2);
-appendText(tdBricol, "Login du compte : ");
-appendTextbox(tdBricol, 'text', 'loginbricol', '20', '50');
-tdBricol = appendTdCenter(trBricol, 2);
-appendText(tdBricol, "Mot de passe du compte : ");
-appendTextbox(tdBricol, 'password', 'passbricol', '20', '50');
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendCheckBox(td, 'infocarac', MZ_getValue("INFOCARAC") != "false")
+	appendText(td, " Afficher les caractéristiques des équipements des autres Trõlls");
+	td = appendTdCenter(tr, 2);
+	appendCheckBox(td, 'send_idt', MZ_getValue("SEND_IDT") != "non")
+	appendText(td, " Envoyer les objets identifiés au système de stats");
 
-var tdVide = appendTdCenter(tr, 2);
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendText(td, "Tags de Trolls : ");
+	select = document.createElement('SELECT');
+	select.addEventListener("change", modifyTags,true);
+	select.setAttribute('id', 'tags');
+	select.setAttribute('name', 'tags');
+	td.appendChild(select);
+	appendOption(select, 'none', 'Aucuns'); appendOption(select, 'zztags', 'Trollstiaire ZoryaZilla');
+	appendOption(select, 'defaultv2', 'Types de Trolls (Nouveau)');
+	appendOption(select, 'default', 'Types de Trolls (Ancien)');
+	appendOption(select, 'pogo2009', 'Les équipes du pogo 2009');
+	appendOption(select, 'others', 'Autres');
 
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendCheckBox(td, 'usepoiss', MZ_getValue("POISS_" + numTroll) != "" && MZ_getValue("POISS_" + numTroll) != null)
-appendText(td, " Envoyer vos jets de dé au ");
-var link = document.createElement('A');
-link.setAttribute('href', 'http://minitilk.fur4x-hebergement.net');
-link.setAttribute('target', '_blank');
-td.appendChild(link);
-appendText(link, "Poissotron");
-td = appendTdCenter(tr, 2);
-appendText(td, "Mot de passe pour le Poissotron : ");
-appendTextbox(td, 'password', 'passpoiss', '20', '50');
+	var tdVide2 = appendTdCenter(tr, 2);
 
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendCheckBox(td, 'infocarac', MZ_getValue("INFOCARAC") != "false")
-appendText(td, " Afficher les caractéristiques des équipements des autres Trõlls");
-td = appendTdCenter(tr, 2);
-appendCheckBox(td, 'send_idt', MZ_getValue("SEND_IDT") != "non")
-appendText(td, " Envoyer les objets identifiés au système de stats");
+	var tdTagsURL = appendTdCenter(null, 2);
+	appendText(tdTagsURL, "Adresses des fichiers de tags : ");
+	appendTextbox(tdTagsURL, 'text', 'tagsurl', '50', '500');
 
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendText(td, "Tags de Trolls : ");
-select = document.createElement('SELECT');
-select.addEventListener("change", modifyTags,true);
-select.setAttribute('id', 'tags');
-select.setAttribute('name', 'tags');
-td.appendChild(select);
-appendOption(select, 'none', 'Aucuns'); appendOption(select, 'zztags', 'Trollstiaire ZoryaZilla');
-appendOption(select, 'defaultv2', 'Types de Trolls (Nouveau)');
-appendOption(select, 'default', 'Types de Trolls (Ancien)');
-appendOption(select, 'pogo2009', 'Les équipes du pogo 2009');
-appendOption(select, 'others', 'Autres');
+	tr = appendTr(tbody, 'mh_tdtitre');
+	td = appendTdCenter(tr, 2);
+	appendCheckBox(td, 'noInfoEM', MZ_getValue("NOINFOEM") == "true")
+	appendText(td, " Cacher toutes les informations à propos de l'écriture magique");
+	td = appendTdCenter(tr, 2);
 
-var tdVide2 = appendTdCenter(tr, 2);
-
-var tdTagsURL = appendTdCenter(null, 2);
-appendText(tdTagsURL, "Adresses des fichiers de tags : ");
-appendTextbox(tdTagsURL, 'text', 'tagsurl', '50', '500');
-
-tr = appendTr(tbody, 'mh_tdtitre');
-td = appendTdCenter(tr, 2);
-appendCheckBox(td, 'noInfoEM', MZ_getValue("NOINFOEM") == "true")
-appendText(td, " Cacher toutes les informations à propos de l'écriture magique");
-td = appendTdCenter(tr, 2);
-
-td = appendTdCenter(appendTr(tbody, 'mh_tdtitre'), 4);
-input = appendButton(td, 'Sauvegarder', apply);
-input.setAttribute('id', 'Bouton');
+	td = appendTdCenter(appendTr(tbody, 'mh_tdtitre'), 4);
+	input = appendButton(td, 'Sauvegarder', apply);
+	input.setAttribute('id', 'Bouton');
+	}
 
 //Les enchantements
 
@@ -452,41 +435,56 @@ if(MZ_getValue(numTroll+".enchantement.liste") && MZ_getValue(numTroll+".enchant
 }
 
 
-// REMERCIEMENTS
+/* REMERCIEMENTS */
 
-insertTitle(insertPoint, 'Crédits du script');
+function insertCreditsTable() {
+	var table = document.createElement('table');
+	table.setAttribute('width', '98%');
+	table.setAttribute('border', '0');
+	table.setAttribute('align', 'center');
+	table.setAttribute('cellpadding', '2');
+	table.setAttribute('cellspacing', '1');
+	table.setAttribute('class', 'mh_tdborder');
 
-table = document.createElement('table');
-table.setAttribute('width', '98%');
-table.setAttribute('border', '0');
-table.setAttribute('align', 'center');
-table.setAttribute('cellpadding', '2');
-table.setAttribute('cellspacing', '1');
-table.setAttribute('class', 'mh_tdborder');
+	tbody = document.createElement('tbody');
+	table.appendChild(tbody);
 
-tbody = document.createElement('tbody');
-table.appendChild(tbody);
+	var td = appendTdText(appendTr(tbody, 'mh_tdtitre'), 'Beaucoup de personnes ont travaillés sur ce script :');
 
-td = appendTdText(appendTr(tbody, 'mh_tdtitre'), 'Beaucoup de personnes ont travaillés sur ce script :');
-
-var ul = document.createElement('UL');
-td.appendChild(ul);
-appendLI(ul, 'Fine fille (6465) pour les popup javascript');
-appendLI(ul, 'Reivax (4234) pour les infos bulles');
-appendLI(ul, 'Noc (2770) pour les moyennes des caracs');
-appendLI(ul, 'Endymion (12820) pour les infos sur les comp/sorts');
-appendLI(ul, 'Ratibus (15916) pour l\'envoi de CdM');
-appendLI(ul, 'TetDure (41931) pour les PVs restants dans les CdM');
-appendLI(ul, 'Les Teubreux pour leur bestiaire !');
-appendLI(ul, 'Les développeurs de vue qui font des efforts pour s\'intégrer à Mountyzilla');
-appendLI(ul, 'Gros Kéké (233) qui permet de tester le script aux limites du raisonnable avec sa vue de barbare');
-appendLI(ul, 'TuttiRikikiMaoussKosTroll (61214) pour le script sur les caracs de l\'équipement');
-appendLI(ul, 'Ashitaka (9485) pour le gros nettoyage de l\'extension, des scripts, et beaucoup de choses à venir');
-appendLI(ul, 'Tous ceux que j\'ai oubliés');
-insertBefore(insertPoint, table);
+	var ul = document.createElement('UL');
+	td.appendChild(ul);
+	appendLI(ul,'Fine fille (6465) pour les popup javascript');
+	appendLI(ul,'Reivax (4234) pour les infos bulles');
+	appendLI(ul,'Noc (2770) pour les moyennes des caracs');
+	appendLI(ul,'Endymion (12820) pour les infos sur les comp/sorts');
+	appendLI(ul,'Ratibus (15916) pour l\'envoi de CdM');
+	appendLI(ul,'TetDure (41931) pour les PVs restants dans les CdM');
+	appendLI(ul,'Les Teubreux pour leur bestiaire !');
+	appendLI(ul,'Les développeurs de vue qui font des efforts pour s\'intégrer à Mountyzilla');
+	appendLI(ul,'Gros Kéké (233) qui permet de tester le script aux limites du raisonnable avec sa vue de barbare');
+	appendLI(ul,'TuttiRikikiMaoussKosTroll (61214) pour le script sur les caracs de l\'équipement');
+	appendLI(ul,'Ashitaka (9485) pour le gros nettoyage de l\'extension, des scripts, et beaucoup de choses à venir');
+	appendLI(ul,'Toute ceux de l\'ancienne génération oubliés par Tilk');
+	appendLI(ul,'Yoyor (87818) pour diverses améliorations de code');
+	appendLI(ul,'Tous les testeurs de la nouvelle génération oubliés par Dabihul');
+	insertBefore(insertPoint, table);
+	}
 
 
+/********************************************************************************/
+
+start_script(712);
+
+appendNewScript(ZZDB+'/scripts/md5.js');
+
+var insertPoint = document.getElementById('footer2');
 insertBefore(insertPoint, document.createElement('p'));
+insertTitle(insertPoint, 'Mountyzilla : Options');
+insertOptionTable();
+insertTitle(insertPoint, 'Mountyzilla : Crédits');
+insertCreditsTable();
+insertBefore(insertPoint, document.createElement('p'));
+
 try
 {
 if (MZ_getValue("IT_" + numTroll) != "") {

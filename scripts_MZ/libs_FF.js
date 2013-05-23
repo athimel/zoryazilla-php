@@ -1,497 +1,496 @@
-/*********************************************************************************
-*    This file is part of ZoryaZilla Fusion merged with mountyzilla              *
-*********************************************************************************/
-//============================ ZZ PRE CODE =======================================
-// dans la nouvelle version de MZ (dabihul), cette varaible n'est plus définie
-var poissotron = "http://minitilk.fur4x-hebergement.net/getDice2.php";
-
-// préférence de l'utilisateur (mettre par défaut si pas définie)
-if (typeof ZTRO=="undefined")   var ZTRO=0; 
-if (typeof ZMON=="undefined")   var ZMON=5;  
-if (typeof ZTRE=="undefined")   var ZTRE=5; 
-if (typeof ZLIE=="undefined")   var ZLIE=15; 
-if (typeof SkinZZ=="undefined") var SkinZZ=ZZDB+"/skin/";
-if (typeof ShrVUE=="undefined") var ShrVUE=true;
-
-var typeFamilly = new Array();    // Indice des familles de monstre (pour tabMonstres)
-typeFamilly = ["Animal", "Démon", "Humanoide", "Insecte", "Monstre","Mort-Vivant"];
-
-var tmpltFamilly = new Array();    // préfix et suffix
-tmpltFamilly["Animal"]=["Attentionné","Attentionnée","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Enragé","Enragée","Fouisseur","Fouisseuse","Gardien","Gardienne","Gigantesque","Gros","Grosse","Homochrome","Malade","Petit","Petite","Ronfleur","Ronfleuse","Vorace"];
-tmpltFamilly["Démon"]=["Archiatre","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","de Premier Cercle","de Second Cercle","de Troisième Cercle","de Quatrième Cercle","de Cinquième Cercle","des Abysses","Ethéré","Ethérée","Fanatique","Gardien","Gardienne","Gros","Grosse","Invocateur","Invocatrice","Malade","Petit","Petite","Prince","Princesse","Ronfleur","Ronfleuse"];
-tmpltFamilly["Humanoide"]=["Alchimiste","Agressif","Agressive","Barbare","Berserker","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Champion","Championne","Effrayé","Effrayée","Fanatique","Fou","Folle","Frondeur","Frondeuse","Gardien","Gardienne","Grand Frondeur","Grande Frondeuse","Gros","Grosse","Guérisseur","Guérisseuse","Guerrier","Guerrière","Héros","Malade","Mutant","Mutante","Paysan","Paysanne","Petit","Petite","Planqué","Planquée","Ronfleur","Ronfleuse","Scout","Shaman","Sorcier","Sorcière","Voleur","Voleuse"];
-tmpltFamilly["Insecte"]=["Alpha","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Fouisseur","Fouisseuse","Gardien","Gardienne","Gigantesque","Gros","Grosse","Homochrome","Lobotomisateur","Lobotomisatrice","Malade","Morticole","Ouvrier","Ouvrière","Petit","Petite","Reine","Ronfleur","Ronfleuse","Soldat","Strident","Stridente"];
-tmpltFamilly["Monstre"]=["Cogneur","Cogneuse","Colossal","Colossale","Coriace","Corrompu","Corrompue","Cracheur","Cracheuse","Esculape","Fouisseur","Fouisseuse","Frénétique","Fustigateur","Fustigatrice","Gardien","Gardienne","Gargantuesque","Gigantesque","Gros","Grosse","Homomorphe","Malade","Petit","Petite","Ronfleur","Ronfleuse","Traqueur","Traqueuse"];
-tmpltFamilly["Mort-Vivant"]=["Archaïque","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Gardien","Gardienne","Gros","Grosse","Implacable","Maître","Maîtresse","Malade","Médicastre","Mentat","Nécromant","Nécromante","Petit","Petite","Psychophage","Ronfleur","Ronfleuse","Spectral","Spectrale"];
-
-var caracFamilly = new Array();    // caracs fonctions des préfix/suffix
-caracFamilly["Animal"]=[[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[3,"A un plus grand nombre d'attaques"],[3,"A un plus grand nombre d'attaques"],[0,"Enfouit les Trésors"],[0,"Enfouit les Trésors"],[20,""],[20,""],[1,""],[0,""],[0,""],[0,"Se Camoufle et attaque à distance"],[-1,"Pouvoir habituel remplacé par Maladie"],[-1,""],[-1,""],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[1,""]];
-caracFamilly["Démon"]=[[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[-1,""],[0,""],[2,""],[4,""],[5,""],[3,""],[0,"Se Camoufle et attaque à distance"],[0,"Se Camoufle et attaque à distance"],[2,"Ne fuit pas et a un plus grand nombre d'attaques"],[20,""],[20,""],[0,""],[0,""],[3,"Fait apparaître des Monstres"],[3,"Fait apparaître des Monstres"],[-1,"Pouvoir habituel remplacé par Maladie"],[-1,""],[-1,""],[8,"Insensible au Hurlement Effrayant et a une durée de Tour réduite"],[8,"Insensible au Hurlement Effrayant et a une durée de Tour réduite"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"]];
-caracFamilly["Humanoide"]=[[0,"Ramasse, Transmute et Lance des Potions"],[1,""],[1,""],[1,""],[2,"A un plus grand nombre d'attaques"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[4,""],[4,""],[-1,"Fuit rapidement le combat"],[-1,"Fuit rapidement le combat"],[2,"Ne fuit pas et a un plus grand nombre d'attaques"],[1,""],[1,""],[2,"Attaque à distance"],[2,"Attaque à distance"],[20,""],[20,""],[4,"Attaque à distance"],[4,"Attaque à distance"],[0,""],[0,""],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[1,""],[1,""],[5,"A une durée de Tour réduite"],[-1,"Pouvoir habituel remplacé par Maladie"],[2,""],[2,""],[-1,""],[-1,""],[-1,""],[-1,""],[0,"Se Camoufle et attaque à distance"],[0,"Se Camoufle et attaque à distance"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[2,""],[0,"Attaque à distance et a un Pouvoir si le Monstre n'en a pas habituellement"],[0,"Attaque à distance et a un Pouvoir si le Monstre n'en a pas habituellement"],[0,"Attaque à distance et a un Pouvoir si le Monstre n'en a pas habituellement"],[2,"Vole des objets dans l'Equipement"],[2,"Vole des objets dans l'Equipement"]];
-caracFamilly["Insecte"]=[[11,"Insensible au Hurlement Effrayant, attaque à distance et a un plus grand nombre d'attaques"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[0,"Enfouit les Trésors"],[0,"Enfouit les Trésors"],[20,""],[20,""],[1,""],[0,""],[0,""],[0,"Se Camoufle et attaque à distance"],[2,"Flagellation Mentale : retire 1% de maîtrise sur une Compétence"],[2,"Flagellation Mentale : retire 1% de maîtrise sur une Compétence"],[-1,"Pouvoir habituel remplacé par Maladie"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[0,""],[0,""],[-1,""],[-1,""],[11,"Insensible au Hurlement Effrayant et a un plus grand nombre d'attaques"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[2,""],[3,"Donne des Malus de Concentration"],[3,"Donne des Malus de Concentration"]];
-caracFamilly["Monstre"]=[[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[7,""],[7,""],[1,""],[1,""],[1,""],[2,"Attaque à distance"],[2,"Attaque à distance"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[0,"Enfouit les Trésors"],[0,"Enfouit les Trésors"],[3,"A un plus grand nombre d'attaques"],[2,"Flagellation Mentale : retire 1% de maîtrise sur un Sortilège ou une Compétence"],[2,"Flagellation Mentale : retire 1% de maîtrise sur un Sortilège ou une Compétence"],[20,""],[20,""],[3,""],[1,""],[0,""],[0,""],[0,"Se Camoufle et attaque à distance"],[-1,"Pouvoir habituel remplacé par Maladie"],[-1,""],[-1,""],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[1,""],[1,""]];
-caracFamilly["Mort-Vivant"]=[[-1,""],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[20,""],[20,""],[0,""],[0,""],[3,""],[8,"Insensible au Hurlement Effrayant et a un plus grand nombre d'attaques"],[8,"Insensible au Hurlement Effrayant et a un plus grand nombre d'attaques"],[-1,"Pouvoir habituel remplacé par Maladie"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Attaque à distance"],[5,"Fait apparaître des Monstres"],[5,"Fait apparaître des Monstres"],[-1,""],[-1,""],[2,"Flagellation Mentale : retire 1% de maîtrise sur un Sortilège"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[0,"Se Camoufle et attaque à distance"],[0,"Se Camoufle et attaque à distance"]];
-
-
-var ageFamilly = new Array();   // niveau fonction de age
-ageFamilly["Animal"]={Bébé:0,  Enfançon:1, Jeune:2, Adulte:3, Mature:4, 'Chef de Harde':5, Ancien:6, Ancienne:6, Ancêtre:7};
-ageFamilly["Démon"]={Initial:0, Initiale:0, Novice:1, Mineur:2, Mineure:2, Favori:3, Favorite:3, Majeur:4, Majeure:4, Supérieur:5, Supérieure:5, Suprême:6, Ultime:7};
-ageFamilly["Humanoide"]={Nouveau:0, Nouvelle:0, Jeune:1, Adulte:2, Vétéran:3, Vétérante:3, Briscard:4, Briscarde:4, Doyen:5, Doyenne:5, Légendaire:6, Mythique:7};
-ageFamilly["Insecte"]={Larve:0, Immature:1,  Juvénile:2,  Imago:3,  Développé:4, Développée:4, Mûr:5, Mûre:5, Accompli:6, Accomplie:6, Achevé:7, Achevée:7};
-ageFamilly["Monstre"]={Nouveau:0, Nouvelle:0, Jeune:1,  Adulte:2,  Vétéran:3, Vétérante:3, Briscard:4, Briscarde:4, Doyen:5, Doyenne:5, Légendaire:6,  Mythique:7};
-ageFamilly["Mort-Vivant"]={Naissant:0, Naissante:0, Récent:1, Récente:1, Ancien:2, Ancienne:2, Vénérable:3, Séculaire:4, Antique:5, Ancestral:6, Ancestrale:6,  Antédiluvien:7, Antédiluvienne:7};
-
-var tabMonstres = new Array();  
-var tabMonstres = [ //nom, n° Famille, Niveau, IdImage
-["Chauve-Souris Géante", 0,2,72],
-["Cheval à Dents de Sabre", 0,18,9],
-["Dindon", 0,1,0],
-["Glouton", 0,15,114],
-["Gnu Domestique", 0,1,0],
-["Gnu Sauvage", 0,1,20],
-["Gowap Apprivoisé", 0,-7,0],
-["Gowap Sauvage", 0,-7,0],
-["Rat Géant", 0,1,32],
-["Rat", 0,1,0],
-["Sagouin", 0,3,76],
-["Tubercule Tueur", 0,11,61],
-["Abishaii Bleu", 1,15,4],
-["Abishaii Noir", 1,9,52],
-["Abishaii Rouge", 1,17,10],
-["Abishaii Vert", 1,12,25],
-["Abishaii Rose", 1,1,130],
-["Balrog", 1,50,0],
-["Barghest", 1,24,99],
-["Behemoth", 1,25,93],
-["Diablotin", 1,1,18],
-["Elémentaire du Chaos", 1,17,86],
-["Elémentaire d'Air", 1,18,21],
-["Elémentaire d'Eau", 1,14,40],
-["Elémentaire de Feu", 1,17,46],
-["Elémentaire de Terre", 1,19,29],
-["Erinyes", 1,8,24],
-["Gritche", 1,25,0],
-["Hellrot", 1,15,54],
-["Incube", 1,10,106],
-["Marilith", 1,22,45],
-["Molosse Satanique", 1,7,63],
-["Palefroi Infernal", 1,20,13],
-["Pseudo-Dragon", 1,1,129],
-["Shai", 1,16,27],
-["Sirène", 1,8,0],
-["Succube", 1,10,56],
-["Xorn", 1,11,127],
-["Ashashin", 2,21,98],
-["Boggart", 2,3,70],
-["Caillouteux", 2,2,71],
-["Champi-Glouton", 2,4,42],
-["Ettin", 2,10,67],
-["Flagelleur Mental", 2,24,0],
-["Furgolin", 2,9,90],
-["Géant de Pierre", 2,14,112],
-["Géant des Gouffres", 2,18,113],
-["Gnoll", 2,3,38],
-["Gobelin Magique", 2,1,0],
-["Goblin", 2,1,30],
-["Goblours", 2,4,115],
-["Golem d'Argile", 2,14,116],
-["Golem de Chair", 2,9,105],
-["Golem de Fer", 2,24,117],
-["Golem de Pierre", 2,19,118],
-["Gremlins", 2,3,6],
-["Homme-Lézard", 2,4,84],
-["Hurleur", 2,8,62],
-["Kobold", 2,1,66],
-["Loup-Garou", 2,8,58],
-["Lutin", 2,2,75],
-["Méduse", 2,6,92],
-["Mégacéphale", 2,25,49],
-["Minotaure", 2,6,77],
-["Ogre", 2,6,68],
-["Orque", 2,3,41],
-["Ours-Garou", 2,13,55],
-["Rat-Garou", 2,3,57],
-["Rocketeux", 2,6,59],
-["Sorcière", 2,15,28],
-["Sphinx", 2,23,0],
-["Tigre-Garou", 2,9,126],
-["Titan", 2,20,44],
-["Yéti", 2,7,80],
-["Yuan-ti", 2,12,0],
-["Ankheg", 3,10,69],
-["Anoploure Purpurin", 3,24,95],
-["Araignée Géante", 3,2,33],
-["Coccicruelle", 3,16,0],
-["Essaim Sanguinaire", 3,18,0],
-["Foudroyeur", 3,23,109],
-["Limace Géante", 3,9,51],
-["Mante Fulcreuse", 3,22,0],
-["Mille-Pattes Géant", 3,12,26],
-["Mille-Pattes", 3,12,0],
-["Nuage d'Insectes", 3,5,0],
-["Nuée de Vermine", 3,10,0],
-["Scarabée Géant", 3,5,17],
-["Scarabée", 3,5,0],
-["Scorpion Géant", 3,10,50],
-["Scorpion", 3,10,0],
-["Strige", 3,1,82],
-["Thri-kreen", 3,8,37],
-["Amibe Géante", 4,8,36],
-["Anaconda des Catacombes", 4,6,53],
-["Basilisk", 4,11,100],
-["Behir", 4,13,96],
-["Beholder", 4,50,48],
-["Bondin", 4,8,88],
-["Bouj'Dla Placide", 4,23,87],
-["Bouj'Dla", 4,13,87],
-["Bulette", 4,14,101],
-["Carnosaure", 4,16,3],
-["Chimère", 4,11,102],
-["Chonchon", 4,20,11],
-["Cockatrice", 4,5,89],
-["Crasc Médius", 4,20,16],
-["Crasc Maexus", 4,25,16],
-["Crasc", 4,10,16],
-["Cube Gélatineux", 4,21,0],
-["Daemonite", 1,19,107],
-["Djinn", 4,21,8],
-["Effrit", 4,22,108],
-["Esprit-Follet", 4,15,0],
-["Familier", 4,1,35],
-["Feu Follet", 4,16,2],
-["Fumeux", 1,17,110],
-["Fungus Géant", 4,6,111],
-["Fungus", 4,6,0],
-["Fungus Violet", 4,3,0],
-["Gargouille", 4,5,91],
-["Gorgone", 4,11,43],
-["Grouilleux", 4,2,0],
-["Grylle", 4,20,119],
-["Harpie", 4,4,39],
-["Hydre", 4,50,0],
-["Labeilleux", 3,20,120],
-["Lézard Géant", 4,5,74],
-["Lézard", 4,5,0],
-["Manticore", 4,7,64],
-["Mimique", 4,7,23],
-["Monstre Rouilleur", 4,4,83],
-["Mouch'oo Domestique", 4,21,0],
-["Mouch'oo Majestueux Sauvage", 4,21,0],
-["Mouch'oo Sauvage", 4,12,121],
-["Naga", 4,9,122],
-["Ombre de Roches", 4,12,1],
-["Pititabeille", 3,1,120],
-["Phoenix", 4,23,47],
-["Plante Carnivore", 4,4,78],
-["Slaad", 4,5,65],
-["Tertre Errant", 4,19,125],
-["Trancheur", 4,21,14],
-["Tutoki", 4,2,31],
-["Ver Carnivore Géant", 4,13,15],
-["Ver Carnivore", 4,13,15],
-["Vouivre", 4,23,12],
-["Worg", 4,5,0],
-["Ame-en-peine", 5,7,97],
-["Banshee", 5,15,22],
-["Capitan", 5,24,94],
-["Croquemitaine", 5,6,103],
-["Ectoplasme", 5,15,104],
-["Fantôme", 5,19,19],
-["Goule", 5,4,60],
-["Liche", 5,50,85],
-["Momie", 5,4,73],
-["Nécrochore", 5,25,123],
-["Nécrophage", 5,7,0],
-["Nâ-Hàniym-Hééé", 5,0,0],
-["Ombre", 5,2,79],
-["Spectre", 5,13,124],
-["Squelette", 5,1,34],
-["Vampire", 5,22,7],
-["Zombie", 5,2,81],
-["Aragnarok du Chaos",3,17,128], 
-["Elémentaire Magmatique",1,8,131],
-["Raquettou",2,22,133],
-["Cube Gélatineux",4,32,134],
-["Archi-Nécromant",5,43,135]
-];
-
-// === Images des monstes ===
-var skinBEAST=new Array();
-skinBEAST[0]='Wanted-nophoto.jpg';
-skinBEAST[1]='VG_OmbreDesRoches.jpg';
-skinBEAST[2]='VB_feufollet.jpg';
-skinBEAST[3]='VG_Carnosaure.jpg';
-skinBEAST[4]='GO_abishai_bleu.jpg';
-skinBEAST[5]='turkey_03.gif';
-skinBEAST[6]='Gremlins.jpg';
-skinBEAST[7]='GO_Vampire.jpg';
-skinBEAST[8]='VB_djinn.jpg';
-skinBEAST[9]='MA_cheval_dent_de_sabreF.jpg';
-skinBEAST[10]='GO_abishai_rouge.jpg';
-skinBEAST[11]='GO_Chonchon.jpg';
-skinBEAST[12]='VG_Vouivre.jpg';
-skinBEAST[13]='VG_PalefroiInfernal.jpg';
-skinBEAST[14]='VB_petittrancheur.jpg';
-skinBEAST[15]='GO_Vcg.jpg';
-skinBEAST[16]='GO_Crasc.jpg';
-skinBEAST[17]='ScarabeeGeant.jpg';
-skinBEAST[18]='Diablotin.jpg';
-skinBEAST[19]='GO_Fantome.jpg';
-skinBEAST[20]='GnuSauvage.jpg';
-skinBEAST[21]='AK_elementaireair.jpg';
-skinBEAST[22]='GO_Banshee.jpg';
-skinBEAST[23]='VG_Mimique.jpg';
-skinBEAST[24]='VB_erinyes.jpg';
-skinBEAST[25]='GO_abishai_vert.jpg';
-skinBEAST[26]='VG_MillePattesGeant.jpg';
-skinBEAST[27]='GO_Shai.jpg';
-skinBEAST[28]='VB_sorciere.jpg';
-skinBEAST[29]='VB_elementairedeterre.jpg';
-skinBEAST[30]='Gobelin.jpg';
-skinBEAST[31]='FP_Tutoki.jpg';
-skinBEAST[32]='RatGeant.jpg';
-skinBEAST[33]='AraigneeGeante.jpg';
-skinBEAST[34]='Squelette.jpg';
-skinBEAST[35]='VB_familier.jpg';
-skinBEAST[36]='VB_amibe.jpg';
-skinBEAST[37]='VB_three-kreen.jpg';
-skinBEAST[38]='FP_Gnoll.jpg';
-skinBEAST[39]='Harpie.jpg';
-skinBEAST[40]='AK_elementaireeau.jpg';
-skinBEAST[41]='Orque.jpg';
-skinBEAST[42]='ChampiGlouton.jpg';
-skinBEAST[43]='VG_Gorgogne.jpg';
-skinBEAST[44]='VB_titan.jpg';
-skinBEAST[45]='GO_Marilith2.jpg';
-skinBEAST[46]='AK_elementairefeu.jpg';
-skinBEAST[47]='GO_Phoenix.jpg';
-skinBEAST[48]='Beholder.jpg';
-skinBEAST[49]='FP_Megacephale.jpg';
-skinBEAST[50]='VG_ScorpionGeant.jpg';
-skinBEAST[51]='VB_limace.jpg';
-skinBEAST[52]='GO_abishai_noir.jpg';
-skinBEAST[53]='AnacondaCatacombes.jpg';
-skinBEAST[54]='VB_hellrot.jpg';
-skinBEAST[55]='GO_OursGarou.jpg';
-skinBEAST[56]='Succube.jpg';
-skinBEAST[57]='RatGarou.jpg';
-skinBEAST[58]='LoupGarou.jpg';
-skinBEAST[59]='VB_rocketeux.jpg';
-skinBEAST[60]='FP_Goule.jpg';
-skinBEAST[61]='GO_Tubercule.jpg';
-skinBEAST[62]='Hurleur.jpg';
-skinBEAST[63]='MolosseSatanique.jpg';
-skinBEAST[64]='VB_manticore.jpg';
-skinBEAST[65]='Slaad.jpg';
-skinBEAST[66]='VG_Kobold.jpg';
-skinBEAST[67]='VB_etins.jpg';
-skinBEAST[68]='Ogre.jpg';
-skinBEAST[69]='VG_Ankheg.jpg';
-skinBEAST[70]='GO_Boggart.jpg';
-skinBEAST[71]='VG_Caillouteux.jpg';
-skinBEAST[72]='ChauveSouris.jpg';
-skinBEAST[73]='Momie.jpg';
-skinBEAST[74]='LezardGeant.jpg';
-skinBEAST[75]='Lutin.jpg';
-skinBEAST[76]='VG_Sagouin.jpg';
-skinBEAST[77]='Minotaure.jpg';
-skinBEAST[78]='PlanteCarnivore.jpg';
-skinBEAST[79]='VB_ombre.jpg';
-skinBEAST[80]='Yeti.jpg';
-skinBEAST[81]='Zombie.jpg';
-skinBEAST[82]='VB_strige.jpg';
-skinBEAST[83]='VB_monstre_rouilleur.jpg';
-skinBEAST[84]='VB_homme-lezard.jpg';
-skinBEAST[85]='Liche.jpg';
-skinBEAST[86]='AK_elementairechaos.jpg';
-skinBEAST[87]='VB_BoujDla.jpg';
-skinBEAST[88]='VB_Bondin.jpg';
-skinBEAST[89]='VB_Coquatrice.jpg';
-skinBEAST[90]='VB_Furgolin.jpg';
-skinBEAST[91]='VB_Gargouille.jpg';
-skinBEAST[92]='VB_Meduse.jpg';
-skinBEAST[93]='BO_Behemoth.jpg';
-skinBEAST[94]='BO_Capitan.jpg';
-skinBEAST[95]='BO_AnolporPurpurin.jpg';
-skinBEAST[96]='BO_Behir.jpg';
-skinBEAST[97]='BO_AmeEnPeine.jpg';
-skinBEAST[98]='BO_Ashashin.jpg';
-skinBEAST[99]='BO_Barghest.jpg';
-skinBEAST[100]='BO_Basilisk.jpg';
-skinBEAST[101]='BO_Bulet.jpg';
-skinBEAST[102]='BO_Chimere.jpg';
-skinBEAST[103]='BO_Croquemitaine.jpg';
-skinBEAST[104]='BO_Ectoplasme.jpg';
-skinBEAST[105]='BO_GolemDeChair.jpg';
-skinBEAST[106]='BO_Incube.jpg';
-skinBEAST[107]='KH_Daemonite.jpg';
-skinBEAST[108]='KH_Effrit.jpg';
-skinBEAST[109]='TO_Foudroyeur.jpg';
-skinBEAST[110]='Fumeux.jpg';
-skinBEAST[111]='OF_Fungus.jpg';
-skinBEAST[112]='BO_GeantDePierre.jpg';
-skinBEAST[113]='BO_GeantDesGouffres.jpg';
-skinBEAST[114]='OF_Glouton.jpg';
-skinBEAST[115]='OF_Goblours.jpg';
-skinBEAST[116]='BO_GolemDArgile.jpg';
-skinBEAST[117]='OF_GolemFer.jpg';
-skinBEAST[118]='BO_GolemDePierre.jpg';
-skinBEAST[119]='OF_Grylle.jpg';
-skinBEAST[120]='OF_Labeilleux.jpg';
-skinBEAST[121]='NA_Mouchoo.jpg';
-skinBEAST[122]='TO_Naga.jpg';
-skinBEAST[123]='KH_Necrochore.jpg';
-skinBEAST[124]='OF_Spectre.jpg';
-skinBEAST[125]='BO_TertreErrant.jpg';
-skinBEAST[126]='KH_TigreGarou.jpg';
-skinBEAST[127]='OF_Xorn.jpg';
-skinBEAST[128]='BO_AragnarokDuChaos.png';
-skinBEAST[129]='OF_PseudoDragon.png';
-skinBEAST[130]='AbishaiRose.png';
-skinBEAST[131]='AK_elementairemagmatique.png';
-skinBEAST[132]='BO_ChevalierDuChaos.png';
-skinBEAST[133]='OS_Racketou.jpg';
-skinBEAST[134]='OS_Cube_Gelatineux.jpg';
-skinBEAST[135]='OS_Necromant.jpg';
-
-// === Images des compétences ===
-var skinIMG=new Array();
-skinIMG['Attaque Precise']='attaque_precise.png';
-skinIMG['Botte Secrete']='botte_secrete.png';
-skinIMG['Charger']='charger.png';
-skinIMG['Connaissance des Monstres']='connaissance_des_monstres.png';
-skinIMG['Construire un Piege']='construire_un_piege.png';
-skinIMG['Contre-Attaquer']='contre_attaquer.png';
-skinIMG['Coup de Butoir']='coup_de_butoir.png';
-skinIMG['Frenesie']='frenesie.png';
-skinIMG['Lancer de Potions']='lancer_de_potions.png';
-skinIMG['Pistage']='pistage.png';
-skinIMG['Regeneration Accrue']='regeneration_accrue.png';
-skinIMG['Insultes']='insultes.png';
-skinIMG['Deplacement Eclair']='deplacement_eclair.png';
-skinIMG['Identification des Champignons']='identification_des_champignons.png';
-skinIMG['Balluchonnage']='balluchonnage.png';
-skinIMG['Acceleration du Metabolisme']='acceleration_metabolique.png';
-skinIMG['Ecriture Magique']='ecriture_magique.png'; 
-skinIMG['Grattage']='grattage.png'; 
-skinIMG['Hurlement Effrayant']='hurlement_effrayant.png'; 
-skinIMG['Miner']='miner.png'; 
-skinIMG['Camouflage']='camouflage.png'; 
-skinIMG['Tailler']='tailler.png'; 
-skinIMG['Bidouille']='bidouille.png'; 
-skinIMG['Dressage']='dressage.png'; 
-skinIMG['Melange Magique']='melange_magique.png'; 
-skinIMG['Necromancie']='necromancie.png'; 
-skinIMG['Parer']='parer.png'; 
-skinIMG['Planter un Champignon']='planter_un_champignon.png'; 
-skinIMG['Shamaner']='shamaner.png'; 
-skinIMG['Marquage']='marquage.png'; 
-skinIMG['Retraite']='retraite.png'; 
-skinIMG['RotoBaffe']='rotobaffe.png';
-skinIMG['Balayage']='balayage.png';
-skinIMG['Golemologie']='golemologie.png';
-skinIMG['Reparation']='reparation.png';
-skinIMG['Course']='course.png';
-
-// === Images des sorts ===
-skinIMG['Analyse Anatomique']='analyse_anatomique.png';
-skinIMG['Armure Etheree']='armure_etheree.png';
-skinIMG['Augmentation de l´Attaque']='augmentation_de_l_attaque.png';
-skinIMG['Augmentation de l´Esquive']='augmentation_de_l_esquive.png';
-skinIMG['Augmentation des Degats']='augmentation_des_degats.png';
-skinIMG['Bulle Anti-Magie']='bulle_d_anti_magie.png';
-skinIMG['Bulle Magique']='bulle_magique.png';
-skinIMG['Explosion']='explosion.png';
-skinIMG['Faiblesse Passagere']='faiblesse_passagere.png';
-skinIMG['Flash Aveuglant']='flash_aveuglant.png';
-skinIMG['Glue']='glue.png';
-skinIMG['Griffe du Sorcier']='griffe_du_sorcier.png';
-skinIMG['Hypnotisme']='hypnotisme.png';
-skinIMG['Projectile Magique']='projectile_magique.png';
-skinIMG['Rafale Psychique']='rafale_psychique.png';
-skinIMG['Teleportation']='teleportation.png';
-skinIMG['Vampirisme']='vampirisme.png';
-skinIMG['Vision Accrue']='vision_accrue.png';
-skinIMG['Sacrifice']='sacrifice.png';
-skinIMG['Identification des tresors']='identification_de_tresors.png';
-skinIMG['Invisibilite']='invisibilite.png';
-skinIMG['Vision lointaine']='vision_lointaine.png';
-skinIMG['Voir le Cache']='voir_le_cache.png';
-skinIMG['Telekinesie']='telekinesie.png';
-skinIMG['Projection']='projection.png';
-skinIMG['Vue Troublee']='vue_troublee.png';
-skinIMG['Siphon des ames']='syphon_des_ames.png';
-skinIMG['Levitation']='levitation.png'; 
-skinIMG['Puissance Magique']='puissance_magique.png'; 
-skinIMG['Précision Magique=']='precision_magique.png'; 
-
-// === Conversion Evénement => image compétence/sorts ===
-var ZZImg=new Array();	
-ZZImg['Rafale Psy.']='sortileges/'+skinIMG['Rafale Psychique'];
-ZZImg['Charge']='competences/'+skinIMG['Charger'];
-ZZImg['Att. Précise']='competences/'+skinIMG['Attaque Precise'];
-ZZImg['Botte Secrète']='competences/'+skinIMG['Botte Secrete'];
-ZZImg['Frénésie']='competences/'+skinIMG['Frenesie'];
-ZZImg['Coup de Butoir']='competences/'+skinIMG['Coup de Butoir'];
-ZZImg['Projectile Mag.']='sortileges/'+skinIMG['Projectile Magique'];
-ZZImg['Vampirisme']='sortileges/'+skinIMG['Vampirisme'];
-ZZImg['Explosion']='sortileges/'+skinIMG['Explosion'];
-ZZImg['Griffe du Sorcier']='sortileges/'+skinIMG['Griffe du Sorcier'];
-ZZImg['Piège à Feu']='competences/'+skinIMG['Construire un Piege'];
-ZZImg['Rotobaffe']='competences/'+skinIMG['Rotobaffe'];
-ZZImg['Syphon des âmes']='sortileges/'+skinIMG['Siphon des ames'];
-ZZImg['CdM']='competences/'+skinIMG['Connaissance des Monstres'];
-ZZImg['Insulte']='competences/'+skinIMG['Insultes'];
-
-// === Conversion Evénement => image compétence/sorts ===
-var skinTresor=new Array();	
-skinTresor['Potion']='equipement/potions/potion_elixir.gif';
-skinTresor['Armure']='equipement/corps/armure_de_plates.gif';
-skinTresor['Arme (2 mains)']='equipement/mains/hache_a_2_mains_d_obsidienne.gif';
-skinTresor['Arme (1 main)']='equipement/mains/epee_courte.gif';
-skinTresor['Casque']='equipement/tete/casque_a_cornes.gif';
-skinTresor['Bouclier']='equipement/mains/targe.gif';
-skinTresor['Parchemin']='equipement/parcho/parchemin.gif';
-skinTresor['Talisman']='equipement/cou/collier_de_dents.gif';
-skinTresor['Bottes']='equipement/pieds/bottes.gif';
-skinTresor['Trésor']='equipement/tresor.png';
-skinTresor['Composant']='equipement/composant.jpg';
-skinTresor['Carte']='equipement/parcho/parchemin.gif';
-skinTresor['Anneau']='equipement/anneau.jpg';
-skinTresor['Champignon']='equipement/champignon.jpg';
-skinTresor['Minerai']='equipement/minerai.jpg';
-skinTresor['Outils']='equipement/outils.jpg';
-skinTresor['Gigots de Gob']='equipement/gigots_de_gob.jpg';
-skinTresor['Spécial']='equipement/special.jpg';
-
-// === Fonctions ===
-function URLencode(sStr) {
-  return escape(sStr).replace(/\+/g, '%2B').replace(/\"/g,'%22').replace(/\'/g, '%27');
-  //return escape(sStr).replace(/\+/g, '%2C').replace(/\"/g,'%22').replace(/\'/g, '%27');
-}
-
-
-function PrintObj(obj) {
-	alert(ArrayToString(obj, "", 0)); 
-}
-
-function ArrayToString(obj, s, i) {
-     if (i>20) { return ""; }
-     var r="";
-     if (typeof(obj)=='object') {
-       if (obj.toString().indexOf("Text")) {
-           if (i==0) {
-               r=r+"["+s+"="+obj.nodeValue+"]";
-           }
-       }
-       r=r+ArrayToString(obj.childNodes[i], s+"."+i, 0);
-       r=r+ArrayToString(obj, s, i+1);
-       return r;
-     } else {
-        return "";
-     }
-}
-/*********************************************************************************
+/*********************************************************************************
+*    This file is part of ZoryaZilla Fusion merged with mountyzilla              *
+*********************************************************************************/
+//============================ ZZ PRE CODE =======================================
+// dans la nouvelle version de MZ (dabihul), cette varaible n'est plus définie
+var poissotron = "http://minitilk.fur4x-hebergement.net/getDice2.php";
+
+// préférence de l'utilisateur (mettre par défaut si pas définie)
+if (typeof ZTRO=="undefined")   var ZTRO=0; 
+if (typeof ZMON=="undefined")   var ZMON=5;  
+if (typeof ZTRE=="undefined")   var ZTRE=5; 
+if (typeof ZLIE=="undefined")   var ZLIE=15; 
+if (typeof SkinZZ=="undefined") var SkinZZ=ZZDB+"/skin/";
+if (typeof ShrVUE=="undefined") var ShrVUE=true;
+
+var typeFamilly = new Array();    // Indice des familles de monstre (pour tabMonstres)
+typeFamilly = ["Animal", "Démon", "Humanoide", "Insecte", "Monstre","Mort-Vivant"];
+
+var tmpltFamilly = new Array();    // préfix et suffix
+tmpltFamilly["Animal"]=["Attentionné","Attentionnée","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Enragé","Enragée","Fouisseur","Fouisseuse","Gardien","Gardienne","Gigantesque","Gros","Grosse","Homochrome","Malade","Petit","Petite","Ronfleur","Ronfleuse","Vorace"];
+tmpltFamilly["Démon"]=["Archiatre","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","de Premier Cercle","de Second Cercle","de Troisième Cercle","de Quatrième Cercle","de Cinquième Cercle","des Abysses","Ethéré","Ethérée","Fanatique","Gardien","Gardienne","Gros","Grosse","Invocateur","Invocatrice","Malade","Petit","Petite","Prince","Princesse","Ronfleur","Ronfleuse"];
+tmpltFamilly["Humanoide"]=["Alchimiste","Agressif","Agressive","Barbare","Berserker","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Champion","Championne","Effrayé","Effrayée","Fanatique","Fou","Folle","Frondeur","Frondeuse","Gardien","Gardienne","Grand Frondeur","Grande Frondeuse","Gros","Grosse","Guérisseur","Guérisseuse","Guerrier","Guerrière","Héros","Malade","Mutant","Mutante","Paysan","Paysanne","Petit","Petite","Planqué","Planquée","Ronfleur","Ronfleuse","Scout","Shaman","Sorcier","Sorcière","Voleur","Voleuse"];
+tmpltFamilly["Insecte"]=["Alpha","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Fouisseur","Fouisseuse","Gardien","Gardienne","Gigantesque","Gros","Grosse","Homochrome","Lobotomisateur","Lobotomisatrice","Malade","Morticole","Ouvrier","Ouvrière","Petit","Petite","Reine","Ronfleur","Ronfleuse","Soldat","Strident","Stridente"];
+tmpltFamilly["Monstre"]=["Cogneur","Cogneuse","Colossal","Colossale","Coriace","Corrompu","Corrompue","Cracheur","Cracheuse","Esculape","Fouisseur","Fouisseuse","Frénétique","Fustigateur","Fustigatrice","Gardien","Gardienne","Gargantuesque","Gigantesque","Gros","Grosse","Homomorphe","Malade","Petit","Petite","Ronfleur","Ronfleuse","Traqueur","Traqueuse"];
+tmpltFamilly["Mort-Vivant"]=["Archaïque","Cogneur","Cogneuse","Coriace","Corrompu","Corrompue","Gardien","Gardienne","Gros","Grosse","Implacable","Maître","Maîtresse","Malade","Médicastre","Mentat","Nécromant","Nécromante","Petit","Petite","Psychophage","Ronfleur","Ronfleuse","Spectral","Spectrale"];
+
+var caracFamilly = new Array();    // caracs fonctions des préfix/suffix
+caracFamilly["Animal"]=[[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[3,"A un plus grand nombre d'attaques"],[3,"A un plus grand nombre d'attaques"],[0,"Enfouit les Trésors"],[0,"Enfouit les Trésors"],[20,""],[20,""],[1,""],[0,""],[0,""],[0,"Se Camoufle et attaque à distance"],[-1,"Pouvoir habituel remplacé par Maladie"],[-1,""],[-1,""],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[1,""]];
+caracFamilly["Démon"]=[[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[-1,""],[0,""],[2,""],[4,""],[5,""],[3,""],[0,"Se Camoufle et attaque à distance"],[0,"Se Camoufle et attaque à distance"],[2,"Ne fuit pas et a un plus grand nombre d'attaques"],[20,""],[20,""],[0,""],[0,""],[3,"Fait apparaître des Monstres"],[3,"Fait apparaître des Monstres"],[-1,"Pouvoir habituel remplacé par Maladie"],[-1,""],[-1,""],[8,"Insensible au Hurlement Effrayant et a une durée de Tour réduite"],[8,"Insensible au Hurlement Effrayant et a une durée de Tour réduite"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"]];
+caracFamilly["Humanoide"]=[[0,"Ramasse, Transmute et Lance des Potions"],[1,""],[1,""],[1,""],[2,"A un plus grand nombre d'attaques"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[4,""],[4,""],[-1,"Fuit rapidement le combat"],[-1,"Fuit rapidement le combat"],[2,"Ne fuit pas et a un plus grand nombre d'attaques"],[1,""],[1,""],[2,"Attaque à distance"],[2,"Attaque à distance"],[20,""],[20,""],[4,"Attaque à distance"],[4,"Attaque à distance"],[0,""],[0,""],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[1,""],[1,""],[5,"A une durée de Tour réduite"],[-1,"Pouvoir habituel remplacé par Maladie"],[2,""],[2,""],[-1,""],[-1,""],[-1,""],[-1,""],[0,"Se Camoufle et attaque à distance"],[0,"Se Camoufle et attaque à distance"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[2,""],[0,"Attaque à distance et a un Pouvoir si le Monstre n'en a pas habituellement"],[0,"Attaque à distance et a un Pouvoir si le Monstre n'en a pas habituellement"],[0,"Attaque à distance et a un Pouvoir si le Monstre n'en a pas habituellement"],[2,"Vole des objets dans l'Equipement"],[2,"Vole des objets dans l'Equipement"]];
+caracFamilly["Insecte"]=[[11,"Insensible au Hurlement Effrayant, attaque à distance et a un plus grand nombre d'attaques"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[0,"Enfouit les Trésors"],[0,"Enfouit les Trésors"],[20,""],[20,""],[1,""],[0,""],[0,""],[0,"Se Camoufle et attaque à distance"],[2,"Flagellation Mentale : retire 1% de maîtrise sur une Compétence"],[2,"Flagellation Mentale : retire 1% de maîtrise sur une Compétence"],[-1,"Pouvoir habituel remplacé par Maladie"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[0,""],[0,""],[-1,""],[-1,""],[11,"Insensible au Hurlement Effrayant et a un plus grand nombre d'attaques"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[2,""],[3,"Donne des Malus de Concentration"],[3,"Donne des Malus de Concentration"]];
+caracFamilly["Monstre"]=[[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[7,""],[7,""],[1,""],[1,""],[1,""],[2,"Attaque à distance"],[2,"Attaque à distance"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[0,"Enfouit les Trésors"],[0,"Enfouit les Trésors"],[3,"A un plus grand nombre d'attaques"],[2,"Flagellation Mentale : retire 1% de maîtrise sur un Sortilège ou une Compétence"],[2,"Flagellation Mentale : retire 1% de maîtrise sur un Sortilège ou une Compétence"],[20,""],[20,""],[3,""],[1,""],[0,""],[0,""],[0,"Se Camoufle et attaque à distance"],[-1,"Pouvoir habituel remplacé par Maladie"],[-1,""],[-1,""],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[1,""],[1,""]];
+caracFamilly["Mort-Vivant"]=[[-1,""],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[2,"Pouvoir habituel remplacé par Amnésie : perte temporaire de x%"],[1,""],[1,""],[1,""],[20,""],[20,""],[0,""],[0,""],[3,""],[8,"Insensible au Hurlement Effrayant et a un plus grand nombre d'attaques"],[8,"Insensible au Hurlement Effrayant et a un plus grand nombre d'attaques"],[-1,"Pouvoir habituel remplacé par Maladie"],[2,"Soigne les Monstres et a une attaque de moins en cas d'attaques multiples"],[2,"Attaque à distance"],[5,"Fait apparaître des Monstres"],[5,"Fait apparaître des Monstres"],[-1,""],[-1,""],[2,"Flagellation Mentale : retire 1% de maîtrise sur un Sortilège"],[2,"Augmente la Fatigue"],[2,"Augmente la Fatigue"],[0,"Se Camoufle et attaque à distance"],[0,"Se Camoufle et attaque à distance"]];
+
+
+var ageFamilly = new Array();   // niveau fonction de age
+ageFamilly["Animal"]={Bébé:0,  Enfançon:1, Jeune:2, Adulte:3, Mature:4, 'Chef de Harde':5, Ancien:6, Ancienne:6, Ancêtre:7};
+ageFamilly["Démon"]={Initial:0, Initiale:0, Novice:1, Mineur:2, Mineure:2, Favori:3, Favorite:3, Majeur:4, Majeure:4, Supérieur:5, Supérieure:5, Suprême:6, Ultime:7};
+ageFamilly["Humanoide"]={Nouveau:0, Nouvelle:0, Jeune:1, Adulte:2, Vétéran:3, Vétérante:3, Briscard:4, Briscarde:4, Doyen:5, Doyenne:5, Légendaire:6, Mythique:7};
+ageFamilly["Insecte"]={Larve:0, Immature:1,  Juvénile:2,  Imago:3,  Développé:4, Développée:4, Mûr:5, Mûre:5, Accompli:6, Accomplie:6, Achevé:7, Achevée:7};
+ageFamilly["Monstre"]={Nouveau:0, Nouvelle:0, Jeune:1,  Adulte:2,  Vétéran:3, Vétérante:3, Briscard:4, Briscarde:4, Doyen:5, Doyenne:5, Légendaire:6,  Mythique:7};
+ageFamilly["Mort-Vivant"]={Naissant:0, Naissante:0, Récent:1, Récente:1, Ancien:2, Ancienne:2, Vénérable:3, Séculaire:4, Antique:5, Ancestral:6, Ancestrale:6,  Antédiluvien:7, Antédiluvienne:7};
+
+var tabMonstres = new Array();  
+var tabMonstres = [ //nom, n° Famille, Niveau, IdImage
+["Chauve-Souris Géante", 0,2,72],
+["Cheval à Dents de Sabre", 0,18,9],
+["Dindon", 0,1,0],
+["Glouton", 0,15,114],
+["Gnu Domestique", 0,1,0],
+["Gnu Sauvage", 0,1,20],
+["Gowap Apprivoisé", 0,-7,0],
+["Gowap Sauvage", 0,-7,0],
+["Rat Géant", 0,1,32],
+["Rat", 0,1,0],
+["Sagouin", 0,3,76],
+["Tubercule Tueur", 0,11,61],
+["Abishaii Bleu", 1,15,4],
+["Abishaii Noir", 1,9,52],
+["Abishaii Rouge", 1,17,10],
+["Abishaii Vert", 1,12,25],
+["Abishaii Rose", 1,1,130],
+["Balrog", 1,50,0],
+["Barghest", 1,24,99],
+["Behemoth", 1,25,93],
+["Diablotin", 1,1,18],
+["Elémentaire du Chaos", 1,17,86],
+["Elémentaire d'Air", 1,18,21],
+["Elémentaire d'Eau", 1,14,40],
+["Elémentaire de Feu", 1,17,46],
+["Elémentaire de Terre", 1,19,29],
+["Erinyes", 1,8,24],
+["Gritche", 1,25,0],
+["Hellrot", 1,15,54],
+["Incube", 1,10,106],
+["Marilith", 1,22,45],
+["Molosse Satanique", 1,7,63],
+["Palefroi Infernal", 1,20,13],
+["Pseudo-Dragon", 1,1,129],
+["Shai", 1,16,27],
+["Sirène", 1,8,0],
+["Succube", 1,10,56],
+["Xorn", 1,11,127],
+["Ashashin", 2,21,98],
+["Boggart", 2,3,70],
+["Caillouteux", 2,2,71],
+["Champi-Glouton", 2,4,42],
+["Ettin", 2,10,67],
+["Flagelleur Mental", 2,24,0],
+["Furgolin", 2,9,90],
+["Géant de Pierre", 2,14,112],
+["Géant des Gouffres", 2,18,113],
+["Gnoll", 2,3,38],
+["Gobelin Magique", 2,1,0],
+["Goblin", 2,1,30],
+["Goblours", 2,4,115],
+["Golem d'Argile", 2,14,116],
+["Golem de Chair", 2,9,105],
+["Golem de Fer", 2,24,117],
+["Golem de Pierre", 2,19,118],
+["Gremlins", 2,3,6],
+["Homme-Lézard", 2,4,84],
+["Hurleur", 2,8,62],
+["Kobold", 2,1,66],
+["Loup-Garou", 2,8,58],
+["Lutin", 2,2,75],
+["Méduse", 2,6,92],
+["Mégacéphale", 2,25,49],
+["Minotaure", 2,6,77],
+["Ogre", 2,6,68],
+["Orque", 2,3,41],
+["Ours-Garou", 2,13,55],
+["Rat-Garou", 2,3,57],
+["Rocketeux", 2,6,59],
+["Sorcière", 2,15,28],
+["Sphinx", 2,23,0],
+["Tigre-Garou", 2,9,126],
+["Titan", 2,20,44],
+["Yéti", 2,7,80],
+["Yuan-ti", 2,12,0],
+["Ankheg", 3,10,69],
+["Anoploure Purpurin", 3,24,95],
+["Araignée Géante", 3,2,33],
+["Coccicruelle", 3,16,0],
+["Essaim Sanguinaire", 3,18,0],
+["Foudroyeur", 3,23,109],
+["Limace Géante", 3,9,51],
+["Mante Fulcreuse", 3,22,0],
+["Mille-Pattes Géant", 3,12,26],
+["Mille-Pattes", 3,12,0],
+["Nuage d'Insectes", 3,5,0],
+["Nuée de Vermine", 3,10,0],
+["Scarabée Géant", 3,5,17],
+["Scarabée", 3,5,0],
+["Scorpion Géant", 3,10,50],
+["Scorpion", 3,10,0],
+["Strige", 3,1,82],
+["Thri-kreen", 3,8,37],
+["Amibe Géante", 4,8,36],
+["Anaconda des Catacombes", 4,6,53],
+["Basilisk", 4,11,100],
+["Behir", 4,13,96],
+["Beholder", 4,50,48],
+["Bondin", 4,8,88],
+["Bouj'Dla Placide", 4,23,87],
+["Bouj'Dla", 4,13,87],
+["Bulette", 4,14,101],
+["Carnosaure", 4,16,3],
+["Chimère", 4,11,102],
+["Chonchon", 4,20,11],
+["Cockatrice", 4,5,89],
+["Crasc Médius", 4,20,16],
+["Crasc Maexus", 4,25,16],
+["Crasc", 4,10,16],
+["Cube Gélatineux", 4,21,0],
+["Daemonite", 1,19,107],
+["Djinn", 4,21,8],
+["Effrit", 4,22,108],
+["Esprit-Follet", 4,15,0],
+["Familier", 4,1,35],
+["Feu Follet", 4,16,2],
+["Fumeux", 1,17,110],
+["Fungus Géant", 4,6,111],
+["Fungus", 4,6,0],
+["Fungus Violet", 4,3,0],
+["Gargouille", 4,5,91],
+["Gorgone", 4,11,43],
+["Grouilleux", 4,2,0],
+["Grylle", 4,20,119],
+["Harpie", 4,4,39],
+["Hydre", 4,50,0],
+["Labeilleux", 3,20,120],
+["Lézard Géant", 4,5,74],
+["Lézard", 4,5,0],
+["Manticore", 4,7,64],
+["Mimique", 4,7,23],
+["Monstre Rouilleur", 4,4,83],
+["Mouch'oo Domestique", 4,21,0],
+["Mouch'oo Majestueux Sauvage", 4,21,0],
+["Mouch'oo Sauvage", 4,12,121],
+["Naga", 4,9,122],
+["Ombre de Roches", 4,12,1],
+["Pititabeille", 3,1,120],
+["Phoenix", 4,23,47],
+["Plante Carnivore", 4,4,78],
+["Slaad", 4,5,65],
+["Tertre Errant", 4,19,125],
+["Trancheur", 4,21,14],
+["Tutoki", 4,2,31],
+["Ver Carnivore Géant", 4,13,15],
+["Ver Carnivore", 4,13,15],
+["Vouivre", 4,23,12],
+["Worg", 4,5,0],
+["Ame-en-peine", 5,7,97],
+["Banshee", 5,15,22],
+["Capitan", 5,24,94],
+["Croquemitaine", 5,6,103],
+["Ectoplasme", 5,15,104],
+["Fantôme", 5,19,19],
+["Goule", 5,4,60],
+["Liche", 5,50,85],
+["Momie", 5,4,73],
+["Nécrochore", 5,25,123],
+["Nécrophage", 5,7,0],
+["Nâ-Hàniym-Hééé", 5,0,0],
+["Ombre", 5,2,79],
+["Spectre", 5,13,124],
+["Squelette", 5,1,34],
+["Vampire", 5,22,7],
+["Zombie", 5,2,81],
+["Aragnarok du Chaos",3,17,128], 
+["Elémentaire Magmatique",1,8,131],
+["Raquettou",2,22,133],
+["Cube Gélatineux",4,32,134],
+["Archi-Nécromant",5,43,135]
+];
+
+// === Images des monstes ===
+var skinBEAST=new Array();
+skinBEAST[0]='Wanted-nophoto.jpg';
+skinBEAST[1]='VG_OmbreDesRoches.jpg';
+skinBEAST[2]='VB_feufollet.jpg';
+skinBEAST[3]='VG_Carnosaure.jpg';
+skinBEAST[4]='GO_abishai_bleu.jpg';
+skinBEAST[5]='turkey_03.gif';
+skinBEAST[6]='Gremlins.jpg';
+skinBEAST[7]='GO_Vampire.jpg';
+skinBEAST[8]='VB_djinn.jpg';
+skinBEAST[9]='MA_cheval_dent_de_sabreF.jpg';
+skinBEAST[10]='GO_abishai_rouge.jpg';
+skinBEAST[11]='GO_Chonchon.jpg';
+skinBEAST[12]='VG_Vouivre.jpg';
+skinBEAST[13]='VG_PalefroiInfernal.jpg';
+skinBEAST[14]='VB_petittrancheur.jpg';
+skinBEAST[15]='GO_Vcg.jpg';
+skinBEAST[16]='GO_Crasc.jpg';
+skinBEAST[17]='ScarabeeGeant.jpg';
+skinBEAST[18]='Diablotin.jpg';
+skinBEAST[19]='GO_Fantome.jpg';
+skinBEAST[20]='GnuSauvage.jpg';
+skinBEAST[21]='AK_elementaireair.jpg';
+skinBEAST[22]='GO_Banshee.jpg';
+skinBEAST[23]='VG_Mimique.jpg';
+skinBEAST[24]='VB_erinyes.jpg';
+skinBEAST[25]='GO_abishai_vert.jpg';
+skinBEAST[26]='VG_MillePattesGeant.jpg';
+skinBEAST[27]='GO_Shai.jpg';
+skinBEAST[28]='VB_sorciere.jpg';
+skinBEAST[29]='VB_elementairedeterre.jpg';
+skinBEAST[30]='Gobelin.jpg';
+skinBEAST[31]='FP_Tutoki.jpg';
+skinBEAST[32]='RatGeant.jpg';
+skinBEAST[33]='AraigneeGeante.jpg';
+skinBEAST[34]='Squelette.jpg';
+skinBEAST[35]='VB_familier.jpg';
+skinBEAST[36]='VB_amibe.jpg';
+skinBEAST[37]='VB_three-kreen.jpg';
+skinBEAST[38]='FP_Gnoll.jpg';
+skinBEAST[39]='Harpie.jpg';
+skinBEAST[40]='AK_elementaireeau.jpg';
+skinBEAST[41]='Orque.jpg';
+skinBEAST[42]='ChampiGlouton.jpg';
+skinBEAST[43]='VG_Gorgogne.jpg';
+skinBEAST[44]='VB_titan.jpg';
+skinBEAST[45]='GO_Marilith2.jpg';
+skinBEAST[46]='AK_elementairefeu.jpg';
+skinBEAST[47]='GO_Phoenix.jpg';
+skinBEAST[48]='Beholder.jpg';
+skinBEAST[49]='FP_Megacephale.jpg';
+skinBEAST[50]='VG_ScorpionGeant.jpg';
+skinBEAST[51]='VB_limace.jpg';
+skinBEAST[52]='GO_abishai_noir.jpg';
+skinBEAST[53]='AnacondaCatacombes.jpg';
+skinBEAST[54]='VB_hellrot.jpg';
+skinBEAST[55]='GO_OursGarou.jpg';
+skinBEAST[56]='Succube.jpg';
+skinBEAST[57]='RatGarou.jpg';
+skinBEAST[58]='LoupGarou.jpg';
+skinBEAST[59]='VB_rocketeux.jpg';
+skinBEAST[60]='FP_Goule.jpg';
+skinBEAST[61]='GO_Tubercule.jpg';
+skinBEAST[62]='Hurleur.jpg';
+skinBEAST[63]='MolosseSatanique.jpg';
+skinBEAST[64]='VB_manticore.jpg';
+skinBEAST[65]='Slaad.jpg';
+skinBEAST[66]='VG_Kobold.jpg';
+skinBEAST[67]='VB_etins.jpg';
+skinBEAST[68]='Ogre.jpg';
+skinBEAST[69]='VG_Ankheg.jpg';
+skinBEAST[70]='GO_Boggart.jpg';
+skinBEAST[71]='VG_Caillouteux.jpg';
+skinBEAST[72]='ChauveSouris.jpg';
+skinBEAST[73]='Momie.jpg';
+skinBEAST[74]='LezardGeant.jpg';
+skinBEAST[75]='Lutin.jpg';
+skinBEAST[76]='VG_Sagouin.jpg';
+skinBEAST[77]='Minotaure.jpg';
+skinBEAST[78]='PlanteCarnivore.jpg';
+skinBEAST[79]='VB_ombre.jpg';
+skinBEAST[80]='Yeti.jpg';
+skinBEAST[81]='Zombie.jpg';
+skinBEAST[82]='VB_strige.jpg';
+skinBEAST[83]='VB_monstre_rouilleur.jpg';
+skinBEAST[84]='VB_homme-lezard.jpg';
+skinBEAST[85]='Liche.jpg';
+skinBEAST[86]='AK_elementairechaos.jpg';
+skinBEAST[87]='VB_BoujDla.jpg';
+skinBEAST[88]='VB_Bondin.jpg';
+skinBEAST[89]='VB_Coquatrice.jpg';
+skinBEAST[90]='VB_Furgolin.jpg';
+skinBEAST[91]='VB_Gargouille.jpg';
+skinBEAST[92]='VB_Meduse.jpg';
+skinBEAST[93]='BO_Behemoth.jpg';
+skinBEAST[94]='BO_Capitan.jpg';
+skinBEAST[95]='BO_AnolporPurpurin.jpg';
+skinBEAST[96]='BO_Behir.jpg';
+skinBEAST[97]='BO_AmeEnPeine.jpg';
+skinBEAST[98]='BO_Ashashin.jpg';
+skinBEAST[99]='BO_Barghest.jpg';
+skinBEAST[100]='BO_Basilisk.jpg';
+skinBEAST[101]='BO_Bulet.jpg';
+skinBEAST[102]='BO_Chimere.jpg';
+skinBEAST[103]='BO_Croquemitaine.jpg';
+skinBEAST[104]='BO_Ectoplasme.jpg';
+skinBEAST[105]='BO_GolemDeChair.jpg';
+skinBEAST[106]='BO_Incube.jpg';
+skinBEAST[107]='KH_Daemonite.jpg';
+skinBEAST[108]='KH_Effrit.jpg';
+skinBEAST[109]='TO_Foudroyeur.jpg';
+skinBEAST[110]='Fumeux.jpg';
+skinBEAST[111]='OF_Fungus.jpg';
+skinBEAST[112]='BO_GeantDePierre.jpg';
+skinBEAST[113]='BO_GeantDesGouffres.jpg';
+skinBEAST[114]='OF_Glouton.jpg';
+skinBEAST[115]='OF_Goblours.jpg';
+skinBEAST[116]='BO_GolemDArgile.jpg';
+skinBEAST[117]='OF_GolemFer.jpg';
+skinBEAST[118]='BO_GolemDePierre.jpg';
+skinBEAST[119]='OF_Grylle.jpg';
+skinBEAST[120]='OF_Labeilleux.jpg';
+skinBEAST[121]='NA_Mouchoo.jpg';
+skinBEAST[122]='TO_Naga.jpg';
+skinBEAST[123]='KH_Necrochore.jpg';
+skinBEAST[124]='OF_Spectre.jpg';
+skinBEAST[125]='BO_TertreErrant.jpg';
+skinBEAST[126]='KH_TigreGarou.jpg';
+skinBEAST[127]='OF_Xorn.jpg';
+skinBEAST[128]='BO_AragnarokDuChaos.png';
+skinBEAST[129]='OF_PseudoDragon.png';
+skinBEAST[130]='AbishaiRose.png';
+skinBEAST[131]='AK_elementairemagmatique.png';
+skinBEAST[132]='BO_ChevalierDuChaos.png';
+skinBEAST[133]='OS_Racketou.jpg';
+skinBEAST[134]='OS_Cube_Gelatineux.jpg';
+skinBEAST[135]='OS_Necromant.jpg';
+
+// === Images des compétences ===
+var skinIMG=new Array();
+skinIMG['Attaque Precise']='attaque_precise.png';
+skinIMG['Botte Secrete']='botte_secrete.png';
+skinIMG['Charger']='charger.png';
+skinIMG['Connaissance des Monstres']='connaissance_des_monstres.png';
+skinIMG['Construire un Piege']='construire_un_piege.png';
+skinIMG['Contre-Attaquer']='contre_attaquer.png';
+skinIMG['Coup de Butoir']='coup_de_butoir.png';
+skinIMG['Frenesie']='frenesie.png';
+skinIMG['Lancer de Potions']='lancer_de_potions.png';
+skinIMG['Pistage']='pistage.png';
+skinIMG['Regeneration Accrue']='regeneration_accrue.png';
+skinIMG['Insultes']='insultes.png';
+skinIMG['Deplacement Eclair']='deplacement_eclair.png';
+skinIMG['Identification des Champignons']='identification_des_champignons.png';
+skinIMG['Balluchonnage']='balluchonnage.png';
+skinIMG['Acceleration du Metabolisme']='acceleration_metabolique.png';
+skinIMG['Ecriture Magique']='ecriture_magique.png'; 
+skinIMG['Grattage']='grattage.png'; 
+skinIMG['Hurlement Effrayant']='hurlement_effrayant.png'; 
+skinIMG['Miner']='miner.png'; 
+skinIMG['Camouflage']='camouflage.png'; 
+skinIMG['Tailler']='tailler.png'; 
+skinIMG['Bidouille']='bidouille.png'; 
+skinIMG['Dressage']='dressage.png'; 
+skinIMG['Melange Magique']='melange_magique.png'; 
+skinIMG['Necromancie']='necromancie.png'; 
+skinIMG['Parer']='parer.png'; 
+skinIMG['Planter un champignon']='planter_un_champignon.png'; 
+skinIMG['Shamaner']='shamaner.png'; 
+skinIMG['Marquage']='marquage.png'; 
+skinIMG['Retraite']='retraite.png'; 
+skinIMG['RotoBaffe']='rotobaffe.png';
+skinIMG['Balayage']='balayage.png';
+skinIMG['Golemologie']='golemologie.png';
+skinIMG['Reparation']='reparation.png';
+skinIMG['Course']='course.png';
+
+// === Images des sorts ===
+skinIMG['Analyse Anatomique']='analyse_anatomique.png';
+skinIMG['Armure Etheree']='armure_etheree.png';
+skinIMG['Augmentation de l´Attaque']='augmentation_de_l_attaque.png';
+skinIMG['Augmentation de l´Esquive']='augmentation_de_l_esquive.png';
+skinIMG['Augmentation des Degats']='augmentation_des_degats.png';
+skinIMG['Bulle Anti-Magie']='bulle_d_anti_magie.png';
+skinIMG['Bulle Magique']='bulle_magique.png';
+skinIMG['Explosion']='explosion.png';
+skinIMG['Faiblesse Passagere']='faiblesse_passagere.png';
+skinIMG['Flash Aveuglant']='flash_aveuglant.png';
+skinIMG['Glue']='glue.png';
+skinIMG['Griffe du Sorcier']='griffe_du_sorcier.png';
+skinIMG['Hypnotisme']='hypnotisme.png';
+skinIMG['Projectile Magique']='projectile_magique.png';
+skinIMG['Rafale Psychique']='rafale_psychique.png';
+skinIMG['Teleportation']='teleportation.png';
+skinIMG['Vampirisme']='vampirisme.png';
+skinIMG['Vision Accrue']='vision_accrue.png';
+skinIMG['Sacrifice']='sacrifice.png';
+skinIMG['Identification des tresors']='identification_de_tresors.png';
+skinIMG['Invisibilite']='invisibilite.png';
+skinIMG['Vision lointaine']='vision_lointaine.png';
+skinIMG['Voir le Cache']='voir_le_cache.png';
+skinIMG['Telekinesie']='telekinesie.png';
+skinIMG['Projection']='projection.png';
+skinIMG['Vue Troublee']='vue_troublee.png';
+skinIMG['Siphon des ames']='syphon_des_ames.png';
+skinIMG['Levitation']='levitation.png'; 
+skinIMG['Puissance Magique']='puissance_magique.png'; 
+skinIMG['Précision Magique=']='precision_magique.png'; 
+
+// === Conversion Evénement => image compétence/sorts ===
+var ZZImg=new Array();	
+ZZImg['Rafale Psy.']='sortileges/'+skinIMG['Rafale Psychique'];
+ZZImg['Charge']='competences/'+skinIMG['Charger'];
+ZZImg['Att. Précise']='competences/'+skinIMG['Attaque Precise'];
+ZZImg['Botte Secrète']='competences/'+skinIMG['Botte Secrete'];
+ZZImg['Frénésie']='competences/'+skinIMG['Frenesie'];
+ZZImg['Coup de Butoir']='competences/'+skinIMG['Coup de Butoir'];
+ZZImg['Projectile Mag.']='sortileges/'+skinIMG['Projectile Magique'];
+ZZImg['Vampirisme']='sortileges/'+skinIMG['Vampirisme'];
+ZZImg['Explosion']='sortileges/'+skinIMG['Explosion'];
+ZZImg['Griffe du Sorcier']='sortileges/'+skinIMG['Griffe du Sorcier'];
+ZZImg['Piège à Feu']='competences/'+skinIMG['Construire un Piege'];
+ZZImg['Rotobaffe']='competences/'+skinIMG['Rotobaffe'];
+ZZImg['Syphon des âmes']='sortileges/'+skinIMG['Siphon des ames'];
+ZZImg['CdM']='competences/'+skinIMG['Connaissance des Monstres'];
+ZZImg['Insulte']='competences/'+skinIMG['Insultes'];
+
+// === Conversion Evénement => image compétence/sorts ===
+var skinTresor=new Array();	
+skinTresor['Potion']='equipement/potions/potion_elixir.gif';
+skinTresor['Armure']='equipement/corps/armure_de_plates.gif';
+skinTresor['Arme (2 mains)']='equipement/mains/hache_a_2_mains_d_obsidienne.gif';
+skinTresor['Arme (1 main)']='equipement/mains/epee_courte.gif';
+skinTresor['Casque']='equipement/tete/casque_a_cornes.gif';
+skinTresor['Bouclier']='equipement/mains/targe.gif';
+skinTresor['Parchemin']='equipement/parcho/parchemin.gif';
+skinTresor['Talisman']='equipement/cou/collier_de_dents.gif';
+skinTresor['Bottes']='equipement/pieds/bottes.gif';
+skinTresor['Trésor']='equipement/tresor.png';
+skinTresor['Composant']='equipement/composant.jpg';
+skinTresor['Carte']='equipement/parcho/parchemin.gif';
+skinTresor['Anneau']='equipement/anneau.jpg';
+skinTresor['Champignon']='equipement/champignon.jpg';
+skinTresor['Minerai']='equipement/minerai.jpg';
+skinTresor['Outils']='equipement/outils.jpg';
+skinTresor['Gigots de Gob']='equipement/gigots_de_gob.jpg';
+skinTresor['Spécial']='equipement/special.jpg';
+
+// === Fonctions ===
+function URLencode(sStr) {
+  return escape(sStr).replace(/\+/g, '%2B').replace(/\"/g,'%22').replace(/\'/g, '%27');
+  //return escape(sStr).replace(/\+/g, '%2C').replace(/\"/g,'%22').replace(/\'/g, '%27');
+}
+
+
+function PrintObj(obj) {
+	alert(ArrayToString(obj, "", 0)); 
+}
+
+function ArrayToString(obj, s, i) {
+     if (i>20) { return ""; }
+     var r="";
+     if (typeof(obj)=='object') {
+       if (obj.toString().indexOf("Text")) {
+           if (i==0) {
+               r=r+"["+s+"="+obj.nodeValue+"]";
+           }
+       }
+       r=r+ArrayToString(obj.childNodes[i], s+"."+i, 0);
+       r=r+ArrayToString(obj, s, i+1);
+       return r;
+     } else {
+        return "";
+     }
+}/*********************************************************************************
 *    This file is part of Mountyzilla.                                           *
 *                                                                                *
 *    Mountyzilla is free software; you can redistribute it and/or modify         *
@@ -509,16 +508,14 @@ function ArrayToString(obj, s, i) {
 *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  *
 *********************************************************************************/
 
-/*********************************************************************************
-* v1.2.2.2 by Dabihul - 2012-08-02                                               *
-* - révision de getPVrestants (erreurs calculs)                                  *
-* - ajout des fonctions de gestion/stockage des dates                            *
-* - ajout des nouvelles comps dans arraycompsort                                 *
-* TODO                                                                           *
-* - revoir la gestion des CdM                                                    *
-* - revoir tout ce qui est lié à la vue (estimateurs dég nott)                   *
-* - vérfier la gestion des enchants                                              *
-*********************************************************************************/
+/*
+ * v1.2.2.3 by Dabihul - 2013-04-21
+ * - correction displayScriptTime (nouveau footer)
+ * TODO
+ * - revoir la gestion des CdM
+ * - revoir tout ce qui est lié à la vue (estimateurs dég nott)
+ * - vérfier la gestion des enchants
+ */
 
 var poissotron = 'http://minitilk.fur4x-hebergement.net/getDice2.php';
 
@@ -550,10 +547,13 @@ function start_script(nbJours_exp) {
 	}
 
 function displayScriptTime() {
-	var node = document.evaluate("//td/text()[contains(.,'Page générée en')]/../br",
-						document, null, 9, null).singleNodeValue;
-	if (node)
-		insertText(node,' - [Script exécuté en '+(new Date().getTime()-date_debut.getTime())/1000+' sec.]');
+	var footerNode = document.getElementById('footer2');
+	if (!footerNode) {return;}
+	
+	var node = document.evaluate(".//text()[contains(.,'Page générée en')]/../br", footerNode,
+								null, 9, null).singleNodeValue;
+	if (!node) {return;}
+	insertText(node,' - [Script exécuté en '+(new Date().getTime()-date_debut.getTime())/1000+' sec.]');
 	}
 
 

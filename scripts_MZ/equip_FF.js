@@ -399,7 +399,7 @@ function treateGowaps() {
 				tbody1, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 		
 		
-		insertButtonComboDB(tbody, 'gowap', parseInt(node.nodeValue.substring(0, node.nodeValue.indexOf('.'))));
+		//insertButtonComboDB(tbody, 'gowap', parseInt(node.nodeValue.substring(0, node.nodeValue.indexOf('.'))));
 		if(MZ_getValue("NOINFOEM") != "true")
 			insertEMInfos(tbody);
 	}
@@ -460,4 +460,4 @@ if(MZ_getValue(numTroll+".enchantement.liste") && MZ_getValue(numTroll+".enchant
 displayScriptTime();
 }
 catch(e){alert(e)}
-//============================ ZZ POST CODE ======================================
+//============================ ZZ POST CODE ======================================

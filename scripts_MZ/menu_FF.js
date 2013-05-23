@@ -48,16 +48,13 @@ function updateData() {
 start_script(31);
 
 updateData();
-//============================ ZZ POST CODE ======================================
-// ajout d'un icon pour les Cron ZZ
-var node =  document.evaluate("//div/text()[contains(.,'DLA')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-if (node.snapshotLength==1) {
-	var zzNode=document.createElement('span');
-	zzNode.appendChild(createImage(ZZDB+'/Cron/zzcron.php?return_image=1', "ZoryaZilla Scheduler"));
-	zzNode.appendChild(document.createTextNode(" "+node.snapshotItem(0).nodeValue));
-	node.snapshotItem(0).parentNode.replaceChild(zzNode, node.snapshotItem(0).parentNode.firstChild);
-
-	
-}
-
-
+//============================ ZZ POST CODE ======================================
+// ajout d'un icon pour les Cron ZZ
+var node =  document.evaluate("//div/text()[contains(.,'DLA')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+if (node.snapshotLength==1) {
+	var zzNode=document.createElement('span');
+	zzNode.appendChild(createImage(ZZDB+'/Cron/zzcron.php?return_image=1', "ZoryaZilla Scheduler"));
+	zzNode.appendChild(document.createTextNode(" "+node.snapshotItem(0).nodeValue));
+	node.snapshotItem(0).parentNode.replaceChild(zzNode, node.snapshotItem(0).parentNode.firstChild);
+}
+

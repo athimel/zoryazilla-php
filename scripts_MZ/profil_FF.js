@@ -20,34 +20,38 @@
 *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  *
 *********************************************************************************/
 
-/*********************************************************************************
-* v0.8.2 by Dabihul - 2012-08-02                                                 *
-* - révision intégrale du script terminée                                        *
-* TODO                                                                           *
-* - révision des formules de trimul                                              *
-* - ajouter la gestion des bm de PV et du vampi... pour le trimul aussi          *
-* - (ou pas) gérer les décumuls avec la page des BM                              *
-*********************************************************************************/
+/* v0.9.1c by Dabihul - 2013-04-21
+ * nouvelle structure de page (bis)
+ * TODO
+ * révision des formules de trimul --> sera traité en externe dans MZ 1.0.1
+ * ajouter la gestion des bm de PV et du vampi... pour le trimul aussi --> manque d'infos
+ * (ou pas) gérer les décumuls avec la page des BM --> trop accessoire, ne sera pas fait
+ */
 
 var hauteur = 50;
 var bulleStyle = null;
 
-var arrTable, arrTR;
+var mainTab, mainTR, pvTR;
 
 var posX, posY, posN;
 var vue, vuetotale;
 var pvbase, pvmax, pv, pvdispo;
 var fatigue, bmfatigue;
-var minParPV, overDLA; // variables spéciales Kastars
+// variables spéciales Kastars
+var pva, minParPV, overDLA;
+var inJour, inMois, inAn, inHr, inMin, inSec; // édition manuelle lastDLA
+var lastDLAZone, maxAMZone, cumulZone; // auto-refresh lastDLA
+var lastDLA, DLAaccel;
+//
 var reg, regbonus, regmoy;
 var att, attbonus, attbmm, attmoy;
 var esq, esqbonus, esqmoy;
 var deg, degbonus, degbmm, degmoy;
 var arm, armbonus, armbmm, armmoy;
 var rm, rmbonus, mm, mmbonus;
-var nbattaques, bonusDegM, bonusAttM;
+var nbattaques, bonusDegM, bonusAttM; // nbattaques obsolète
 var DLA, DLAsuiv, HeureServeur, DureeTour;
-var dtb, pdm, bmt; // détails durée du tour
+var dtb, pdm, bmt; // détails durée du tour (calcul pvdispo)
 var NBjours;
 
 
@@ -61,7 +65,7 @@ function arrondi(x) {
 
 function resiste(Ddeg,bm) { // version naive mais compréhensible ^^
 	if (!bm)
-		return Math.floor(Ddeg);
+		{ return Math.floor(Ddeg); }
 	return Math.floor(Ddeg)+arrondi(bm/2);
 	}
 
@@ -95,14 +99,46 @@ function retourAZero(fatig) {
 	}
 
 function decumulPumPrem(bonus) {
-	//if (!bonus) return 20;
-	if (bonus==20) {return 13;}
-	if (bonus==33) {return 8;}
-	if (bonus==41) {return 5;}
-	if (bonus==46) {return 3;}
-	if (bonus==49) {return 2;}
-	//return false; --> à revoir avec les bm
-	return 20;
+	switch(bonus) {
+	case 20:
+		return 33;
+	case 33:
+		return 41;
+	case 41:
+		return 46;
+	case 46:
+		return 49;
+	case 49:
+		return 51;
+	default:
+		return 20;
+		}
+	}
+
+function coefDecumul(i) {
+	switch(i) {
+	case 2:
+		return 0.67;
+	case 3:
+		return 0.4;
+	case 4:
+		return 0.25;
+	case 5:
+		return 0.15;
+	default:
+		return 0.1;
+		}
+	}
+
+function dureeHM(dmin) {
+	var ret = '';
+	dmin = Math.floor(dmin);
+	if (dmin>59)
+		{ ret = Math.floor(dmin/60)+'h'; }
+	var mins = dmin%60;
+	if (mins!=0)
+		{ ret += (ret) ? addZero(mins)+'min' : mins+'min'; }
+	return (ret) ? ret : '-';
 	}
 
 
@@ -118,12 +154,13 @@ function getNumbers(str) {
 	}
 
 function init() {
-	arrTable = document.getElementsByTagName('table');
-	arrTR = document.getElementsByTagName('tr');
+	mainTab = document.getElementsByClassName('mh_tdborder');
+	mainTR = document.evaluate("./tbody/tr", mainTab[0], null, 7, null);
+	pvTR = mainTR.snapshotItem(4).childNodes[3].childNodes[1].getElementsByTagName('tr');
 	
-	var Nbrs = new Array();
-	var node = arrTR[5].childNodes[3].childNodes[7];
-	Nbrs['dtb'] = node.firstChild.nodeValue;			// durée tour de base
+	var Nbrs = [];
+	var node = mainTR.snapshotItem(1).childNodes[3].childNodes[7];
+	Nbrs['dtb'] = node.firstChild.nodeValue;		// durée tour de base
 	if (node.childNodes.length<6) {
 		Nbrs['bmt'] = '0_0';	// la ligne n'existe pas si pas de bm de temps
 		Nbrs['pdm'] = node.childNodes[4].nodeValue;
@@ -132,19 +169,19 @@ function init() {
 		Nbrs['bmt'] = node.childNodes[2].nodeValue;	// bm temps
 		Nbrs['pdm'] = node.childNodes[6].nodeValue;	// poids du matos
 		}
-	Nbrs['pos'] = arrTR[6].childNodes[3].firstChild.nodeValue;
-	Nbrs['vue'] = arrTR[6].childNodes[3].childNodes[3].nodeValue;		// arrTR[6] = 'Position'
-	Nbrs['niv'] = arrTR[7].childNodes[3].firstChild.nodeValue;			// arrTR[7] = 'Expérience'
-	Nbrs['pva'] = arrTR[9].childNodes[1].childNodes[1].firstChild.nodeValue;// arrTR[8] = 'Point de Vie'
-	Nbrs['pvm'] = arrTR[11].childNodes[1].firstChild.nodeValue;			// arrTR[10] = barre de vie
-	Nbrs['fat'] = arrTR[13].childNodes[1].firstChild.nodeValue;			// arrTR[12] = ligne vide
-	var caracs = arrTable[6].getElementsByTagName('tr');
+	Nbrs['pos'] = mainTR.snapshotItem(2).childNodes[3].firstChild.nodeValue;
+	Nbrs['vue'] = mainTR.snapshotItem(2).childNodes[3].childNodes[3].nodeValue;
+	Nbrs['niv'] = mainTR.snapshotItem(3).childNodes[3].firstChild.nodeValue;
+	Nbrs['pva'] = pvTR[0].childNodes[1].childNodes[1].firstChild.nodeValue;
+	Nbrs['pvm'] = pvTR[2].childNodes[1].firstChild.nodeValue;
+	Nbrs['fat'] = pvTR[4].childNodes[1].firstChild.nodeValue;
+	var caracs =  mainTR.snapshotItem(5).childNodes[3].childNodes[1].getElementsByTagName('tr');
 	Nbrs['reg'] = caracs[0].textContent;
 	Nbrs['att'] = caracs[1].textContent;
 	Nbrs['esq'] = caracs[2].textContent;
 	Nbrs['deg'] = caracs[3].textContent;
 	Nbrs['arm'] = caracs[4].textContent;
-	node = arrTable[3].childNodes[1].childNodes[18].childNodes[3];
+	node = mainTR.snapshotItem(9).childNodes[3];
 	Nbrs['rm'] = node.firstChild.nodeValue;
 	Nbrs['mm'] = node.childNodes[2].nodeValue;
 	for (var key in Nbrs)
@@ -167,7 +204,7 @@ function init() {
 	pvbase = Nbrs['pvm'][0];
 	pvmax = pvbase;
 	if (Nbrs['pvm'].length>1) // s'il y a des BM de PV
-		pvmax += Nbrs['pvm'][1];
+		{ pvmax += Nbrs['pvm'][1]; }
 	
 	fatigue = Nbrs['fat'][0];
 	bmfatigue = (Nbrs['fat'].length>1) ? Nbrs['fat'][1] : 0; // bmfat = 0 si pas de BM fat
@@ -214,19 +251,22 @@ function init() {
 	armmoy = 2*arm+armbonus+armbmm;
 	appendTdText(caracs[4],'(moyenne : '+armmoy+')');
 	
-	// PuM-PréM (arrTR[20] = ligne 'Combat')
-	var nodepum = document.evaluate("./td[2]/p/text()[contains(.,'Bonus')]", arrTR[20], null, 7, null);
+	// PuM/PréM
+	nodepum = document.evaluate("./td[2]/p/text()[contains(.,'Bonus')]", mainTR.snapshotItem(6), null, 7, null);
 	if (nodepum.snapshotLength>0) {
 		bonusAttM = getNumbers( nodepum.snapshotItem(0).nodeValue );
 		bonusDegM = getNumbers( nodepum.snapshotItem(1).nodeValue );
 		}
 	
 	// setDLA()
-	var str = arrTR[5].childNodes[3].childNodes[1].firstChild.nodeValue;
+	var str = mainTR.snapshotItem(1).childNodes[3].childNodes[1].firstChild.nodeValue;
 	DLA = new Date( StringToDate(str) );
 	
 	// setHeureServeur()
-	str = arrTable[11].childNodes[1].firstChild.childNodes[1].childNodes[3].nodeValue;
+	var footerNode = document.getElementById('footer2');
+	if (!footerNode) {return;}
+	var str = document.evaluate(".//text()[contains(.,'Serveur')]", footerNode,
+								null, 9, null).singleNodeValue.nodeValue;
 	str = str.substring(str.indexOf('/')-2,str.lastIndexOf(':')+3);
 	HeureServeur = new Date( StringToDate(str) );
 	}
@@ -270,7 +310,7 @@ function saveProfil() {
 *********************************************************************************/
 
 function setLieu() {
-	arrTR[4].childNodes[5].setAttribute('rowspan',12);	// évite les soucis avec la bannière
+	mainTR.snapshotItem(0).childNodes[5].setAttribute('rowspan',12);	// évite les soucis avec la bannière
 	var myTR = document.createElement('tr');
 	myTR.setAttribute('class','mh_tdpage');
 	var myTD = document.createElement('td');
@@ -290,29 +330,73 @@ function setLieu() {
 	newA.setAttribute('target','_blank');
 	myTD.appendChild(newA);
 	myTR.appendChild(myTD);
-	insertBefore(arrTR[7],myTR);		// arrTR[7] = ligne 'Expérience'
+	insertBefore(mainTR.snapshotItem(3),myTR);
 	}
 
 function minParPVsac(fatig, bm) {
-	var out = new Array();
+	var out = [];
 	if (fatig>4)
-		out[0] = Math.floor(120/( fatig*(1+Math.floor(fatig/10)) ));
-	else 
-		out[0] = 30;
+		{ out[0] = Math.floor(120/( fatig*(1+Math.floor(fatig/10)) )); }
+	else
+		{ out[0] = 30; }
 	if (bm && bm>0) {
 		var totalfat=fatig+bm;
-		if (totalfat > 4)
-			out[1] = Math.floor(120/( totalfat*(1+Math.floor(totalfat/10)) ));
-		else 
-			out[1] = 30; // ne devrait pas servir en principe
+		if (totalfat>4)
+			{ out[1] = Math.floor(120/( totalfat*(1+Math.floor(totalfat/10)) )); }
+		else
+			{ out[1] = 30; } // inutile avec bmfat >= 15 mais bon
 		}
 	return out;
 	}
 
+function toInt(str) {
+	str = parseInt(str);
+	return (str) ? str : 0;
+	}
+
+function saveLastDLA() { // pour les calculs d'AM max
+	var str = addZero(toInt(inJour.value))+'/'+addZero(toInt(inMois.value))+'/'+toInt(inAn.value)+' '
+			+addZero(toInt(inHr.value))+':'+addZero(toInt(inMin.value))+':'+addZero(toInt(inSec.value));
+	lastDLA = new Date( StringToDate(str) );
+	MZ_setValue(numTroll+'.DLA.ancienne', str);
+	lastDLAZone.innerHTML = '';
+	var myB = document.createElement('b');
+	myB.addEventListener('click', inputMode, false);
+	appendText(myB, str);
+	lastDLAZone.appendChild(myB);
+	refreshAccel();
+	}
+
+function inputMode() {
+	var date;
+	if (lastDLA)
+		{ date = new Date( lastDLA ); }
+	else
+		{ date = new Date( DLAaccel ); }
+	lastDLAZone.innerHTML = '';
+	inJour = appendTextbox(lastDLAZone, 'text', 'inJour', 1, 2, date.getDate() );
+	appendText(lastDLAZone, '/');
+	inMois = appendTextbox(lastDLAZone, 'text', 'inMois', 1, 2, 1+date.getMonth() );
+	appendText(lastDLAZone, '/');
+	inAn = appendTextbox(lastDLAZone, 'text', 'inAn', 3, 4, date.getFullYear() );
+	appendText(lastDLAZone, ' - ');
+	inHr = appendTextbox(lastDLAZone, 'text', 'inHr', 1, 2, date.getHours()+'' );
+	appendText(lastDLAZone, ':');
+	inMin = appendTextbox(lastDLAZone, 'text', 'inMin', 1, 2, date.getMinutes()+'' );
+	appendText(lastDLAZone, ':');
+	inSec = appendTextbox(lastDLAZone, 'text', 'inSec', 1, 2, date.getSeconds()+'' );
+	appendText(lastDLAZone, ' - ');
+	var myA = document.createElement('a');
+	myA.addEventListener('click', saveLastDLA, false);
+	appendText(myA, '[Enregistrer]', true)
+	lastDLAZone.appendChild(myA);
+	}
+
+
 function setAccel() {
-	var race = arrTR[4].childNodes[3].childNodes[4].nodeValue;
+	var race = mainTR.snapshotItem(0).childNodes[3].childNodes[4].nodeValue;
 	if (race.indexOf('Kastar')==-1)
-		return;
+		{ return; }
 	
 	/* Création d'une nouvelle ligne du profil spéciale AM */
 	var TRfat = document.createElement('tr');
@@ -324,13 +408,14 @@ function setAccel() {
 	TRfat.appendChild(myTD);
 	myTD = document.createElement('td');
 	TRfat.appendChild(myTD);
-	insertBefore(arrTR[14],TRfat);	// arrTR[14] = ligne 'Caractéristiques'
+	insertBefore(mainTR.snapshotItem(5),TRfat);
 	
 	/* Récupération des données */
 	overDLA = (HeureServeur>DLA.getTime()+300000);
-	var varfat = (overDLA) ? Math.floor(fatigue/1.25) : fatigue ;
+	fatigue = (overDLA) ? Math.floor(fatigue/1.25) : fatigue ;
+	var varfat = fatigue;
 	var BMfrais = false;
-	var varbm = new Array();
+	var varbm = [];
 	if (bmfatigue>0) { // récupération des BM de fatigue depuis la page des BM
 		if (MZ_getValue(numTroll+'.bm.fatigue')) {
 			var listefat = MZ_getValue(numTroll+'.bm.fatigue').split(';');
@@ -345,20 +430,20 @@ function setAccel() {
 				}
 			}
 		if (varbm[0]==bmfatigue)
-			BMfrais = true;
+			{BMfrais = true;}
 		}
-	else 
-		BMfrais = true;
+	else
+		{BMfrais = true;}
 	if (!BMfrais && bmfatigue>0) { // si les BM n'ont pas été rafraîchis
 		if (bmfatigue==15)
 			{ varbm[0]=15;varbm[1]=15;varbm[2]=15; }
 		else
 			{ varbm[0]=30;varbm[1]=30;varbm[2]=15; }
 		}
-	if (overDLA)
-		varbm.shift();
-	var minpPV = minParPVsac(varfat,varbm[0]);
-	minParPV = (varbm[0]==undefined) ? minpPV[0] : minpPV[1];
+	if (overDLA) // décalage BM en overDLA
+		{ varbm.shift(); }
+	var minppv = minParPVsac(varfat,varbm[0]);
+	minParPV = (varbm[0]==undefined) ? minppv[0] : minppv[1];
 	
 	/* Tableau des fatigues et accel futures */
 	if (fatigue>0 || varbm[0]>0) {
@@ -367,52 +452,50 @@ function setAccel() {
 		myTAB.setAttribute('border','0');
 		myTAB.setAttribute('cellspacing','1');
 		myTAB.setAttribute('cellpadding','1');
+		myTAB.setAttribute('style','text-align:center');
 		myTD.appendChild(myTAB);
 		
-		var lignetour = '<td><b>Tour :</b></td>';
-		var lignefat = '<td class="mh_tdtitre"><b>Fatigue :</b></td>';
-		var lignemin = '<td class="mh_tdtitre"><b>1 PV =</b></td>';
+		var lignetour = '<td align="left">Tour :</td>';
+		var lignefat = '<td align="left" class="mh_tdtitre"><b>Fatigue :</b></td>';
+		var lignemin = '<td align="left" class="mh_tdtitre"><b>1 PV =</b></td>';
 		var col=0;
 		while (col<9 && (varfat>0 || varbm[col])) {
 			if (col==0) {
-				if (overDLA) {
-					lignetour += '<td align="center"><b><i>À activer</i></b></td>';
-					}
+				if (overDLA)
+					{ lignetour += '<td><i>À activer</i></td>'; }
 				else
-					lignetour += '<td align="center"><b>En cours</b></td>';
+					{ lignetour += '<td>En cours</td>'; }
 				}
 			else
-				lignetour += '<td align="center">&nbsp&nbsp<b>+'+col+'</b>&nbsp&nbsp</td>';
+				{ lignetour += '<td>&nbsp;&nbsp;+'+col+'&nbsp;&nbsp;</td>'; }
 			if (varbm[col]) {
 				if (BMfrais || (!overDLA && col==0)) {
-					lignefat += '<td align="center">'+varfat+'+'+varbm[col]+'</td>' ;
-					lignemin += '<td align="center">'+minpPV[1]+'\'</td>';
+					lignefat += '<td>'+varfat+'+'+varbm[col]+'</td>' ;
+					lignemin += '<td>'+minppv[1]+'\'</td>';
 					}
 				else {
-					lignefat +=  '<td align="center">'+varfat+'+'+varbm[col]+' (?)</td>' ;
-					lignemin += '<td align="center">'+minpPV[1]+'\' ('+minpPV[0]+'\')</td>';
+					lignefat +=  '<td>'+varfat+'+'+varbm[col]+' (?)</td>' ;
+					lignemin += '<td>'+minppv[1]+'\' ('+minppv[0]+'\')</td>';
 					}
 				}
 			else {
-				lignefat += '<td align="center">'+varfat+'</td>' ;
-				lignemin += '<td align="center">'+minpPV[0]+'\'</td>';
+				lignefat += '<td>'+varfat+'</td>' ;
+				lignemin += '<td>'+minppv[0]+'\'</td>';
 				}
 			col++;
 			varfat = Math.floor(varfat / 1.25);
-			minpPV = minParPVsac(varfat,varbm[col]);
-			if (col==1)
-				var nextminFat = (varbm[1]==undefined) ? minpPV[0] : minpPV[1];
+			minppv = minParPVsac(varfat,varbm[col]);
 			}
 		if (varfat>1 || (varfat==1 && !overDLA)) {
-			lignetour += '<td><b>&nbsp ... &nbsp</b></td>';
-			lignefat += '<td align="center">-</td>';
-			lignemin += '<td align="center">-</td>';
+			lignetour += '<td><b>&nbsp; ... &nbsp;</b></td>';
+			lignefat += '<td>-</td>';
+			lignemin += '<td>-</td>';
 			}
 		col = (overDLA) ? Math.max(retourAZero(fatigue)-1,col) : Math.max(retourAZero(fatigue),col);
-		lignetour += '<td>&nbsp&nbsp<b>+'+col+'</b>&nbsp&nbsp</td>';
-		lignefat += '<td align="center">0</td>';
-		lignemin += '<td align="center">30\'</td>';
-		myTAB.innerHTML = '<tr class="mh_tdtitre">'+lignetour+'</tr>'
+		lignetour += '<td>&nbsp;&nbsp;+'+col+'&nbsp;&nbsp;</td>';
+		lignefat += '<td>0</td>';
+		lignemin += '<td>30\'</td>';
+		myTAB.innerHTML = '<tr class="mh_tdtitre" style="font-weight:bold">'+lignetour+'</tr>'
 					+ '<tr class="mh_tdpage">'+lignefat+'</tr>'
 					+ '<tr class="mh_tdpage">'+lignemin+'</tr>';
 
@@ -424,11 +507,11 @@ function setAccel() {
 		}
 	
 	if (pv<=0) {
-		appendText(myTD, 'Aucun calcul possible, vous êtes mort voyons !');
+		appendText(myTD, 'Aucun calcul possible : vous êtes mort voyons !');
 		return;
 		}
-	/* Gestion des dates */
-	var DLAaccel, lastDLA, pva, pvsmax;  // pva = pv actuels ; pvs = pv sac
+
+	/* Setup lastDLAZone */
 	if (overDLA) { // bypass des infos de "menu_FF.js" en cas d'overDLA
 		DLAaccel = new Date( DLAsuiv );
 		lastDLA = new Date( DLA );
@@ -441,62 +524,78 @@ function setAccel() {
 		DLAaccel = new Date( DLA );
 		pva = pv;
 		if (MZ_getValue(numTroll+'.DLA.ancienne'))
-			lastDLA = new Date( StringToDate(MZ_getValue(numTroll+'.DLA.ancienne')) );
+			{ lastDLA = new Date( StringToDate(MZ_getValue(numTroll+'.DLA.ancienne')) ); }
 		else
-			lastDLA = false;
+			{ lastDLA = false; }
 		}
-	appendText(myTD, 'Dernière DLA connue : ');	
-	if (lastDLA) {
-		appendText(myTD, DateToString(lastDLA) );
-		appendBr(myTD);
-		pvsmax = Math.min(pva-1 , Math.ceil( Math.floor((DLAaccel-lastDLA)/60000)/minParPV ));
-		appendText(myTD, 'Accélération maximale possible : ');
-		appendText(myTD, pvsmax+' PV', true);
-		}
-	else {
-		appendText(myTD, 'aucune', true);
-		// À terme : ajout d'une possibilité d'input
-		pvsmax = pva-1;
-		}
+	appendText(myTD, 'Dernière DLA enregistrée : ');	
+	lastDLAZone = document.createElement('span');
+	lastDLAZone.style.cursor = 'pointer';
+	var myB = document.createElement('b');
+	myB.addEventListener('click', inputMode, false);
+	lastDLAZone.appendChild(myB);
+	myTD.appendChild(lastDLAZone);
+	if (lastDLA)
+		{ appendText(myB, DateToString(lastDLA) ); }
+	else
+		{ appendText(myB, 'aucune'); }
 	appendBr(myTD);
 	
+	/* Setup maxAMZone et cumulZone */
+	appendText(myTD, 'Accélération maximale possible : ');
+	maxAMZone = document.createElement('b');
+	myTD.appendChild(maxAMZone);
+	appendBr(myTD);
+	cumulZone = document.createElement('span');
+	myTD.appendChild(cumulZone);
+
+	refreshAccel();
+	}
+
+function refreshAccel() {
 	/* Accélération pour cumul instantané */
+	if (lastDLA) {
+		pvsmax = Math.min(pva-1 , Math.ceil( Math.floor((DLAaccel-lastDLA)/60000)/minParPV ));
+		maxAMZone.innerHTML = pvsmax + ' PV';
+		}
+	else {
+		pvsmax = pva-1;
+		maxAMZone.innerHTML = 'inconnue'
+		}
 	// pvAccel = (nb de minutes avant DLA (arrondi sup) / nb de min/PV) , arrondi sup
 	var pvs = Math.ceil( Math.ceil((DLAaccel-HeureServeur)/60000) / minParPV );
+	cumulZone.innerHTML = '';
 	if (pvs<=pvsmax) {
-		appendText(myTD, 'Vous devez accélérer d\'au moins ');
-		appendText(myTD, pvs+' PV', true);
-		appendText(myTD, ' pour activer immédiatement un nouveau tour.');
+		appendText(cumulZone, 'Vous devez accélérer d\'au moins ');
+		appendText(cumulZone, pvs+' PV', true);
+		appendText(cumulZone, ' pour activer immédiatement un nouveau tour.');
 		if (pvs!=1) {
 			var gainSec = Math.floor((DLAaccel-HeureServeur)/1000)-(pvs-1)*60*minParPV;
-			appendText(myTD, ' ('+(pvs-1)+' PV dans '+Math.floor(gainSec/60)+'min'+(gainSec%60)+'s)');
+			appendText(cumulZone, ' ('+(pvs-1)+' PV dans '+Math.floor(gainSec/60)+'min'+addZero(gainSec%60)+'s)');
 			}
 		}
 	else {
 		var avantDLA = new Date( DLAaccel-HeureServeur-pvsmax*minParPV*60000 );
-		var texte = 'Après votre accélération maximale, il vous faudra encore attendre ';
-		if (avantDLA.getHours()>0)
-			texte += avantDLA.getHours()+'h';
-		texte += avantDLA.getMinutes()+'min';
-		texte += avantDLA.getSeconds()+'s avant de réactiver.';
-		appendText(myTD, texte );
+		appendText(cumulZone, 'Après votre accélération maximale, il vous faudra encore attendre '
+						+ dureeHM(avantDLA/60000)
+						+' avant de réactiver.');
 		}
 	}
 
 function setInfoDateCreation() {
-	var node = arrTR[4].childNodes[3].childNodes[6];
+	var node = mainTR.snapshotItem(0).childNodes[3].childNodes[6];
 	var dateC = node.nodeValue;
 	dateC = dateC.substring(dateC.indexOf('(')+1,dateC.indexOf(')'));
 	dateC = new Date( StringToDate(dateC) );
 	NBjours = Math.floor((HeureServeur-dateC)/86400000)+1;
 	if (NBjours!=1)
-		node.nodeValue += ' ('+NBjours+' jours dans le hall)';
+		{ node.nodeValue += ' ('+NBjours+' jours dans le hall)'; }
 	else
-		node.nodeValue += ' (Bienvenue à toi pour ton premier jour dans le hall)';
+		{ node.nodeValue += ' (Bienvenue à toi pour ton premier jour dans le hall)'; }
 	}
 
 function setNextDLA() {
-	var node = arrTR[5].childNodes[3].childNodes[8].childNodes[1];	// arrTR[5] = ligne 'Echéance du Tour'
+	var node = mainTR.snapshotItem(1).childNodes[3].childNodes[8].childNodes[1];
 	var nbrs = node.firstChild.nodeValue.match(/\d+/g);
 	DureeTour = nbrs[0]*3600000+nbrs[1]*60000;
 	var DLAsuivMSec = DLA.getTime()+DureeTour; var loupes = 0;
@@ -508,14 +607,17 @@ function setNextDLA() {
 	appendBr(node);
 	appendText(node, '---> Prochaine DLA (estimée)............: '+DateToString(DLAsuiv) );
 	if (loupes==1)
-		node.nextSibling.nodeValue = ' (Vous avez manqué votre dernier tour)';
+		{ node.nextSibling.nodeValue = ' (Vous avez manqué votre dernier tour)'; }
 	else if (loupes>1)
-		node.nextSibling.nodeValue = ' (Vous avez manqué vos '+loupes+' derniers tours)';
+		{ node.nextSibling.nodeValue = ' (Vous avez manqué vos '+loupes+' derniers tours)'; }
 	}
 
 function setInfosPxPi() {
+	if (nivTroll==60)
+		{ return; }
+	
 	/* Extraction des données */
-	var TDexp = arrTR[7].childNodes[3];
+	var TDexp = mainTR.snapshotItem(3).childNodes[3];
 	var node = TDexp.firstChild;
 	var str = node.nodeValue;
 	var pi_tot = parseInt(str.match(/\d+/g)[1]);
@@ -523,6 +625,7 @@ function setInfosPxPi() {
 	var px = nbrs[0]+nbrs[1];
 	var pi_nextLvl = nivTroll*(nivTroll+3)*5;
 	var px_ent = 2*nivTroll;
+	if (nivTroll<3) {px_ent=Math.max(px_ent,Math.min(px,5));}
 	var nb_ent = Math.ceil((pi_nextLvl-pi_tot)/px_ent);
 	
 	/* Modification ligne "Niveau" */
@@ -539,42 +642,48 @@ function setInfosPxPi() {
 	insertBr(TDexp.childNodes[3]);
 	node = document.createElement('i');
 	if (px<px_ent)
-		appendText(node,'Il vous manque '+(px_ent-px)+' PX pour vous entraîner.');
+		{ appendText(node,'Il vous manque '+(px_ent-px)+' PX pour vous entraîner.'); }
 	else
-		appendText(node,'Entraînement possible. Il vous restera '+(px-px_ent)+' PX.');
+		{ appendText(node,'Entraînement possible. Il vous restera '+(px-px_ent)+' PX.'); }
 	insertBefore(TDexp.childNodes[4],node);
 	}
 
 function setInfosPV() { // pour AM et Sacro
-	var titre = '1 PV de perdu = +'+Math.floor(250/pvmax)+' min';
+	var texte = '1 PV de perdu = +'+Math.floor(250/pvmax)+' min';
 	var sec = Math.floor(15000/pvmax)%60;
-	if (sec!=0) {titre += ' '+sec+' sec';}
+	if (sec!=0) {texte += ' '+sec+' sec';}
 	
-	pvdispo = pv-pvmax-Math.floor((bmt+pdm)*pvmax/250);
-	if (pv>0 && pvdispo>0) {
-		var td = appendTd(arrTR[12]);
-		var span = document.createElement('span');
-		span.setAttribute('title',titre);
-		var inode = document.createElement('i');
-		inode.appendChild(
-			document.createTextNode('Vous pouvez encore perdre '+pvdispo+' PV sans malus de temps.') );
-		span.appendChild(inode);
-		td.appendChild(span);
-		}
-	var lifebar = arrTR[10].childNodes[1].firstChild;
+	var lifebar = pvTR[1].childNodes[1].firstChild;
 	if (lifebar)
-		lifebar.setAttribute('title',titre);
+		{ lifebar.setAttribute('title',texte); }
+
+	if (pv<=0 || bmt+pdm>=0) {return;}
+	// pvmin0malus = pvm + ceiling(pvm/250*(bmt+pdm))
+	pvdispo = pv-pvmax-Math.ceil((bmt+pdm)*pvmax/250);
+	var td = appendTd(pvTR[3]);
+	var span = document.createElement('span');
+	span.setAttribute('title',texte);
+	var inode = document.createElement('i');
+	if (pvdispo>0)
+		{ texte = 'Vous pouvez encore perdre '+pvdispo+' PV sans malus de temps.'; }
+	else if (pvdispo<0)
+		{ texte = 'Il vous manque '+(-pvdispo)+' PV pour ne plus avoir de malus de temps.'; }
+	else
+		{ texte =''; }
+	inode.appendChild(document.createTextNode(texte));
+	span.appendChild(inode);
+	td.appendChild(span);
 	}
 
 function setStabilite() {
-	var node = arrTable[6].nextSibling;
+	var node = mainTR.snapshotItem(5).childNodes[3].childNodes[2];
 	appendBr(node);
-	appendText(node,'- Stabilité..........: '+2*Math.floor((esq+reg)/3)+' D6 '+aff(esqbonus)
-				+' (moyenne : '+(7*Math.floor((esq+reg)/3)+esqbonus)+')');
+	appendText(node,'- Stabilité..........: '+Math.floor(2*(esq+reg)/3)+' D6 '+aff(esqbonus)
+				+' (moyenne : '+arrondi(3.5*Math.floor(2*(esq+reg)/3)+esqbonus)+')');
 	}
 
 function setCurrentEsquive() {
-	var pnode = arrTR[20].childNodes[3].firstChild;
+	var pnode = mainTR.snapshotItem(6).childNodes[3].firstChild;
 	var attmod = pnode.childNodes[3].nodeValue.match(/\d+/);
 	pnode.childNodes[3].nodeValue += ' (moyenne attaque : '+Math.max(attmoy-3.5*attmod,attbonus+attbmm,0)+')';
 	var esqmod = pnode.childNodes[5].nodeValue.match(/\d+/);
@@ -586,7 +695,8 @@ function setCurrentEsquive() {
 
 function setRatioKillDeath() {
 	var node = document.evaluate("./td[2]/p[contains(./text(),'Adversaires tués')]",
-								arrTR[20], null, 9, null).singleNodeValue;
+								mainTR.snapshotItem(6), null, 9, null).singleNodeValue;
+	if (!node) {return;}
 	var killnode = node.firstChild;
 	var kill = getNumbers( killnode.nodeValue );
 	var span = document.createElement('span');
@@ -606,7 +716,7 @@ function setRatioKillDeath() {
 	}
 
 function setTotauxMagie() {
-	var TDmag = arrTable[3].childNodes[1].childNodes[18].childNodes[3];
+	var TDmag = mainTR.snapshotItem(9).childNodes[3];
 	var span = document.createElement('span');
 	span.setAttribute('title',
 		(Math.round(10*rm/NBjours)/10)+' ('+(Math.round(10*rmTroll/NBjours)/10)+') points de RM par jour | '
@@ -626,11 +736,13 @@ function setTotauxMagie() {
 
 function setPourcentagesTotaux() {
 	removeAllSortComp();
-	var listeComp = arrTable[9].childNodes[1];
-	var listeSort = arrTable[10].childNodes[1];
-	var titres = arrTable[8].getElementsByTagName('b');
-	titres[0].firstChild.nodeValue += ' (Total : '+setInfosDesBulles(listeComp,'competences')+'%)';
-	titres[1].firstChild.nodeValue += ' (Total : '+setInfosDesBulles(listeSort,'sortileges')+'%)';
+	var compTabs = document.evaluate("./tbody/tr/td/table", mainTab[1], null, 7, null);
+	if (!compTabs) {return;}
+	var listeComp = compTabs.snapshotItem(0);
+	var listeSort = compTabs.snapshotItem(1);
+	var titres = document.evaluate("./tbody/tr/td/b/text()", mainTab[1], null, 7, null);
+	titres.snapshotItem(0).nodeValue += ' (Total : '+setInfosDesBulles(listeComp,'competences')+'%)';
+	titres.snapshotItem(1).nodeValue += ' (Total : '+setInfosDesBulles(listeSort,'sortileges')+'%)';
 	}
 
 
@@ -673,9 +785,11 @@ function competences(comp,niveau) {
 			+ 'Effet : <b>Met à terre l\'adversaire</b>';
 		}
 	else if (comp.indexOf('Balluchonnage')!=-1)
-		texte = 'Un beau noeud évite souvent de mauvaises surprises...';
-	else if (comp.indexOf('Bidouille')!=-1)
-		texte = 'Bidouiller un trésor permet de compléter le nom d\'un objet de votre inventaire avec le texte de son choix.';
+		{ texte = 'Un beau noeud évite souvent de mauvaises surprises...'; }
+	else if (comp.indexOf('Bidouille')!=-1) {
+		texte = 'Bidouiller un trésor permet de compléter le nom d\'un objet de votre inventaire '
+			+ 'avec le texte de son choix.';
+		}
 	else if (comp.indexOf('Botte Secrete')!=-1) {
 		texte = 'Attaque : <b>'+Math.floor(att/2)+'</b> D6 '+aff( Math.floor((attbonus+attbmm)/2) )
 			+ ' => <b>'+arrondi(3.5*Math.floor(att/2)+Math.floor((attbonus+attbmm)/2))+'</b><br/>'
@@ -691,11 +805,11 @@ function competences(comp,niveau) {
 			+ '<i>Projectile Magique :</i> <b>'+Math.floor(0.25*camou)+'%</b>';
 		}
 	else if (comp.indexOf('Charger')!=-1) {
-		var portee = Math.min(getPortee(reg+Math.ceil(pv/10))-Math.floor((fatigue+bmfatigue)/5),vuetotale);
+		var portee = Math.min(getPortee(reg+Math.floor(pv/10))-Math.floor((fatigue+bmfatigue)/5),vuetotale);
 		if (pv<=0)
-			return '<i>On ne peut charger personne quand on est mort !</i>';
+			{ return '<i>On ne peut charger personne quand on est mort !</i>'; }
 		if (portee<1)
-			return '<b>Impossible de charger</b>';
+			{ return '<b>Impossible de charger</b>'; }
 		else {
 			texte = 'Attaque : <b>'+att+'</b> D6 '+aff(attbonus+attbmm)
 				+ ' => <b>'+attmoy+'</b><br/>'
@@ -744,9 +858,9 @@ function competences(comp,niveau) {
 			}
 		}
 	else if (comp.indexOf('Course')!=-1)
-		texte = 'Déplacement gratuit : <b>'+Math.floor(getSortComp('Course',1)/2)+' %</b> de chance';
+		{ texte = 'Déplacement gratuit : <b>'+Math.floor(getSortComp('Course',1)/2)+' %</b> de chance'; }
 	else if (comp.indexOf('Deplacement Eclair')!=-1)
-		texte = 'Permet d\'économiser <b>1</b> PA par rapport au déplacement classique';
+		{ texte = 'Permet d\'économiser <b>1</b> PA par rapport au déplacement classique'; }
 	else if(comp.indexOf('Golemologie') != -1) {
 		texte = 'Cette compétence permet de fabriquer un golem à partir d\'un bric-à-brac d\'objets plus ou moins utiles et d\'un minerai taillé contenant toute l\'intelligence de celui-ci, mais permet aussi de pouvoir leur donner des instructions précises.<hr/>'; 
 		texte += '<b>Le golem de Cuir</b> : ce golem possède de nombreuses poches. Il est donc capable de tenir plus d\'un objet à la fois.';
@@ -754,7 +868,7 @@ function competences(comp,niveau) {
 		texte += '<b>Le golem de Mithril</b> : La version du golem de métal pour les trõlls richissimes.';
 		texte += '<b>Le golem de Papier</b> : ce golem est aussi résistant qu\'un gobelin venant de naître, mais par contre, c\'est le seul capable de communiquer avec son propriétaire.';
     } else if (comp.indexOf('Dressage')!=-1)
-		texte = 'Le dressage permet d\'apprivoiser un gowap redevenu sauvage ou un gnu sauvage.';
+		{ texte = 'Le dressage permet d\'apprivoiser un gowap redevenu sauvage ou un gnu sauvage.'; }
 	else if (comp.indexOf('Ecriture Magique')!=-1) {
 		texte = 'Réaliser la copie d\'un sortilège après en avoir découvert la formule nécessite de '
 			+ 'réunir les composants de cette formule, d\'obtenir un parchemin vierge sur lequel écrire, '
@@ -767,9 +881,9 @@ function competences(comp,niveau) {
 			+ ' => <b>'+degmoy+'/'+(degmoy+2*Math.floor(deg/2))+'</b>';
 		}
 	else if (comp.indexOf('Grattage')!=-1)
-		texte = 'Permet de confectionner un Parchemin Vierge à partir de composants et de Gigots de Gob\'.'; 
+		{ texte = 'Permet de confectionner un Parchemin Vierge à partir de composants et de Gigots de Gob\'.'; }
 	else if (comp.indexOf('Hurlement Effrayant')!=-1)
-		texte = 'Fait fuir un monstre si tout se passe bien.<br/>Lui donne de gros bonus sinon.';
+		{ texte = 'Fait fuir un monstre si tout se passe bien.<br/>Lui donne de gros bonus sinon.'; }
 	else if (comp.indexOf('Identification des Champignons')!=-1) {
 		texte = 'Portée horizontale : <b>'+Math.ceil(vuetotale/2)+'</b> case';
 		if (vuetotale>2) {texte += 's';}
@@ -777,13 +891,13 @@ function competences(comp,niveau) {
 		if (vuetotale>4) {texte += 's';}
 		}
 	else if (comp.indexOf('Insultes')!=-1)
-		texte = 'Portée horizontale : <b>'+Math.min(vuetotale,1)+'</b> case';
+		{ texte = 'Portée horizontale : <b>'+Math.min(vuetotale,1)+'</b> case'; }
 	else if (comp.indexOf('interposer')!=-1) {
-		texte = 'Jet de réflexe : <b>'+2*Math.floor((esq+reg)/3)+'</b> D6 '+aff(esqbonus)
-			+ ' => <b>'+(7*Math.floor((esq+reg)/3)+esqbonus)+'</b>';
+		texte = 'Jet de réflexe : <b>'+Math.floor(2*(esq+reg)/3)+'</b> D6 '+aff(esqbonus)
+			+ ' => <b>'+arrondi(3.5*Math.floor(2*(esq+reg)/3)+esqbonus)+'</b>';
 		}
 	else if (comp.indexOf('Lancer de Potions') != -1)
-		texte = 'Portée : <b>'+(2+Math.floor(vuetotale/5))+'</b> cases';
+		{ texte = 'Portée : <b>'+(2+Math.floor(vuetotale/5))+'</b> cases'; }
 	else if (comp.indexOf('Marquage')!=-1) {
 		texte = 'Marquage permet de rajouter un sobriquet à un monstre. '
 			+ 'Il faut bien choisir le nom à ajouter car celui-ci sera définitif. '
@@ -798,7 +912,7 @@ function competences(comp,niveau) {
 			+ 'Portée verticale (officieuse) : <b>'+2*Math.ceil(vuetotale/2)+'</b> cases';
 		}
 	else if (comp.indexOf('Necromancie')!=-1)
-		texte = 'La Nécromancie permet à partir des composants d\'un monstre de faire "revivre" ce monstre.';
+		{ texte = 'La Nécromancie permet à partir des composants d\'un monstre de faire "revivre" ce monstre.'; }
 	else if (comp.indexOf('Parer')!=-1) {
 		texte = 'Jet de parade : <b>'+Math.floor(att/2)+'</b> D6 '+aff( Math.floor((attbonus+attbmm)/2) )
 			+ ' => <b>'+arrondi(3.5*Math.floor(att/2)+Math.floor((attbonus+attbmm)/2))+'</b><hr/>'
@@ -815,8 +929,8 @@ function competences(comp,niveau) {
 			+ 'd\'une variété donnée de champignon à partir de quelques exemplaires préalablement enterrés.';
 		}
 	else if (comp.indexOf('Regeneration Accrue')!=-1) {
-		texte = 'Régénération : <b>'+Math.floor(pvbase/20)+'</b> D3'
-			+ ' => <b>+'+2*Math.floor(pvbase/20)+'</b> PV';
+		texte = 'Régénération : <b>'+Math.floor(pvmax/15)+'</b> D3'
+			+ ' => <b>+'+2*Math.floor(pvmax/15)+'</b> PV';
 		}
 	else if (comp.indexOf('Reparation')!=-1) {
 		texte = 'Marre de ces arnaqueurs de forgerons ? Prenez quelques outils, '
@@ -852,6 +966,21 @@ function competences(comp,niveau) {
 	return texte;
 	}
 
+function decumul_buff(nom,str,buff) {
+	var ret = '1<sup>ere</sup>'+nom+' : <b>'+str+' +'+buff+'</b>';
+	var dec = buff, total = buff;
+	var i=1;
+	while (i<6) {
+		i++;
+		dec = Math.floor(coefDecumul(i)*buff);
+		if (dec<=1 || i==6) {break;}
+		total += dec;
+		ret += '<br/><i>'+i+'<sup>e</sup> '+nom+' : '+str+' +'+dec+' (+'+total+')</i>';
+		}
+	ret += '<br/><i>'+i+'<sup>e</sup> et + : '+str+' +'+dec+'</i>';
+	return ret;
+	}
+
 function addVenin(type,effet,duree) {
 	var ret = '<b>Venin '+type+' : </b><br/><b>'+effet+'</b> D3'+' pendant <b>'+duree+'</b> tour';
 	var dured = Math.max(Math.floor(duree/2),1);
@@ -864,8 +993,12 @@ function perteSacro(sac) {
 	return ' (-'+(sac+2*Math.floor(sac/5)+2)+' PV)';
 	}
 
-function sortileges(sort) {
+function sortileges(sort,mainCall,pcA,pcD) {
 	var texte = '';
+	if (mainCall) {
+		var pcA = (bonusAttM) ? bonusAttM : false;
+		var pcD = (bonusDegM) ? bonusDegM : false;
+		}
 	if (sort.indexOf('Analyse Anatomique')!=-1) {
 		texte = 'Portée horizontale : <b>'+Math.floor(vuetotale/2)+'</b> case';
 		if (vuetotale>3) {texte += 's';}
@@ -873,13 +1006,13 @@ function sortileges(sort) {
 		if (vuetotale>7) {texte += 's';}
 		}
 	else if (sort.indexOf('Armure Etheree')!=-1)
-		texte = 'Armure magique : <b>+'+reg+'</b>';
+		{ texte = decumul_buff('AE','Armure magique',reg); }
 	else if (sort.indexOf('Augmentation')!=-1 && sort.indexOf('Attaque')!=-1)
-		texte = 'Attaque physique : <b>+'+(1+Math.floor((att-3)/2))+'</b>';
+		{ texte = decumul_buff('AdA','Attaque physique',1+Math.floor((att-3)/2)); }
 	else if (sort.indexOf('Augmentation')!=-1 && sort.indexOf('Esquive')!=-1)
-		texte = 'Esquive : <b>+'+(1+Math.floor((esq-3)/2))+'</b>';
+		{ texte = decumul_buff('AdE','Esquive',1+Math.floor((esq-3)/2)); }
 	else if (sort.indexOf('Augmentation des Degats')!=-1)
-		texte = 'Dégâts physiques : <b>+'+(1+Math.floor((deg-3)/2))+'</b>';
+		{ texte = decumul_buff('AdD','Dégâts physiques',1+Math.floor((deg-3)/2)); }
 	else if (sort.indexOf('Bulle Anti-Magie')!=-1) {
 		texte = 'RM : <b>+'+rm+'</b> (Total : <b>'+(2*rm+rmbonus)+'</b>)<br/>'
 			+ 'MM : <b>-'+mm+'</b> (Total : <b>'+mmbonus+'</b>)';
@@ -891,12 +1024,12 @@ function sortileges(sort) {
 	else if (sort.indexOf('Explosion')!=-1) {
 		texte = 'Attaque : <b>Automatique</b><br/>'
 			+ 'Dégâts : <b>'+Math.floor( 1+(deg+Math.floor(pvbase/10))/2 )+'</b> D3 '
-			+ ' => <b>'+2*Math.floor( 1+(deg+Math.floor(pvbase/10))/2 ) 
+			+ ' => <b>'+2*Math.floor( 1+(deg+Math.floor(pvbase/10))/2 )
 			+ ' ('+resiste( 1+(deg+Math.floor(pvbase/10))/2 )+')</b>';
 		}
 	else if (sort.indexOf('Faiblesse Passagere')!=-1) {
 		if (pv<=0)
-			return '<i>Dans votre état, vous n\'affaiblirez personne...</i>';
+			{ return '<i>Dans votre état, vous n\'affaiblirez personne...</i>'; }
 		// effet réduit total = ceiling(effet total /2)
 		// découpage Phys+Mag : P = ceiling(effet/2), M = floor(effet/2)
 		texte = 'Portée horizontale : <b>'+Math.min(1,vuetotale)+'</b> case<br/>'
@@ -905,8 +1038,8 @@ function sortileges(sort) {
 			+ 'Dégâts magiques : <b>-'+Math.floor( (Math.floor(pv/10)+deg-4)/4 )
 			+ ' (-'+Math.floor( (Math.floor(pv/10)+deg-2)/8 )+')</b>';
 		}
-	else if (sort.indexOf('Flash Aveuglant')!=-1)
-		texte = 'Vue, Attaque, Esquive : <b>-'+(1+Math.floor(vue/5))+'</b>';
+	else if (sort.indexOf('Flash Aveuglant')!=-1)	
+		{ texte = 'Vue, Attaque, Esquive : <b>-'+(1+Math.floor(vue/5))+'</b>'; }
 	else if (sort.indexOf('Glue')!=-1) {
 		texte = 'Portée : <b>'+(1+Math.floor(vuetotale/3))+'</b> case';
 		if (vuetotale>2) {texte += 's';}
@@ -914,26 +1047,27 @@ function sortileges(sort) {
 	else if (sort.indexOf('Griffe du Sorcier')!=-1) {
 		var modD = 0;
 		texte = 'Attaque : <b>'+att+'</b> D6 ';
-		if (bonusAttM) {
-			modD = parseInt(att*bonusAttM/100);
+		if (pcA) {
+			modD = parseInt(att*pcA/100);
 			texte += '<i>'+aff(modD)+'D6</i> ';
 			}
 		texte += aff(attbmm)
 			+ ' => <b>'+(arrondi(3.5*(att+modD))+attbmm)+'</b><br/>'
 			+ 'Dégâts : <b>'+Math.floor(deg/2)+'</b> D3 ';
-		if (bonusDegM) {
-			modD = parseInt(Math.floor(deg/2)*bonusDegM/100);
+		if (pcD) {
+			modD = parseInt(Math.floor(deg/2)*pcD/100);
 			texte += '<i>'+aff(modD)+'D3</i> ';
 			}
-		else 
-			modD = 0;
+		else
+			{ modD = 0; }
 		texte += aff(degbmm)
 			+ ' => <b>'+(2*(Math.floor(deg/2)+modD)+degbmm)
 			+ '/'+(2*(Math.floor(deg/2)+Math.floor(deg/4)+modD)+degbmm)
 			+ ' ('+resiste(Math.floor(deg/2)+modD,degbmm)
-			+ '/'+resiste(Math.floor(deg/2)+Math.floor(deg/4)+modD,degbmm)+')</b><hr/>';
+			+ '/'+resiste(Math.floor(deg/2)+Math.floor(deg/4)+modD,degbmm)+')</b>';
+		if (!mainCall) {return texte;}	
 		var effet = 1+Math.floor((Math.floor(pvbase/10)+reg)/3);
-		texte += addVenin('insidieux',effet,2+Math.floor(vue/5))+'<hr/>';
+		texte += '<hr/>'+addVenin('insidieux',effet,2+Math.floor(vue/5))+'<hr/>';
 		effet = Math.floor(1.5*effet);
 		texte += addVenin('virulent',effet,1+Math.floor(vue/10));
 		}
@@ -942,7 +1076,7 @@ function sortileges(sort) {
 			+ ' (<b>-'+Math.floor(esq/3)+'</b> Dés)';
 		}
 	else if (sort.indexOf('Identification des tresors')!=-1)
-		texte = 'Permet de connaitre les caractéristiques et effets précis d\'un trésor.';
+		{ texte = 'Permet de connaitre les caractéristiques et effets précis d\'un trésor.'; }
 	else if (sort.indexOf('Invisibilite')!=-1) {
 		texte = 'Un troll invisible est indétectable même quand on se trouve sur sa zone. '
 			+ 'Toute action physique ou sortilège d\'attaque fait disparaître l\'invisibilité.';
@@ -955,86 +1089,116 @@ function sortileges(sort) {
 		var modD = 0;
 		var portee = getPortee(vuetotale);
 		texte = 'Attaque : <b>'+vue+'</b> D6 ';
-		if (bonusAttM) {
-			modD = parseInt(vue*bonusAttM/100);
+		if (pcA) {
+			modD = parseInt(vue*pcA/100);
 			texte += '<i>'+aff(modD)+'D6</i> ';
 			}
 		texte += aff(attbmm)
 			+' => <b>'+(arrondi(3.5*(vue+modD))+attbmm)+'</b><br/>'
 			+'Dégâts : <b>'+Math.floor(vue/2)+'</b> D3 ';
-		if (bonusDegM) {
-			modD = parseInt(Math.floor(vue/2)*bonusDegM/100);
+		if (pcD) {
+			modD = parseInt(Math.floor(vue/2)*pcD/100);
 			texte += '<i>'+aff(modD)+'D3</i> ';
 			}
-		else 
-			modD = 0;
+		else
+			{ modD = 0; }
 		texte += aff(degbmm)
 			+ ' => <b>'+(2*(Math.floor(vue/2)+modD)+degbmm)
 			+ '/'+(2*(Math.floor(1.5*Math.floor(vue/2))+modD)+degbmm)
 			+ ' ('+resiste(Math.floor(vue/2)+modD,degbmm)
-			+ '/'+resiste(1.5*Math.floor(vue/2)+modD,degbmm)+')</b><br/>'
-			+ 'Portée : <b>'+portee+'</b> case';
+			+ '/'+resiste(1.5*Math.floor(vue/2)+modD,degbmm)+')</b>';
+		if (!mainCall) {return texte;}
+		texte += '<br/>Portée : <b>'+portee+'</b> case';
 		if (portee > 1) {texte += 's';}
 		}
 	else if (sort.indexOf('Puissance Magique')!=-1) {
-		texte = 'Dés d\'Attaque Magique : <b>'+aff(-decumulPumPrem(bonusDegM))+' %</b><br/>'
-			+ 'Dés de Dégâts Magiques : <b>'+aff(decumulPumPrem(bonusDegM))+' %</b>';
+		var newSort, pc = 20;
+		var sortAtt = ['Projectile Magique','Rafale Psychique','Siphon des Ames','Vampirisme','Griffe du Sorcier'];
+		for (var i=1 ; i<4 ; i++) {
+			if (texte) {texte += '<hr/>'}
+			texte += '<b>'+i+'<sup>e</sup> PuM ('+aff(pc)+' %) :</b><br/>';
+			newSort = false;
+			for (var j=0 ; j<4 ; j++) {
+				if ( getSortComp(sortAtt[j]) ) {
+					if (newSort) {texte += '<br/><br/>'}
+					texte += '<i>'+sortAtt[j]+' :</i><br/>'+sortileges(sortAtt[j],false,-pc,pc);
+					newSort = true;
+					}
+				}
+			pc = decumulPumPrem(pc);
+			}
 		}
 	else if (sort.indexOf('Precision Magique')!=-1) {
-		texte = 'Dés d\'Attaque Magique : <b>'+aff(decumulPumPrem(bonusAttM))+' %</b><br/>'
-			+ 'Dés de Dégâts Magiques : <b>'+aff(-decumulPumPrem(bonusAttM))+' %</b>';
+		var newSort, pc = 20;
+		var sortAtt = ['Projectile Magique','Rafale Psychique','Siphon des Ames','Vampirisme','Griffe du Sorcier'];
+		for (var i=1 ; i<4 ; i++) {
+			if (texte) {texte += '<hr/>'}
+			texte += '<b>'+i+'<sup>e</sup> PréM ('+aff(pc)+' %) :</b><br/>';
+			newSort = false;
+			for (var j=0 ; j<4 ; j++) {
+				if ( getSortComp(sortAtt[j]) ) {
+					if (newSort) {texte += '<br/><br/>'}
+					texte += '<i>'+sortAtt[j]+' :</i><br/>'+sortileges(sortAtt[j],false,pc,-pc);
+					newSort = true;
+					}
+				}
+			pc = decumulPumPrem(pc);
+			}
 		}
 	else if (sort.indexOf('Projection')!=-1) {
 		texte = 'Si le jet de résistance de la victime est raté:<br/>'
 			+ 'la victime est <b>déplacée</b> et perd <b>1D6</b> d\'Esquive<hr/>'
 			+ 'Si le jet de résistance de la victime est réussi:<br/>'
-			+ 'la victime ne <b>bouge pas</b> mais perd <b>1D6</b> d\' Esquive.';
+			+ 'la victime ne <b>bouge pas</b> mais perd <b>1D6</b> d\'Esquive.';
 		}
 	else if (sort.indexOf('Rafale Psychique')!=-1) {
 		var modD = 0;
 		texte = 'Attaque : <b>Automatique</b><br/>'
 			+ 'Dégâts : <b>'+deg+'</b> D3 ';
-		if (bonusDegM) {
-			modD = parseInt(deg*bonusDegM/100);
+		if (pcD) {
+			modD = parseInt(deg*pcD/100);
 			texte += '<i>'+aff(modD)+'D3</i> ';
 			}
 		texte += aff(degbmm)
-			+ ' => <b>'+(2*(deg+modD)+degbmm)+' ('+resiste(deg+modD,degbmm)+')</b><br/>'
-			+ 'Malus : régénération <b>-'+deg+'</b>';
+			+ ' => <b>'+(2*(deg+modD)+degbmm)+' ('+resiste(deg+modD,degbmm)+')</b>';
+		if (!mainCall) {return texte;}
+		texte += '<br/>Malus : régénération <b>-'+deg+'</b>';
 		}
 	else if (sort.indexOf('Sacrifice')!=-1) {
 		if (pv<=0)
-			return '<i>Qui voulez-vous donc soigner ? Vous êtes mort !</i>';
+			{ return '<i>Qui voulez-vous donc soigner ? Vous êtes mort !</i>'; }
 		var sac = Math.floor((pv-1)/2);
 		texte = 'Portée horizontale : <b>'+Math.min(1,vuetotale)+'</b> case<br/>'
 			+ 'Soin maximal : <b>'+sac+'</b> PV'+perteSacro(sac);
 		sac = Math.floor(pvdispo/1.4)-1;
-		if (sac>0) {
-			var sacopt = 5*Math.floor((sac+1)/5)-1;
-			texte += '<hr/>Soin maximal sans malus de temps : <b>'+sac+'</b> PV'+perteSacro(sac)
-				+ '<br/>Soin optimal sans malus de temps : <b>'+sacopt+'</b> PV'+perteSacro(sacopt);
+		if (sac>0)
+			{ texte += '<hr/>Soin maximal sans malus de temps : <b>'+sac+'</b> PV'+perteSacro(sac); }
+		if (sac>3) {
+			sac = 5*Math.floor((sac+1)/5)-1;
+			texte	+= '<br/>Soin optimal sans malus de temps : <b>'+sac+'</b> PV'+perteSacro(sac);
 			}
 		}
 	else if (sort.indexOf('Siphon')!=-1) {
 		var modD = 0;
 		texte = 'Attaque : <b>'+att+'</b> D6 ';
-		if (bonusAttM) {
-			modD = parseInt(att*bonusAttM/100);
+		if (pcA) {
+			modD = parseInt(att*pcA/100);
 			texte += '<i>'+aff(modD)+'D6</i> ';
 			}
 		texte += aff(attbmm)
 			+ ' => <b>'+arrondi(3.5*(att+modD)+attbmm)+'</b><br/>'
 			+ 'Dégâts : <b>'+reg+'</b> D3 ';
-		if (bonusDegM) {
-			modD = parseInt(reg*bonusDegM/100);
+		if (pcD) {
+			modD = parseInt(reg*pcD/100);
 			texte += '<i>'+aff(modD)+'D3</i> ';
 			}
-		else 
-			modD = 0;
-		texte += aff(degbmm);
+		else
+			{ modD = 0; }
+		texte += aff(degbmm)
 			+ ' => <b>'+(2*(reg+modD)+degbmm)+'/'+(2*(Math.floor(1.5*reg)+modD)+degbmm)
-			+ ' ('+resiste(reg+modD,degbmm)+'/'+resiste(1.5*reg+modD,degbmm)+')</b><br/>'
-			+ 'Nécrose : attaque magique <b>-'+reg+'</b>';
+			+ ' ('+resiste(reg+modD,degbmm)+'/'+resiste(1.5*reg+modD,degbmm)+')</b>';
+		if (!mainCall) {return texte;}
+		texte += '<br/>Nécrose : attaque magique <b>-'+reg+'</b>';
 		}
 	else if (sort.indexOf('Telekinesie')!=-1) {
 		texte = 'Portée horizontale  :<br/>';
@@ -1063,25 +1227,25 @@ function sortileges(sort) {
 	else if (sort.indexOf('Vampirisme')!=-1) {
 		var modD = 0;
 		texte = 'Attaque : <b>'+Math.floor(2*deg/3)+'</b> D6 ';
-		if (bonusAttM) {
-			modD = parseInt(Math.floor(2*deg/3)*bonusAttM/100);
+		if (pcA) {
+			modD = parseInt(Math.floor(2*deg/3)*pcA/100);
 			texte += '<i>'+aff(modD)+'D6</i> ';
 			}
 		texte += aff(attbmm)
 			+ ' => <b>'+arrondi(3.5*(Math.floor(2*deg/3)+modD)+attbmm)+'</b><br/>'
 			+ 'Dégâts : <b>'+deg+'</b> D3 ';
-		if (bonusDegM) {
-			modD = parseInt(deg*bonusDegM/100);
+		if (pcD) {
+			modD = parseInt(deg*pcD/100);
 			texte += '<i>'+aff(modD)+'D3</i> ';
 			}
-		else 
-			modD = 0;
+		else
+			{ modD = 0; }
 		texte += aff(degbmm)
 			+ ' => <b>'+(2*(deg+modD)+degbmm)+'/'+(2*(Math.floor(1.5*deg)+modD)+degbmm)
 			+ ' ('+resiste(deg+modD,degbmm)+'/'+resiste(1.5*deg+modD,degbmm)+')</b>';
 		}
 	else if (sort.indexOf('Vision Accrue')!=-1)
-		texte = 'Vue : <b>+'+Math.floor(vue/2)+'</b>';
+		{ texte = decumul_buff('VA','Vue',Math.floor(vue/2)); }
 	else if (sort.indexOf('Vision lointaine')!=-1) {
 		texte = 'En ciblant une zone située n\'importe où dans le Monde Souterrain, '
 			+ 'votre Trõll peut voir comme s\'il s\'y trouvait.';
@@ -1154,39 +1318,39 @@ function setBulle(evt) {
 	var niveau = parseInt(this.getAttribute('niveau'));
 	var str='';
 	if (fonction=='competences')
-		str=competences(nom,niveau);
+		{ str=competences(nom,niveau); }
 	else if (fonction=='sortileges')
-		str=sortileges(nom,niveau);
+		{ str=sortileges(nom,true); }
 	if (str=='')
-		return;
+		{ return; }
 	
 	var xfenetre, yfenetre, xpage, ypage, element = null;
 	var offset = 15;
 	var bulleWidth = 300;
 	if (!hauteur)
-		hauteur = 50;
+		{ hauteur = 50; }
 	element = document.getElementById('bulle');
 	xfenetre = evt.clientX;
 	yfenetre = evt.clientY;
 	xpage = xfenetre;
 	ypage = yfenetre;
 	if (evt.pageX)
-		xpage = evt.pageX;
+		{ xpage = evt.pageX; }
 	if (evt.pageY)
-		ypage = evt.pageY;
+		{ ypage = evt.pageY; }
 	if (element) {
 		bulleStyle = element.style;
 		element.childNodes[0].childNodes[0].innerHTML = '<b>' + nom + '</b>';
 		element.childNodes[1].childNodes[0].innerHTML = str;
 		}
-
+	
 	if (bulleStyle) {
 		if (xfenetre > bulleWidth + offset)
-			xpage -= bulleWidth + offset;
+			{ xpage -= bulleWidth + offset; }
 		else
-			xpage += offset;
+			{ xpage += offset; }
 		if (yfenetre > hauteur + offset)
-			ypage -= hauteur + offset;
+			{ ypage -= hauteur + offset; }
 		bulleStyle.width = bulleWidth;
 		bulleStyle.left = xpage + 'px';
 		bulleStyle.top = ypage + 'px';
@@ -1196,7 +1360,7 @@ function setBulle(evt) {
 
 function cacherBulle() {
 	if (bulleStyle)
-		bulleStyle.visibility = 'hidden';
+		{ bulleStyle.visibility = 'hidden'; }
 	}
 
 try {
@@ -1219,195 +1383,189 @@ saveProfil();
 displayScriptTime();
 }
 catch(e) {alert(e)}
-//============================ ZZ POST CODE ======================================
-//var ZZCRON='<img src="'+ZZDB+'/Cron/zzcron.php">';
-
-function setNewsZZ(news) {
-    IdNewZZ=news*1;
-    if (zzlink) {
-	 	var cnews=MZ_getValue(TiD+".ZZ_NewzID");
-		if (news<0) {
-		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<img height=18 SRC='"+SkinZZ+"/Bullet-yeux.gif'> <A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
- 		} else if ((!cnews) ||(cnews<news)) {
-		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A><img height=18 SRC='"+SkinZZ+"/New.gif'>)</FONT>";
-		}
-    }
-} 
-
-function initProfil() {
-
+//============================ ZZ POST CODE ======================================
+//var ZZCRON='<img src="'+ZZDB+'/Cron/zzcron.php">';
+
+function setNewsZZ(news) {
+    IdNewZZ=news*1;
+    if (zzlink) {
+	 	var cnews=MZ_getValue(TiD+".ZZ_NewzID");
+		if (news<0) {
+		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<img height=18 SRC='"+SkinZZ+"/Bullet-yeux.gif'> <A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
+ 		} else if ((!cnews) ||(cnews<news)) {
+		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A><img height=18 SRC='"+SkinZZ+"/New.gif'>)</FONT>";
+		}
+    }
+} 
+
+function initProfil() {//mainTab = document.getElementsByClassName('mh_tdborder');
+//mainTR = document.evaluate("./tbody/tr", mainTab[0], null, 7, null);
+//test: mainTR= document.evaluate("./tbody/tr", document.getElementsByClassName('mh_tdborder')[0], null, 7, null).snapshotItem();
 
 	//TiD=arrTR[4].childNodes[3].childNodes[1].getAttribute('href');
 	//TiD=TiD.slice(TiD.indexOf('(')+1,TiD.indexOf(','));
-	troll=arrTR[4].childNodes[3].childNodes[1].childNodes[0].nodeValue;
-	troll=troll.substring(troll.indexOf('-')+2);
-
-	//race=arrTR[4].childNodes[3].childNodes[4].nodeValue.split(':')[1];
-	race = document.evaluate("//tr/td/text()[contains(.,'Race')]",arrTable[3], null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeValue;
+	troll=mainTR.snapshotItem(0).childNodes[3].childNodes[1].childNodes[0].nodeValue;
+	troll=troll.substring(troll.indexOf('-')+2);
+	//race=arrTR[4].childNodes[3].childNodes[4].nodeValue.split(':')[1];
+	race = mainTR.snapshotItem(0).childNodes[3].childNodes[4].nodeValue;
 	race = race.substring(race.indexOf(":")+1);
-
-	if (typeof(arrTR[6].childNodes[3].childNodes[1].childNodes[1].childNodes[2])!='undefined') {
-    	if(arrTR[6].childNodes[3].childNodes[1].childNodes[1].childNodes[2].nodeValue.indexOf('[Camouflé]')>0) {
-        	camou=1; // Le troll est Camouflé
-    	}
-	} 
-}
-
-
-// override infoBulle pour ajout des images
-function ZZinfoBulle(evt) {
-   var nom=this.getAttribute("nom");
-   var fonction=this.getAttribute("fonction");
-   var img=SkinZZ+'/'+fonction+'/'+skinIMG[nom];
-   element = document.getElementById( 'bulle' );
-   if( element ) {
-   		element.childNodes[0].childNodes[0].innerHTML = '<TABLE><TR><TD><IMG SRC="'+img+'"><TD><TD valign=center> <b>'+nom+'</b></TD></TR></TABLE>';
-	}
-}
-
-function ZZcreerInfoBulle(noeud) {
-    //noeud.removeEventListener("mouseover", infoBulle,true);
-	noeud.addEventListener("mouseover", ZZinfoBulle,true);
-}
-
-function ZZcreerInfoBulles(liste) {
-	var i = 0;
-	while (liste.childNodes[i] != null) {
-		if (liste.childNodes[i].childNodes[3] != null) {
-			ZZcreerInfoBulle(liste.childNodes[i].childNodes[3].childNodes[0]);
+//alert(typeof(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2].childNodes[2].nodeValue));
+	    if((typeof(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2]))!='undefined'){
+			if(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2].nodeValue.indexOf('[Camouflé]')>0) {
+				camou=1; // Le troll est Camouflé
+			}
 		}
-		i += 2;
-	}
-}
-
-function overrideInfoBulles() {
- 	//var node = arrTable[8].childNodes[1];		// Le DOM est altéré par le tableau d'AM des kastars, il faut ré-évaluer le bon noeud!
-    var node = document.evaluate("//tr/td/b/text()[contains(.,'Compétences')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.parentNode;
-    if (!node) return;
-	    
-	var listeComp = node.childNodes[2].childNodes[1].childNodes[0].childNodes[1];
-	var listeSort = node.childNodes[2].childNodes[3].childNodes[0].childNodes[1];
-	ZZcreerInfoBulles(listeComp);
-	ZZcreerInfoBulles(listeSort);	
-}
-
-// Fonction concoter par Breizhou13 modifié par Zo avec la réformesur le balayage
-// Calcul du nombre de PA pour se relever lorsque le troll est à terre
-function Morphologie(typeaff) { // version Dabihul
-   var node = document.evaluate("//tr/td/p/b/i/text()[contains(.,'Caractéristiques Déduites')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-   var chiffres = node.innerHTML.match(/\d+/g);
-   var corpulence = chiffres[0];
-   var agilite = chiffres[1];
-   var stabilite = Math.floor((esq+reg)*2/3)+" D6 "+aff(esqbonus)+" (moyenne : "+(7*Math.floor((esq+reg)/3)+esqbonus)+")";
-      
-   // Création de la table d'affichage
-   if (typeaff==1) {
-      var string = '<table border="0" cellspacing="1" cellpadding="2" class="mh_tdborder">';
-      string += '<tr class="mh_tdtitre">';
-      string += '<td colspan="2" align="center"><b>Caractéristiques Déduites</b></td>';
-      string += '<td align="center"><b>Stabilité</b></td></tr>';
-      string += '<tr class="mh_tdpage">';
-      string += '<td align="center">Corpulence</td><td align="center">'+corpulence+'</td>';
-      string += '<td rowspan="2" align="center">'+stabilite+'</td></tr>';
-      string += '<tr class="mh_tdpage">';
-      string += '<td align="center">Agilité</td><td align="center">'+agilite+'</td></tr>';
-      string += '</table>';
-      }
-   else if (typeaff==2) {
-      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
-      string += '<table><tr><td>-  Corpulence.....:</td><td align=left>'+corpulence+' points</td></tr>';
-      string += '<tr><td>- Agilité.............:</td><td>'+agilite+' points</td></tr>';
-      string += '<tr><td>- Stabilité...........:</td><td>'+stabilite+'</td></tr></table>';
-      }
-   else {
-      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
-      string += '- Corpulence.....: '+corpulence+' points<br>';
-      string += '- Agilité.............: '+agilite+' points<br>';
-      string += '- Stabilité..........: '+stabilite;
-      }
-   node.innerHTML = string;
-}  
-   
-
-
-// Fonction concoter par Breizhou13
-function CaracEnTab() { // version Dabihul
-   //recuperation des emplacements
-   var base = document.evaluate("//tr/td/b/text()[contains(.,'Caractéristiques')]/../../../td[2]/table", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-   var nombre_TR = base.getElementsByTagName('TR');
-   
-   //mise en forme du tableau et nettoyage des noms des caracs
-   base.setAttribute('class','mh_tdborder');
-   var tr = document.createElement('tr');
-   tr.setAttribute('class','mh_tdtitre')
-   for(i=0 ; i<nombre_TR.length ; i++) {
-      nombre_TR[i].setAttribute('class','mh_tdpage');
-      var nombre_TD = nombre_TR[i].getElementsByTagName('TD');
-      nombre_TD[0].innerHTML = nombre_TD[0].innerHTML.substr(0,nombre_TD[0].innerHTML.indexOf('.', 0));
-      var len = nombre_TD.length;
-      for(j=0 ; j<len ; j++) {
-         nombre_TD[j].setAttribute('align','center');
-         }
-      var moy = nombre_TD[len-1].textContent;
-      nombre_TD[len-1].firstChild.nodeValue = moy.substring(11,moy.length-1);
-      }
-   
-   //insertion des entetes du tableau
-   insertBefore(base.firstChild, tr);
-   appendTdText(tr, "", true);
-   appendTdText(tr, "Nombre de dés", true);
-   appendTdText(tr, "Bonus physique", true);
-   appendTdText(tr, "Bonus magique", true);
-   appendTdText(tr, "Moyenne", true);
-}
-   
-
-   
-//=====================================================================
-var TiD=numTroll;
-var SkinZZ=MZ_getValue(TiD+".pref.SkinZZ"); if (!SkinZZ) SkinZZ=ZZDB+"/skin";
-var troll="";
-var race="";
-var camou=0;
-var PG="";
-var nodesPG = document.evaluate("//img[contains(@src,'contenu/header.jpg')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-if (nodesPG.snapshotLength==1) {
-	PG=nodesPG.snapshotItem(0).src;
-	PG=URLencode(PG.substring(0, PG.length-19));
-}
-initProfil();
-overrideInfoBulles();
-
-var nodes = document.evaluate("//B/text()[contains(.,'MON PROFIL')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-if (nodes.snapshotLength==1) {
-    var node = nodes.snapshotItem(0);
-    zzlink=node.parentNode;
-	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
-}
-
-
-var IdNewZZ=0;
-var PVMax=pvmax;
-var pvactuels=pv;
-var data="&TypeData=Profil";
-data=data+"&Troll="+escape(trim(troll))+"&Race="+trim(race)+"&Niveau="+nivTroll;
-data=data+"&TiD="+TiD+"&PVMax="+PVMax+"&PV="+pvactuels;
-data=data+"&PA="+trim(arrTR[5].childNodes[3].childNodes[5].childNodes[0].nodeValue).substr(0,1);;
-data=data+"&DLA="+trim(arrTR[5].childNodes[3].childNodes[1].childNodes[0].nodeValue).replace(" ", "_");
-
-//data=data+"&TimeStamp="+trim(arrTable[10].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue).substr(27,19).replace(" ", "_");
-var TimeStamp = document.evaluate("//tr/td/text()[contains(.,'Heure Serveur')]", arrTable[3], null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.nodeValue;
-TimeStamp = TimeStamp.substring(TimeStamp.indexOf("Heure")+18);
-TimeStamp = TimeStamp.substring(TimeStamp.indexOf(": ")+2,TimeStamp.indexOf("]")-11).replace(" ", "_");
-data=data+"&TimeStamp="+TimeStamp;
-data=data+"&X="+posX+"&Y="+posY+"&N="+posN+"&Camoufle="+camou;  
-//alert(ZZDB+'/mzData.php?'+data);
-MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
-
-
+}
+
+
+// override infoBulle pour ajout des images
+function ZZinfoBulle(evt) {
+   var nom=this.getAttribute("nom");
+   var fonction=this.getAttribute("fonction");
+   var img=SkinZZ+'/'+fonction+'/'+skinIMG[nom];
+   element = document.getElementById( 'bulle' );
+   if( element ) {
+   		element.childNodes[0].childNodes[0].innerHTML = '<TABLE><TR><TD><IMG SRC="'+img+'"><TD><TD valign=center> <b>'+nom+'</b></TD></TR></TABLE>';
+	}
+}
+
+function ZZcreerInfoBulle(noeud) {
+    //noeud.removeEventListener("mouseover", infoBulle,true);
+	noeud.addEventListener("mouseover", ZZinfoBulle,true);
+}
+
+function ZZcreerInfoBulles(liste) {
+	var i = 0;
+	while (liste.childNodes[i] != null) {
+		if (liste.childNodes[i].childNodes[3] != null) {
+			ZZcreerInfoBulle(liste.childNodes[i].childNodes[3].childNodes[0]);
+		}
+		i += 2;
+	}
+}
+
+function overrideInfoBulles() {
+ 	//var node = arrTable[8].childNodes[1];		// Le DOM est altéré par le tableau d'AM des kastars, il faut ré-évaluer le bon noeud!
+    var node = document.evaluate("//tr/td/b/text()[contains(.,'Compétences')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.parentNode;
+    if (!node) return;
+	var listeComp = node.childNodes[2].childNodes[1].childNodes[0].childNodes[1];
+	var listeSort = node.childNodes[2].childNodes[3].childNodes[0].childNodes[1];
+	ZZcreerInfoBulles(listeComp);
+	ZZcreerInfoBulles(listeSort);	
+}
+
+// Fonction concoter par Breizhou13 modifié par Zo avec la réforme sur le balayage
+// Calcul du nombre de PA pour se relever lorsque le troll est à terre
+function Morphologie(typeaff) { // version Dabihul
+   var node = document.evaluate("//tr/td/p/b/i/text()[contains(.,'Caractéristiques Déduites')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+   var chiffres = node.innerHTML.match(/\d+/g);
+   var corpulence = chiffres[0];
+   var agilite = chiffres[1];
+   var stabilite = Math.floor((esq+reg)*2/3)+" D6 "+aff(esqbonus)+" (moyenne : "+(7*Math.floor((esq+reg)/3)+esqbonus)+")";
+      
+   // Création de la table d'affichage
+   if (typeaff==1) {
+      var string = '<table border="0" cellspacing="1" cellpadding="2" class="mh_tdborder">';
+      string += '<tr class="mh_tdtitre">';
+      string += '<td colspan="2" align="center"><b>Caractéristiques Déduites</b></td>';
+      string += '<td align="center"><b>Stabilité</b></td></tr>';
+      string += '<tr class="mh_tdpage">';
+      string += '<td align="center">Corpulence</td><td align="center">'+corpulence+'</td>';
+      string += '<td rowspan="2" align="center">'+stabilite+'</td></tr>';
+      string += '<tr class="mh_tdpage">';
+      string += '<td align="center">Agilité</td><td align="center">'+agilite+'</td></tr>';
+      string += '</table>';
+      }
+   else if (typeaff==2) {
+      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
+      string += '<table><tr><td>-  Corpulence.....:</td><td align=left>'+corpulence+' points</td></tr>';
+      string += '<tr><td>- Agilité.............:</td><td>'+agilite+' points</td></tr>';
+      string += '<tr><td>- Stabilité...........:</td><td>'+stabilite+'</td></tr></table>';
+      }
+   else {
+      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
+      string += '- Corpulence.....: '+corpulence+' points<br>';
+      string += '- Agilité.............: '+agilite+' points<br>';
+      string += '- Stabilité..........: '+stabilite;
+      }
+   node.innerHTML = string;
+}  
+   
+
+
+// Fonction concoter par Breizhou13
+function CaracEnTab() { // version Dabihul
+   //recuperation des emplacements
+   var base = document.evaluate("//tr/td/b/text()[contains(.,'Caractéristiques')]/../../../td[2]/table", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+   var nombre_TR = base.getElementsByTagName('TR');
+   
+   //mise en forme du tableau et nettoyage des noms des caracs
+   base.setAttribute('class','mh_tdborder');
+   var tr = document.createElement('tr');
+   tr.setAttribute('class','mh_tdtitre')
+   for(i=0 ; i<nombre_TR.length ; i++) {
+      nombre_TR[i].setAttribute('class','mh_tdpage');
+      var nombre_TD = nombre_TR[i].getElementsByTagName('TD');
+      nombre_TD[0].innerHTML = nombre_TD[0].innerHTML.substr(0,nombre_TD[0].innerHTML.indexOf('.', 0));
+      var len = nombre_TD.length;
+      for(j=0 ; j<len ; j++) {
+         nombre_TD[j].setAttribute('align','center');
+         }
+      var moy = nombre_TD[len-1].textContent;
+      nombre_TD[len-1].firstChild.nodeValue = moy.substring(11,moy.length-1);
+      }
+   
+   //insertion des entetes du tableau
+   insertBefore(base.firstChild, tr);
+   appendTdText(tr, "", true);
+   appendTdText(tr, "Nombre de dés", true);
+   appendTdText(tr, "Bonus physique", true);
+   appendTdText(tr, "Bonus magique", true);
+   appendTdText(tr, "Moyenne", true);
+}
+   
+
+   
+//=====================================================================
+var TiD=numTroll;
+var SkinZZ=MZ_getValue(TiD+".pref.SkinZZ"); if (!SkinZZ) SkinZZ=ZZDB+"/skin";
+var troll="";
+var race="";
+var camou=0;
+var PG="";
+var nodesPG = document.evaluate("//img[contains(@src,'contenu/header.jpg')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+if (nodesPG.snapshotLength==1) {
+	PG=nodesPG.snapshotItem(0).src;
+	PG=URLencode(PG.substring(0, PG.length-19));
+}
+initProfil();
+overrideInfoBulles();
 Morphologie(1);
-CaracEnTab();
 
+CaracEnTab();
+document.getElementById('titre2').childNodes[0].parentNode.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
+var IdNewZZ=0;
+var PVMax=pvmax;
+var pvactuels=pv;
+var data="&TypeData=Profil";
+data=data+"&Troll="+escape(trim(troll))+"&Race="+trim(race)+"&Niveau="+nivTroll;
+data=data+"&TiD="+TiD+"&PVMax="+PVMax+"&PV="+pvactuels;
+data=data+"&PA="+trim(mainTR.snapshotItem(1).childNodes[3].childNodes[5].firstChild.nodeValue).substr(0,1);
+data=data+"&DLA="+trim(mainTR.snapshotItem(1).childNodes[3].childNodes[1].firstChild.nodeValue).replace(" ", "_");
+
+//data=data+"&TimeStamp="+trim(arrTable[10].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue).substr(27,19).replace(" ", "_");
+var TimeStamp = document.getElementById('footer2').childNodes[5].nodeValue;
+TimeStamp = TimeStamp.substring(TimeStamp.indexOf("Heure")+15);
+TimeStamp = TimeStamp.substring(TimeStamp.indexOf(": ")+2,TimeStamp.indexOf("]")-9).replace(" ", "_");
 
-
-
+data=data+"&TimeStamp="+TimeStamp;
+data=data+"&X="+posX+"&Y="+posY+"&N="+posN+"&Camoufle="+camou;  
+//alert(ZZDB+'/mzData.php?'+data);
+MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
+
+
+
+
+
+
+

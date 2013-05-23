@@ -1767,9 +1767,9 @@ function putFiltresBoutons() {
 
 }
 
-//function toggleTableauInfos() {
-////    window.alert('pouette from toggleTableauInfos');
-//}
+function toggleTableauInfos() {
+//    AThimel : methode non définie mais utilisée : WTF ?
+}
 
 
 function appendSearch(td, text, buttonValue, buttonOnClick) {

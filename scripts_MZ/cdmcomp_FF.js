@@ -84,33 +84,62 @@ function sendInfoCDM() {
 
 start_script(31);
 traiteCdM();
-//============================ ZZ POST CODE ======================================
-
-if( !document.getElementById('CdmButton') ) {
-   var form = document.getElementsByName('ActionForm')[0];
-   if(form.innerHTML.indexOf('RÉUSSI')!=-1) 
-   { // La connaissance des monstres a réussi
-      
-      // ITM Envoyer Automatiquement les données à la ZZ Database.
-      var totaltab=document.getElementsByTagName( 'table' );  
-      var ts=totaltab[totaltab.length-1].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue;
-	  var TimeStamp=ts.substr(ts.indexOf('GMT')-20, 19);
-	  TimeStamp=TimeStamp.replace(" ", "_");
-  	  var data="&TimeStamp="+TimeStamp;
-      data+="&TiD="+MZ_getValue("NUM_TROLL");
-      data+="&cdm="+escape(cdm); // cdm est préparé par MZ
-      MZ_appendNewScript(ZZDB+'/mzCdM.php?'+data);      
-  }
-}
-
-function delBoutonBestiaire() {
- document.getElementsByName('as_Action')[0].parentNode.removeChild(document.getElementsByName('as_Action')[0].parentNode.childNodes[0]);
-}
-
-function setDBMsgZZ(msg) { 
-  var totaltab=document.getElementsByTagName( 'table' );
-  var myB=document.createElement('i');
-  myB.appendChild(document.createTextNode(msg));
-  myB.setAttribute("class", "titre5");
-  totaltab[totaltab.length-4].appendChild( myB );
-}
+//============================ ZZ POST CODE ======================================
+
+
+if( !document.getElementById('CdmButton') ) {
+
+   var form = document.getElementsByName('ActionForm')[0];
+
+   if(form.innerHTML.indexOf('RÉUSSI')!=-1) 
+
+   { // La connaissance des monstres a réussi
+
+      
+
+      // ITM Envoyer Automatiquement les données à la ZZ Database.
+
+      var footer2=document.getElementById( 'footer2' );  
+      
+      var ts = footer2.innerHTML;
+
+      var TimeStamp=ts.substr(ts.indexOf('GMT')-20, 19);
+
+      TimeStamp=TimeStamp.replace(" ", "_");
+
+      var data="&TimeStamp="+TimeStamp;
+
+      data+="&TiD="+MZ_getValue("NUM_TROLL");
+
+      data+="&cdm="+escape(cdm); // cdm est préparé par MZ
+
+      MZ_appendNewScript(ZZDB+'/mzCdM.php?'+data);      
+
+  }
+
+}
+
+
+
+function delBoutonBestiaire() {
+
+ document.getElementsByName('as_Action')[0].parentNode.removeChild(document.getElementsByName('as_Action')[0].parentNode.childNodes[0]);
+
+}
+
+
+
+function setDBMsgZZ(msg) { 
+
+  var totaltab=document.getElementsByTagName( 'table' );
+
+  var myB=document.createElement('i');
+
+  myB.appendChild(document.createTextNode(msg));
+
+  myB.setAttribute("class", "titre5");
+
+  totaltab[totaltab.length-4].appendChild( myB );
+
+}
+

@@ -769,7 +769,7 @@ function filtreMonstres() {
 
 
 function filtreLevels() {
-    if (nbMonstres <= 1) return; // si pas de monstre pas de traitement du level
+    if (nbMonstres < 1) return; // si pas de monstre pas de traitement du level
 
     if (!saveCheckBoxStatus(checkBoxLevels, 'NOLEVEL')) {
 
@@ -1767,6 +1767,9 @@ function putFiltresBoutons() {
 
 }
 
+//function toggleTableauInfos() {
+////    window.alert('pouette from toggleTableauInfos');
+//}
 
 
 function appendSearch(td, text, buttonValue, buttonOnClick) {
@@ -2883,8 +2886,6 @@ function computeTactique(begin, end)  {
             var donneesMonstre = listeCDM[id];
 
             var nom = getMonstreNom(j);
-
-
 
             if (donneesMonstre && nom.indexOf("Gowap Apprivoisé") == -1 && nom.indexOf("Gowap Sauvage") == -1)
 

@@ -1786,7 +1786,19 @@ function putFiltresBoutons() {
 }
 
 function toggleTableauInfos() {
-    afficheDetailTrPlus('zz_vue_infos','mh_vue_plus_infos');
+    var objectToMask = 'zz_vue_infos';
+    var plusToMask = 'mh_vue_plus_infos';
+
+    // AThimel 24/05/2013 : Les lignes suivantes sont juste une copie de http://games.mountyhall.com/mountyhall/JavaScripts/MH_Utils.js
+    if(document.getElementById(objectToMask).style.display == 'none')
+    	document.getElementById(objectToMask).style.display = '';
+    else
+        document.getElementById(objectToMask).style.display = 'none';
+
+    if(document.getElementById(objectToMask).style.display == 'none')
+        document.getElementById(plusToMask).innerHTML = '[+]';
+    else
+        document.getElementById(plusToMask).innerHTML = '[-]';
 }
 
 

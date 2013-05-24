@@ -6456,8 +6456,7 @@ putMsgPXBouton(tabletroll); //totaltab[8]); 	// les bouton de distribution de PX
 
 //recherche des monstres à proximité (pour insultes)
 
-for (var i = 2; i < x_monstres.length; i++) {
-
+for (var i = 1; i < x_monstres.length; i++) {
 
 
     if (getMonstreDistance(i) <= ZMON) {

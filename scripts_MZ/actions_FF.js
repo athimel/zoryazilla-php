@@ -34,9 +34,24 @@ function setDBMsgZZ(msg) {
 }
   
 function catchInsulte() {     
+
    if ((document.URL.indexOf("Play_a_Competence18b.php")>=0) && (MZ_getValue("A_INSULTE") != "")) {  //Le Monstre à été insulté
 		var ptotal = document.getElementsByTagName('p');
-		var effect='undefined'; try {effect=ptotal[2].childNodes[0].childNodes[1].childNodes[0].nodeValue; } catch (e) {}
+//try {
+//alert("p: " + ptotal[4]);
+//alert("pc: " + ptotal[4].childNodes[0]);
+//alert("pcc: " + ptotal[4].childNodes[0].childNodes[1]);
+//alert("pccc: " + ptotal[4].childNodes[0].childNodes[1].childNodes[0]);
+//alert("pcccn: " + ptotal[4].childNodes[0].childNodes[1].childNodes[0].nodeValue);
+// } catch (e) {}
+//try {
+//alert("2p: " + ptotal[4]);
+//alert("2pc: " + ptotal[4].childNodes[0]);
+//alert("2pcn: " + ptotal[4].childNodes[0].nodeValue);
+//alert("2pcc: " + ptotal[4].childNodes[0].childNodes[1]);
+//alert("2pccn: " + ptotal[4].childNodes[0].childNodes[1].nodeValue);
+// } catch (e) {}
+		var effect='undefined'; try {effect=ptotal[4].childNodes[0].childNodes[1].childNodes[0].nodeValue; } catch (e) {}
 		if (effect!='undefined') {
 			var nodes = document.evaluate("//b[contains(preceding::text()[1], 'Seuil de Résistance')]/text()[1]", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 			if (nodes.snapshotLength == 1) {
@@ -44,16 +59,22 @@ function catchInsulte() {
 				SR_Cible = sr.slice(0, sr.indexOf("%") - 1);
  				var RM_Cible = getRM(sr);
 			}
+
+            var footer2=document.getElementById( 'footer2' );  
+            var ts = footer2.innerHTML;
+            var TimeStamp=ts.substr(ts.indexOf('GMT')-20, 19).replace(" ", "_");
+
 		    var Insulte=0; if (effect.indexOf('pleinement')!=-1) Insulte=1;
 		    var MeID=MZ_getValue("A_INSULTE").slice(3);
 		  	var data="&TypeData=Insulte";
 			var totaltab=document.getElementsByTagName( 'table' );
-			data+="&TimeStamp="+trim(totaltab[totaltab.length-1].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue).substr(27,19).replace(" ", "_");
+			data+="&TimeStamp="+TimeStamp;
 		  	data+="&Insulte="+Insulte;
 		  	data+="&TiD="+numTroll;
 		  	data+="&MeID="+MeID;
 		  	data+="&SR="+SR_Cible;
 		  	data+="&RM="+escape(RM_Cible);
+//alert("insulte: " + ZZDB+'/mzData.php?'+data);
 		  	MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
 		}
 		MZ_setValue("A_INSULTE", ""); // car le remove ne marche pas!
@@ -1146,4 +1167,5 @@ start_script(31);
 dispatch();
 
 displayScriptTime();
-//============================ ZZ POST CODE ======================================
+//============================ ZZ POST CODE ======================================
+

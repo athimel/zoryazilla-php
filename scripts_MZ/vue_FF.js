@@ -313,7 +313,7 @@ var needComputeEnchantement =
 
 MZ_getValue(numTroll + '.enchantement.liste') && MZ_getValue(numTroll + '.enchantement.liste') != '';
 
-
+var idPortails = '';
 
 
 
@@ -4915,8 +4915,6 @@ function setInfosPortailsIdent() {
 
 function setInfosPortails() {
 
-
-
     for (var i = 0; i < x_lieux.length - 2; i++) {
 
         var dist = x_lieux[2 + i].childNodes[0].childNodes[0].nodeValue;
@@ -4934,7 +4932,6 @@ function setInfosPortails() {
 
 
 
-
         if (idt > 0) {
 
             var portail = x_lieux[i + 2].childNodes[2].childNodes[1].firstChild;
@@ -4943,11 +4940,7 @@ function setInfosPortails() {
 
                 if (portail.nodeValue.indexOf("Portail") >= 0) {
 
-
-
                     if ((ZLIE == 0) || (dist <= ZLIE)) idPortails += idt + ','; // pour la request groupée!
-
-
 
                     var myImg = document.createElement('img');
 
@@ -6006,8 +5999,6 @@ function setInfosVue() {
 
 function sendVue(VueId) {
 
-
-
     var flow = "VUE";
 
     var maxRow = 10;
@@ -6495,7 +6486,7 @@ MZ_xmlhttpRequest({
 
             var texte = responseDetails.responseText;
 
-           // alert(texte);
+            // alert(texte);
             var lines = texte.split(";");
 
             if (lines.length == 0)

@@ -18,6 +18,7 @@ var cg = new Array(); // Diplo des guildes
 var ct = new Array(); // Diplo des trolls
 var infosTrolls = new Array(); // Carac des Trolls de la coterie
 var MeInsulte = new Array(); // Monstre insulte par les Trolls de la coterie
+var portailInfo = new Array(); // Les infos sur les portails
 var gogo = new Array(); // Pour les gowaps de la coterie
 var fam = new Array(); // Pour les Familiers de la coterie
 var infosPieges = new Array(); // Pour les pieges
@@ -38,7 +39,7 @@ var idMatos = ""; // Liste du matos le plus proches
 var infoMonstreStep = 0; // pour steping de la fonction setInfosMonstres
 var externalVue = false; // Pour traitement spécifique des vues externes à MH
 var flowVueCtrl = "Mon"; // Pour traitement du flux VUE
-var flowVueCtrlId = 1; // Pour traitement du flux VUE
+var flowVueCtrlId = 1; // Pour traitement du flux VUE // AThimel 24/05/2013 Mis à 1, était: 3
 var flowVueCtrlMaxId = 0; // Pour traitement du flux VUE (affichage)
 
 var isStyleClass = MZ_getValue("USECSS") == "true";
@@ -313,7 +314,7 @@ var needComputeEnchantement =
 
 MZ_getValue(numTroll + '.enchantement.liste') && MZ_getValue(numTroll + '.enchantement.liste') != '';
 
-var idPortails = '';
+var idPortails = ''; // Contient la liste des identifiants des portails
 
 
 
@@ -4732,7 +4733,7 @@ function requestPortails() {
                 setInfosPortailsIdent();
 
             } catch (e) {
-                alert(e);
+                alert("here: " + e);
             }
 
         }

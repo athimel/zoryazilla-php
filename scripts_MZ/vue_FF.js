@@ -38,7 +38,7 @@ var idMatos = ""; // Liste du matos le plus proches
 var infoMonstreStep = 0; // pour steping de la fonction setInfosMonstres
 var externalVue = false; // Pour traitement spécifique des vues externes à MH
 var flowVueCtrl = "Mon"; // Pour traitement du flux VUE
-var flowVueCtrlId = 3; // Pour traitement du flux VUE
+var flowVueCtrlId = 1; // Pour traitement du flux VUE
 var flowVueCtrlMaxId = 0; // Pour traitement du flux VUE (affichage)
 
 var isStyleClass = MZ_getValue("USECSS") == "true";
@@ -6049,7 +6049,7 @@ function sendVue(VueId) {
 
         if (flowVueCtrlId >= x_monstres.length) {
             flowVueCtrl = "Tro";
-            flowVueCtrlId = 3;
+            flowVueCtrlId = 1;
             flowVueCtrlMaxId = x_trolls.length;
         }
 
@@ -6077,7 +6077,7 @@ function sendVue(VueId) {
 
         if (flowVueCtrlId >= x_trolls.length) {
             flowVueCtrl = "Tre";
-            flowVueCtrlId = 3;
+            flowVueCtrlId = 1;
             flowVueCtrlMaxId = x_tresors.length;
         }
 
@@ -6103,7 +6103,7 @@ function sendVue(VueId) {
 
         if (flowVueCtrlId >= x_tresors.length) {
             flowVueCtrl = "Cha";
-            flowVueCtrlId = 3;
+            flowVueCtrlId = 1;
             flowVueCtrlMaxId = x_champis.length;
         }
 
@@ -6129,7 +6129,7 @@ function sendVue(VueId) {
 
         if (flowVueCtrlId >= x_champis.length) {
             flowVueCtrl = "Lie";
-            flowVueCtrlId = 3;
+            flowVueCtrlId = 1;
             flowVueCtrlMaxId = x_lieux.length;
         }
 
@@ -6155,7 +6155,7 @@ function sendVue(VueId) {
 
         if (flowVueCtrlId >= x_lieux.length) {
             flowVueCtrl = "";
-            flowVueCtrlId = 3;
+            flowVueCtrlId = 1;
             flow = "END";
         }
 
@@ -6176,7 +6176,6 @@ function sendVue(VueId) {
         //alert(ZZDB+"/mzVision.php?"+data);
 
     }
-
 
 
     MZ_xmlhttpRequest({

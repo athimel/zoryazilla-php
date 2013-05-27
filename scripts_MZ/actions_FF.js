@@ -2,7 +2,6 @@
 *    This file is part of ZoryaZilla Fusion merged with mountyzilla              *
 *********************************************************************************/
 //============================ ZZ PRE CODE =======================================
-
 var IdAttaque = new Array();    // Indice des familles de monstre (pour tabMonstres)
 IdAttaque["Rafale Psychique"]="IdSort4";
 IdAttaque["Charge"]="IdComp14";
@@ -17,7 +16,6 @@ IdAttaque["Griffe du Sorcier"]="IdSort28";
 IdAttaque["Piège à Feu"]="IdComp15";
 IdAttaque["Balayage"]="IdComp6";
 IdAttaque["Siphon des Âmes"]="IdSort14";
-
 
 function setDBMsgZZ(msg) { 
 	if (document.URL.indexOf("Messagerie/ViewMessageBot.php")>=0) {
@@ -34,7 +32,6 @@ function setDBMsgZZ(msg) {
 }
   
 function catchInsulte() {     
-
    if ((document.URL.indexOf("Play_a_Competence18b.php")>=0) && (MZ_getValue("A_INSULTE") != "")) {  //Le Monstre à été insulté
 		var ptotal = document.getElementsByTagName('p');
 //try {
@@ -59,11 +56,9 @@ function catchInsulte() {
 				SR_Cible = sr.slice(0, sr.indexOf("%") - 1);
  				var RM_Cible = getRM(sr);
 			}
-
             var footer2=document.getElementById( 'footer2' );  
             var ts = footer2.innerHTML;
             var TimeStamp=ts.substr(ts.indexOf('GMT')-20, 19).replace(" ", "_");
-
 		    var Insulte=0; if (effect.indexOf('pleinement')!=-1) Insulte=1;
 		    var MeID=MZ_getValue("A_INSULTE").slice(3);
 		  	var data="&TypeData=Insulte";
@@ -79,7 +74,6 @@ function catchInsulte() {
 		}
 		MZ_setValue("A_INSULTE", ""); // car le remove ne marche pas!
  		MZ_removeValue("A_INSULTE");
-
   }	else if(document.URL.indexOf("Play_a_Competence18.php")>0) {  //Action Insulter un Monstre
 		MZ_setValue("A_INSULTE", ""); // car le remove ne marche pas!
  		MZ_removeValue("A_INSULTE");
@@ -120,7 +114,6 @@ function putInfoTelek(X, Y, N) {
 	var isStyleClass = MZ_getValue("USECSS") == "true";
 	var totaltd=document.getElementsByTagName('TD');
 	var off7=4;
-
 	var s=document.getElementsByName('as_NewPos')[0].value.split('#');
 	var h=document.getElementsByName('as_NewPos')[1].value.split('#');
 	var v=document.getElementsByName('as_NewPos')[3].value.split('#');
@@ -170,16 +163,13 @@ function catchTelek() {
 function catchIdT2() {     
     if(document.referrer.indexOf("Play_a_Sort10.php")>=0) {
         var nodes = document.evaluate("//b/text()[contains(.,'-')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-
 		if (nodes.snapshotLength>0) {
 			var matosData="";	
 	        for (var i = 0; i < nodes.snapshotLength; i++) {
-
 	        	var Tresor = nodes.snapshotItem(i).nodeValue;
     	    	var matosId=Tresor.slice(0, Tresor.indexOf("-")-1);
         		var matosName=Tresor.slice(Tresor.indexOf("-")+1, Tresor.indexOf("(")-1);
         		var matosDesc=Tresor.slice(Tresor.indexOf("(")+1, Tresor.indexOf(")"));
-
 				matosData = matosData+'&Matos[]='+URLencode('Trésor : ' + matosName);					      		
 				matosData = matosData+'&MiD[]='+matosId;		      
 				matosData = matosData+'&Desc[]='+URLencode(matosDesc);					      
@@ -188,13 +178,11 @@ function catchIdT2() {
 	        }    
   		    var data="&TypeData=IdT";
   	    	data+="&TiD="+numTroll+matosData;
-
 		    //alert(ZZDB+'/mzData.php?'+data);
 		    MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
 		}
     }	
 }
-
 
 function getDataSort(SortComp, mm, Code) {
   	var strData="";
@@ -209,18 +197,15 @@ function getDataSort(SortComp, mm, Code) {
 		MeID=Number(cible.substring(cible.indexOf("n°")+2,cible.indexOf(")")));	//Id 
   	else
 		MeID=Number(cible.substring(cible.indexOf("(")+1,cible.indexOf(")")));	//Id 
-
 	if (((cible.indexOf("un")==0)||(cible.indexOf("<b>un")==0))&& (cible.indexOf("[")>0)&& (cible.indexOf("]")>0))	
 		ageM=cible.slice(cible.indexOf("[")+1, cible.indexOf("]"));			//age du monstre
 	else 
 		MeID=-MeID;															//Id négatif pour les trolls
-
 	// recupération des dégats
 	if (Code.indexOf("PV :")>0) {
 		var pv=Code.substring(Code.indexOf("PV :"));
 		DEG_Cible=-parseInt(pv.slice(pv.indexOf("(")+1, pv.indexOf(")")));	
 	}
-
 	// recupération du sr
 	if (Code.indexOf("Résistance de la Cible")>0) {
 		var sr=Code.substring(Code.indexOf("Résistance de la Cible"));
@@ -233,7 +218,6 @@ function getDataSort(SortComp, mm, Code) {
 		else if(sr<90) RM_Cible="="+Math.round(50*mm/(100-sr));  			
 		else RM_Cible=">"+Math.round(50*mm/(100-sr));	
 	} 
-
 	return "&MeID[]="+MeID+"&AGE[]="+ageM+"&ESQ[]="+ESQ_Cible+"&DEG[]="+DEG_Cible+"&ARM[]="+ARM_Cible+"&SR[]="+SR_Cible+"&RM[]="+RM_Cible;
 }
 
@@ -246,9 +230,7 @@ function getDataAttaque(SortComp, mm, Code) {
 	var SR_Cible=0;
 	var ageM="";
 	var sr=0;
-
   	var lines = Code.split("<p>");
-
 	MeID=Number(lines[0].substring(lines[0].indexOf("(")+1,lines[0].indexOf(")")));	//Id négatif pour les trolls, positif pour les monstres
 	if(lines[0].indexOf("le Troll")==0)	
 		MeID=-MeID;
@@ -262,7 +244,6 @@ function getDataAttaque(SortComp, mm, Code) {
 	  		else if (l.indexOf("lui avez infligé")>0) DEG_Cible=parseInt(l.substr(25), "point");
 	  		else if (l.indexOf("Armure le protège")>0) ARM_Cible=parseInt(l.substr(45), "point");
 	  		else if (l.indexOf("de Résistance de la Cible")>0) sr=parseInt(l.substr(41), "%");
-
 	  }
    }
   
@@ -274,7 +255,6 @@ function getDataAttaque(SortComp, mm, Code) {
 		else if(sr<90) RM_Cible="="+Math.round(50*mm/(100-sr));  			
 		else RM_Cible=">"+Math.round(50*mm/(100-sr));
    }					  
-
 	if (ARM_Cible==-1) {
 		ARM_Cible=0;
 	} else {
@@ -298,11 +278,9 @@ function catchAttaque() {
 		var REG_Cible=0;
 		var NIV_Cible=0;
 		var ATTAQUE=0;	
-
 	  	var numTroll=MZ_getValue("NUM_TROLL");
 	  	var nt=MZ_getValue("NIV_TROLL");
 	  	var mm=MZ_getValue("MM_TROLL");
-
 		// recherche du niveau de la Cible
   		var nodes = document.evaluate("//b/text()[contains(.,'TUÉ')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
   		if (nodes.snapshotLength==1) { // 1 seul kill 
@@ -335,7 +313,6 @@ function catchAttaque() {
     			REG_Cible="2x"+REG_Cible;
     		}
   		}
-
 		// recherche du malus de GdS
   		nodes = document.evaluate("//text()[contains(.,'malus de Poison')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
   		for (var i = 0; i < nodes.snapshotLength; i++)
@@ -389,7 +366,6 @@ function catchAttaque() {
       		var bloc = Code.split("a eu l'effet suivant :");
       		for(var i=1;i<bloc.length;i++) DataAttaque+=getDataSort(ATTAQUE, mm, bloc[i]); 
   		}
-
 		// envoyé le résultat à ZZ
   		if (DataAttaque!="") 
 		{	
@@ -409,7 +385,6 @@ function catchAttaque() {
   		}
 	}  
 }
-
 
 function catchBOTDegatPiege() {     
 	if (document.URL.indexOf("Messagerie/ViewMessageBot.php")>=0) {
@@ -432,7 +407,6 @@ function catchBOTDegatPiege() {
 				var DEG_Cible=deg.slice(10, deg.indexOf("points")-1);
 				DataAttaque+="&MeID[]="+MeID+"&AGE[]="+ageM+"&DEG[]="+DEG_Cible+"&ESQ[]=-1&ARM[]=0&SR[]=0&RM[]=0";				
 			}
-
 			var deg_troll=piege;
 			while (deg_troll.indexOf("Le Monstre")>0) {
 				var troll=deg_troll.substring(deg_troll.indexOf("Le Troll"));
@@ -444,12 +418,10 @@ function catchBOTDegatPiege() {
 				var DEG_Cible=deg.slice(10, deg.indexOf("points")-1);
 				DataAttaque+="&MeID[]="+MeID+"&DEG[]="+DEG_Cible+"&AGE[]=0&ESQ[]=-1&ARM[]=0&SR[]=0&RM[]=0";				
 			}
-
 			
 			var TimeStamp=piege.substring(piege.indexOf("Il était alors"));
     		TimeStamp=TimeStamp.substring(TimeStamp.indexOf(":")+2);
 			TimeStamp=TimeStamp.substring(0,TimeStamp.indexOf(".")).replace(" ", "_");
-
 	  		var data="&TypeData=Attaque";
 	  		data+="&TimeStamp="+TimeStamp;
 	  		data+="&TiD="+numTroll;
@@ -459,28 +431,21 @@ function catchBOTDegatPiege() {
 	  		//alert(ZZDB+'/mzData.php?'+data);
 	  		MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
 
-
-
 		}
   }	
 }
 
-
 function catchBOTIdT2() {     
-
 	if (document.URL.indexOf("Messagerie/ViewMessageBot.php")>=0) {
 		var messageTitle = document.getElementsByTagName('table')[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[1].firstChild.nodeValue;
 		if (messageTitle.indexOf("[MountyHall] Sortilège : Identification des trésors") != -1) {
 			var td = document.evaluate("//td/text()[contains(.,'MOUNTYHALL - La Terre des Trõlls')]/..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 			if (!td) return "";
-
 			var IdT = td.innerHTML;
-
 			var TimeStamp=IdT.substring(IdT.indexOf("Il était alors"));
     		TimeStamp=TimeStamp.substring(TimeStamp.indexOf(":")+2);
 			TimeStamp=TimeStamp.substring(0,TimeStamp.indexOf(".")).replace(" ", "_");
 			
-
 			IdT=IdT.substring(IdT.indexOf("identification a donné le résultat suivant"));
 			var Tresor=IdT.substring(IdT.indexOf("</p><b>")+7);
 			Tresor=Tresor.substring(0, Tresor.indexOf("</b>"));
@@ -491,7 +456,6 @@ function catchBOTIdT2() {
         	var matosId=Tresor.slice(0, Tresor.indexOf("-")-1);
        		var matosName=Tresor.slice(Tresor.indexOf("-")+1, Tresor.indexOf("(")-1);
         	var matosDesc=Tresor.slice(Tresor.indexOf("(")+1, Tresor.indexOf(")"));
-
 			var matosData="";	
 			matosData = matosData+'&TimeStamp[]='+TimeStamp;					      		
 			matosData = matosData+'&Matos[]='+URLencode('Trésor : ' + matosName);					      		
@@ -499,7 +463,6 @@ function catchBOTIdT2() {
 			matosData = matosData+'&Desc[]='+URLencode(matosDesc);					      
 			matosData = matosData+'&Etat[]='+URLencode(matosEtat);				      
 			matosData = matosData+'&Vu[]=0';
-
 	  		var data="&TypeData=IdT&TiD="+numTroll+matosData;
 			//alert(ZZDB+'/mzData.php?'+data);
 			MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
@@ -508,15 +471,12 @@ function catchBOTIdT2() {
 }
 
 function catchBOTInsulte() {     
-
 	if (document.URL.indexOf("Messagerie/ViewMessageBot.php")>=0) {
 		var messageTitle = document.getElementsByTagName('table')[0].childNodes[1].childNodes[0].childNodes[1].childNodes[0].childNodes[1].firstChild.nodeValue;
 		if (messageTitle.indexOf("[MountyHall] Compétence Insulte") != -1) {
 			var td = document.evaluate("//td/text()[contains(.,'MOUNTYHALL - La Terre des Trõlls')]/..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 			if (!td) return "";
-
 			var Insulte = td.innerHTML;
-
 			var TimeStamp=Insulte.substring(Insulte.indexOf("Il était alors"));
     		TimeStamp=TimeStamp.substring(TimeStamp.indexOf(":")+2);
 			TimeStamp=TimeStamp.substring(0,TimeStamp.indexOf(".")).replace(" ", "_");
@@ -525,7 +485,6 @@ function catchBOTInsulte() {
 			sr=sr.substring(sr.indexOf("<b>")+3, sr.indexOf("%")+1);
  			var RM_Cible = getRM(sr);
 			var SR_Cible=sr.substring(0, sr.indexOf("%"));
-
 		    var Ins=0; if (Insulte.indexOf("pleinement l'effet")!=-1) Ins=1;
 		    var MeID=messageTitle.slice(messageTitle.indexOf("(")+1, messageTitle.indexOf(")"))
 		    
@@ -550,19 +509,15 @@ function catchBOTAttaque() {
 		    (messageTitle.indexOf("[MountyHall] Sortilège : Explosion") != -1)) {
 			var td = document.evaluate("//td/text()[contains(.,'MOUNTYHALL - La Terre des Trõlls')]/..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 			if (!td) return "";
-
 			var Combat = td.innerHTML;
-
 			var SR_Cible=0;
 			var RM_Cible=0;
 			var REG_Cible=0;
 			var NIV_Cible=0;
 			var ATTAQUE=0;	
-
 		  	var numTroll=MZ_getValue("NUM_TROLL");
 		  	var nt=MZ_getValue("NIV_TROLL");
 	  		var mm=MZ_getValue("MM_TROLL");
-
 			// recherche des la compétense ou sortilège utilisé IMPOSSIBLE avec le BOT, on sait juste si Sort ou Comp.
 		    if (messageTitle.indexOf("[MountyHall] Sortilège : Explosion") != -1) var ATTAQUE="IdSort8";   
 		    else if (messageTitle.indexOf("(Rafale Psychique)") != -1) var ATTAQUE="IdSort4";  
@@ -599,7 +554,6 @@ function catchBOTAttaque() {
     			}
 	      		ATTAQUE="IdSort4";		// Code rafale
 	  		}
-
 			// recherche du malus de GdS
   			nodes = document.evaluate("//text()[contains(.,'malus de Poison')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	  		for (var i = 0; i < nodes.snapshotLength; i++)
@@ -634,12 +588,10 @@ function catchBOTAttaque() {
 	      		var bloc = Code.split("a eu l'effet suivant :");
 	      		for(var i=1;i<bloc.length;i++) DataAttaque+=getDataSort(ATTAQUE, mm, bloc[i]); 
 	  		}
-
 			// envoyé le résultat à ZZ
   			if (DataAttaque!="") 
 			{	
 	  			var data="&TypeData=Attaque";
-
 				var TimeStamp=Combat.substring(Combat.indexOf("Il était alors"));
     			TimeStamp=TimeStamp.substring(TimeStamp.indexOf(":")+2);
 				TimeStamp=TimeStamp.substring(0,TimeStamp.indexOf(".")).replace(" ", "_");
@@ -664,7 +616,6 @@ function catchVL() {
 		if(!document.evaluate("//tr/td/descendant::p/text()[contains(., 'Zone centrale ciblée')]",document, null, XPathResult.STRING_TYPE, null).stringValue) return; 
 		var totaltab = document.getElementsByTagName('table');
 		
-
 		node=document.evaluate("//tr/td/descendant::b/text()[contains(., 'X = ')]",document, null, XPathResult.STRING_TYPE, null).stringValue;
 		var a = node.split("|");
 		var posX = parseInt(a[0].substring(4));
@@ -696,7 +647,6 @@ function catchVL() {
 			vueV=Math.max(vueV, Math.abs(posN-x_trolls[i].childNodes[8].firstChild.nodeValue));
 		}
 
-
 		var txtTre="";
 		var x_tresors = totaltab[7].getElementsByTagName('tr');
 		if (x_tresors.length>=3) vueH=Math.max(vueH, x_tresors[x_tresors.length-1].childNodes[0].firstChild.nodeValue);
@@ -704,7 +654,6 @@ function catchVL() {
 			txtTre += x_tresors[i].childNodes[1].firstChild.nodeValue + ";" +x_tresors[i].childNodes[2].firstChild.firstChild.nodeValue + ";" + x_tresors[i].childNodes[3].firstChild.nodeValue + ";" + x_tresors[i].childNodes[4].firstChild.nodeValue + ";" + x_tresors[i].childNodes[5].firstChild.nodeValue + ";|\n" ;
 			vueV=Math.max(vueV, Math.abs(posN-x_tresors[i].childNodes[5].firstChild.nodeValue));
 		}
-
 		var txtCha="";
 		var x_champis= totaltab[9].getElementsByTagName('tr');
 		if (x_champis.length>=3) vueH=Math.max(vueH, x_champis[x_champis.length-1].childNodes[0].firstChild.nodeValue);
@@ -712,7 +661,6 @@ function catchVL() {
 			txtCha += x_champis[i].childNodes[1].firstChild.nodeValue + ";" +x_champis[i].childNodes[2].firstChild.firstChild.nodeValue + ";" + x_champis[i].childNodes[3].firstChild.nodeValue + ";" + x_champis[i].childNodes[4].firstChild.nodeValue + ";" + x_champis[i].childNodes[5].firstChild.nodeValue + ";|\n" ;
 			vueV=Math.max(vueV, Math.abs(posN-x_champis[i].childNodes[5].firstChild.nodeValue));
 		}
-
 		var txtLie="";
 		var x_lieux= totaltab[11].getElementsByTagName('tr');
 		if (x_lieux.length>=3) vueH=Math.max(vueH, x_lieux[x_lieux.length-1].childNodes[0].firstChild.nodeValue);
@@ -720,12 +668,10 @@ function catchVL() {
 			txtLie += x_lieux[i].childNodes[1].firstChild.nodeValue + ";" +x_lieux[i].childNodes[2].childNodes[1].firstChild.nodeValue + ";" + x_lieux[i].childNodes[3].firstChild.nodeValue + ";" + x_lieux[i].childNodes[4].firstChild.nodeValue + ";" + x_lieux[i].childNodes[5].firstChild.nodeValue + ";|\n" ;
 			vueV=Math.max(vueV, Math.abs(posN-x_lieux[i].childNodes[5].firstChild.nodeValue));
 		}
-
 		var TypeVue="VL";
  	   	if(document.referrer.indexOf("Play_a_Sort23.php")>=0) TypeVue="VLC";		//IdSort=23 pour VLC et IdSort=9 pour VL
  
 		//alert(ZZDB+'/mzVision.php?Vue='+posX+';'+posY+';'+posN+';'+vueH+';'+vueV+';&TypeVue='+TypeVue+'&Monstres=' + txtMon + '&Trolls=' + txtTro + '&Tresors=' + txtTre + '&Champis=' + txtCha + '&Lieux=' + txtLie);	
-
 		var url = ZZDB+'/mzVision.php';
 		MZ_xmlhttpRequest({
 				method: 'POST',
@@ -749,12 +695,9 @@ function catchVL() {
 					}
 				}
 		});
-
 	}
 }
-
 //----------------------------------------------------------------------------------------------------
-
 //===========================================================================
 // Début du Script
 catchInsulte();
@@ -784,7 +727,6 @@ catchVL();
 *    along with Mountyzilla; if not, write to the Free Software                  *
 *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA  *
 *********************************************************************************/
-
 /*********************************************************************************
 * v0.4 by Dabihul - 2012-08-02                                                   *
 * - màn repérage messade de bot et insertion du texte                            *
@@ -793,14 +735,11 @@ catchVL();
 * - voir avec Tilk pour le poissotron                                            *
 *********************************************************************************/
 
-
 var pageNivURL = 'http://mountypedia.free.fr/mz/niveau_monstre_combat.php';
 //var idtURL = "http://mh.byethost5.com/idt_serveur.php";
-
 /*****************
 * Page de combat *
 *****************/
-
 function getLevel() {
 	var divList = document.getElementsByTagName('div');
 	
@@ -827,7 +766,6 @@ function getLevel() {
 	var comPX = 1;
 	if (divList[2].firstChild.nodeValue.indexOf('Attaque Normale') == -1 && numAtt != 2)
 		comPX++;
-
 	// Extraction des infos du monstre attaqué
 	var idM;
 	var male;
@@ -881,7 +819,6 @@ function getLevel() {
 		insertBr(b.nextSibling.nextSibling.nextSibling);
 		insertText(b.nextSibling.nextSibling.nextSibling, chaine);
 	}
-
 	if (niveau != '') {
 		var button = insertButtonCdm('as_Action');
 		button.setAttribute("onClick","window.open('" + pageNivURL + "?id=" + (idM * 1) + "&monstre="
@@ -891,11 +828,9 @@ function getLevel() {
 	}
 }
 
-
 /**************************
 * Messages du bot : MM/RM *
 **************************/
-
 function insertInfoMagie(node, intitule, magie) {
 	if (node.nextSibling) {
 		node = node.nextSibling;
@@ -976,11 +911,9 @@ function traiteRM() {
 		}
 	}
 
-
 /**********************
 * Fonction Poissotron *
 **********************/
-
 function sendDices() {
 	var dice = MZ_getValue('POISS_'+numTroll); // = hash du mdp poissotron
 	if (!dice || dice == '' || dice=='false')
@@ -1086,7 +1019,6 @@ function sendDices() {
 	return true;
 	}
 
-
 /**********************************
 * Fonction stats IdT par Raistlin *
 **********************************/
@@ -1097,13 +1029,11 @@ function sendDices() {
 		
 	var regExpBeginning = /^\s+/;
 	var regExpEnd       = /\s+$/;
-
 	var nomIdt = document.evaluate(
 			"//tr/td[contains(p/text(),'identification a donné le résultat suivant : ')]/b/text()",
 			document, null, XPathResult.STRING_TYPE, null).stringValue;
 	if (!nomIdt)
 		return false;
-
 	var caracIdt;
 	if (nomIdt.indexOf("Malédiction !") != -1) {
 		caracIdt = "";
@@ -1125,11 +1055,9 @@ function sendDices() {
 	return true;
 }*/
 
-
 /**********************
 * Fonction principale *
 **********************/
-
 function dispatch() {
 	if (isPage('MH_Play/Actions')) {
 		sendDices();
@@ -1161,11 +1089,8 @@ function dispatch() {
 		}
 	}
 
-
 start_script(31);
-
 dispatch();
-
 displayScriptTime();
 //============================ ZZ POST CODE ======================================
 

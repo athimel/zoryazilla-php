@@ -512,6 +512,7 @@ function retrieveCDMs() {
 
         if (i % 500 == 0 || i == max) {
             var url = ZZDB + '/mzMonstres.php';
+            var data = 'begin=' + begin + '&idcdm=' + MZ_getValue('CDMID') + '&' + str;
 
             MZ_xmlhttpRequest({
                 method: 'POST',
@@ -521,7 +522,7 @@ function retrieveCDMs() {
                     'Accept': 'application/atom+xml,application/xml,text/xml',
                     'Content-type': 'application/x-www-form-urlencoded'
                 },
-                data: 'begin=' + begin + '&idcdm=' + MZ_getValue('CDMID') + '&' + str,
+                data: data,
                 onload: function (responseDetails) {
                     try
                     {
@@ -532,7 +533,8 @@ function retrieveCDMs() {
                         var begin2, end2, index;
                         for (var j = 0; j < lines.length; j++)
                         {
-                            var infos = lines[j].split(";");
+                            var line = lines[j];
+                            var infos = line.split(";");
                             if (infos.length < 4)
                                 continue;
                             var idMonstre = infos[0];
@@ -1595,7 +1597,6 @@ function computeTactique(begin, end)  {
             if (donneesMonstre && nom.indexOf("Gowap Apprivoisé") == -1 && nom.indexOf("Gowap Sauvage") == -1)
             {
                 var imgUrl = SkinZZ + "MZ/calc2.png";
-                //			var imgUrl = "http://localhost/~nico/MZimg/calc2.png"; // DEBUG
                 var tr = x_monstres[j].childNodes[checkBoxLevels.checked ? 2 : 3];
                 tr.appendChild(document.createTextNode(" "));
                 tr.appendChild(createPopupImage2(imgUrl, id, nom));
@@ -2940,7 +2941,7 @@ function setInfosMonstres(step) { // step=1 pour retrieveCDMs() et step=2 putInf
     var newTd = document.createElement('td');
     newTd.setAttribute('width', '68');
     newTd.appendChild(newB);
-   x_monstres[0].insertBefore(newTd, x_monstres[0].childNodes[4]);
+    x_monstres[0].insertBefore(newTd, x_monstres[0].childNodes[4]);
 
     incM = 1; //ITM: decalage des X,Y,N (des monstres à cause de la barre de PV) 
     var PosX, PosY, PosN;
@@ -2948,8 +2949,8 @@ function setInfosMonstres(step) { // step=1 pour retrieveCDMs() et step=2 putInf
     var cDate = new Date();
 
     for (var i = 0; i < x_monstres.length-1 ; i++) {
-		var num = x_monstres[1 + i].childNodes[1].childNodes[0].nodeValue;       
-	   var myImg = '';
+        var num = x_monstres[1 + i].childNodes[1].childNodes[0].nodeValue;       
+        var myImg = '';
         if (gogo[num]) { // Affichage des info de Gowap (les gowap ne sont pas insultés
             used = true; // on garde la colone des PV qui sert au chargement gowap
             x_monstres[1 + i].childNodes[1].setAttribute('style', 'color:red');
@@ -3002,6 +3003,7 @@ function setInfosMonstres(step) { // step=1 pour retrieveCDMs() et step=2 putInf
             }
         }
 
+
         if (listeCDM[num]) { // On a une les infos d'un bestiaire!
 
             var fullname = x_monstres[1 + i].childNodes[3].childNodes[0].childNodes[0].nodeValue;
@@ -3009,8 +3011,6 @@ function setInfosMonstres(step) { // step=1 pour retrieveCDMs() et step=2 putInf
 
             var infosMonstre = listeCDM[num];
             var blessure = infosMonstre[11];
-
-
 
             // Ajout Codage netWorms (affiché les monstres qui nous voient)
             if ((fullname.indexOf("Gowap") < 0) && (fullname.indexOf("Familier") < 0)) {

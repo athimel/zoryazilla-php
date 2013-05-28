@@ -346,9 +346,7 @@ function updateTactique() {
 
 function filtreMonstres() {
     var urlImg = SkinZZ + 'MZ/Competences/ecritureMagique.png';
-    //	var urlImg = 'http://localhost/~nico/mountyzilla.tilk.info/scripts_0.9/images/Competences/ecritureMagique.png';
     var urlEnchantImg = SkinZZ + 'MZ/enchant.png';
-    //	var urlEnchantImg = 'http://localhost/~nico/mountyzilla.tilk.info/scripts_0.9/images/enchant.png'; // DEBUG
     var useCss = (MZ_getValue('USECSS') == 'true');
     var noGowaps = saveCheckBoxStatus(checkBoxGowaps, 'NOGOWAP');
     var noMythiques = saveCheckBoxStatus(checkBoxMythiques, 'NOMYTH');
@@ -391,7 +389,7 @@ function filtreMonstres() {
         }
     }
     mainTabs[1].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
-    'MONSTRES ERRANTS' + (isFiltreOn ? ' (filtrés sur ' + filtreMonstre + ') ' : ' ') + strfilter;
+        'MONSTRES ERRANTS' + (isFiltreOn ? ' (filtrés sur ' + filtreMonstre + ') ' : ' ') + strfilter;
     for (var i = nbMonstres; i > 0; i--) {
         var pos = getMonstrePosition(i);
         var nom = getMonstreNom(i).toLowerCase();
@@ -424,19 +422,19 @@ function filtreMonstres() {
         }
 
         x_monstres[i].style.display =
-        (noGowaps && nom.indexOf('gowap apprivoisé') != -1 && getMonstreDistance(i) > 1)
-        || (noEngages && getMonstreDistance(i) != 0
-        && listeEngages[pos[0]] && listeEngages[pos[0]][pos[1]] && listeEngages[pos[0]][pos[1]][pos[2]])
-        || (isFiltreOn && nom.indexOf(filtreMonstre) == -1)
-        || (niveau_min > 0 && getMonstreLevel(i) < niveau_min
-        && getMonstreDistance(i) > 1 && getMonstreDistance(i) != -1
-        && nom.toLowerCase().indexOf("kilamo") == -1)
-        || (niveau_max > 0 && getMonstreLevel(i) > niveau_max
-        && getMonstreDistance(i) > 1 && getMonstreDistance(i) != -1
-        && nom.toLowerCase().indexOf("kilamo") == -1)
-        ? 'none' : '';
+                (noGowaps && nom.indexOf('gowap apprivoisé') != -1 && getMonstreDistance(i) > 1)
+                || (noEngages && getMonstreDistance(i) != 0
+                && listeEngages[pos[0]] && listeEngages[pos[0]][pos[1]] && listeEngages[pos[0]][pos[1]][pos[2]])
+                || (isFiltreOn && nom.indexOf(filtreMonstre) == -1)
+                || (niveau_min > 0 && getMonstreLevel(i) < niveau_min
+                && getMonstreDistance(i) > 1 && getMonstreDistance(i) != -1
+                && nom.toLowerCase().indexOf("kilamo") == -1)
+                || (niveau_max > 0 && getMonstreLevel(i) > niveau_max
+                && getMonstreDistance(i) > 1 && getMonstreDistance(i) != -1
+                && nom.toLowerCase().indexOf("kilamo") == -1)
+                ? 'none' : '';
         if (nom.indexOf('liche') == 0 || nom.indexOf('hydre') == 0
-        || nom.indexOf('balrog') == 0 || nom.indexOf('beholder') == 0) {
+                || nom.indexOf('balrog') == 0 || nom.indexOf('beholder') == 0) {
             if (!noMythiques) {
                 if (useCss)
                 { 
@@ -505,10 +503,11 @@ function retrieveCDMs() {
     max = Math.min(nbMonstres, (max) ? max : 100);
     for (var i = 1; i <= max; i++) {
         var nomMonstre = demarque(getMonstreNom(i, true));
-        if (nomMonstre.indexOf(']') != -1)
+        if (nomMonstre.indexOf(']') != -1) {
             nomMonstre = nomMonstre.substring(0, nomMonstre.indexOf(']') + 1);
-        str += 'nom[]=' + escape(nomMonstre) + '$'
-        + (getMonstreDistance(i) <= 5 ? getMonstreID(i) : -getMonstreID(i)) + '&';
+                    str += 'nom[]=' + escape(nomMonstre) + '$'
+                    + (getMonstreDistance(i) <= 5 ? getMonstreID(i) : -getMonstreID(i)) + '&';
+        }
 
         if (i % 500 == 0 || i == max) {
             var url = ZZDB + '/mzMonstres.php';
@@ -552,7 +551,6 @@ function retrieveCDMs() {
                                 x_monstres[index].childNodes[2].innerHTML = level;
                         }
                         computeMission(begin2, end2); /*ZZ: appel de setInfosMonstres */
-               //         alert(i+'    '+max)
 						if (i >= max) setInfosMonstres(1);
                     } catch (e)
                     {
@@ -560,7 +558,7 @@ function retrieveCDMs() {
                     }
                 }
             });
-//alert(str);
+
             str = '';
             begin = i + 1;
         }
@@ -620,23 +618,22 @@ function filtreTrolls() {
     var isFTOn = (filtreTroll != '');
     var isFGOn = (filtreGuilde != '');
     mainTabs[3].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
-    'TRÕLLS' + (isFTOn ? ' (filtrés sur ' + filtreTroll + ')' : '')
-    + (isFGOn ? ' (guildes filtrées sur ' + filtreGuilde + ')' : '');
+            'TRÕLLS' + (isFTOn ? ' (filtrés sur ' + filtreTroll + ')' : '')
+            + (isFGOn ? ' (guildes filtrées sur ' + filtreGuilde + ')' : '');
 
     for (var i = nbTrolls; i > 0; i--) {
         var tds = x_trolls[i].childNodes;
         x_trolls[i].style.display =
-        ((noIntangibles && tds[2].firstChild.className == 'mh_trolls_0')
-        || (isFTOn && tds[2].firstChild.firstChild.nodeValue.toLowerCase().indexOf(filtreTroll) == -1)
-        || (isFGOn &&
-        (!tds[5].firstChild.firstChild
-        || tds[5].firstChild.firstChild.nodeValue.toLowerCase().indexOf(filtreGuilde) == -1)))
-        ? 'none' : '';
+                ((noIntangibles && tds[2].firstChild.className == 'mh_trolls_0')
+                || (isFTOn && tds[2].firstChild.firstChild.nodeValue.toLowerCase().indexOf(filtreTroll) == -1)
+                || (isFGOn &&
+                (!tds[5].firstChild.firstChild
+                || tds[5].firstChild.firstChild.nodeValue.toLowerCase().indexOf(filtreGuilde) == -1)))
+                ? 'none' : '';
     }
 }
 
 // Function refreshDiplo() has been removed from MZ original code for ZZ Fusion
-
 
 // Function putRealDiplo() has been removed from MZ original code for ZZ Fusion
 
@@ -646,7 +643,7 @@ function initPXTroll() { //chk
     bulle.setAttribute('id', 'bulle');
     bulle.setAttribute('class', 'mh_textbox');
     bulle.setAttribute('style', 'position: absolute; border: 1px solid #000000; visibility: hidden;'
-    + 'display: inline; z-index: 2;');
+            + 'display: inline; z-index: 2;');
     document.body.appendChild(bulle);
 
     for (var i = nbTrolls; i > 0; i--) {
@@ -1712,8 +1709,8 @@ function afficherCDM(nom, id) {
     var table = createCDMTable(id, nom, donneesMonstre);
     table.setAttribute('id', "popupCDM" + id);
     table.setAttribute('style', 'display: none; position: fixed; z-index: 1; top: ' + (300
-    + (30 * nbCDM)) % (30 * Math.floor((window.innerHeight - 400) / 30)) + 'px; left: '
-    + (window.innerWidth - 365) + 'px; width: 300px; height: 200px;');
+            + (30 * nbCDM)) % (30 * Math.floor((window.innerHeight - 400) / 30)) + 'px; left: '
+            + (window.innerWidth - 365) + 'px; width: 300px; height: 200px;');
     mainTabs[0].parentNode.appendChild(table);
 
     var tr = table.firstChild;
@@ -1988,7 +1985,6 @@ function createTableT(myText, myTable) {
     return (myTableT)
 }
 
-
 function createNewTroll(key, dist, infosTroll) {
     var trvITM = document.createElement('TR');
     if (document.getElementsByName('deldiplo')[0].checked == false) {
@@ -2103,9 +2099,6 @@ function putMsgPXBouton(arrtable) {
 
 //----------------------------------------------------------------------------------------------------
 function setInfosTrolls() {
-//alert('setinfosTrolls');
-    //if (x_trolls.length < 2) return; // cas du fumeux qui rend aveugle !!!
-//alert('on passe le test fumeux')
     var used = false;
     incT = 2; //ITM: decalage des X,Y,N (des trolls à cause de la barre de PV)  + MP
     var PosX, PosY, PosN;
@@ -2118,7 +2111,7 @@ function setInfosTrolls() {
 	
 	var noeudtroll = document.getElementById('mh_vue_hidden_trolls').childNodes[0].childNodes[1].childNodes[1].childNodes[0];
   //  noeud.insertBefore(newTd, noeud.childNodes[4]);
-   noeudtroll.insertBefore(newTd, noeudtroll.childNodes[6]);
+    noeudtroll.insertBefore(newTd, noeudtroll.childNodes[6]);
 
     var newB = document.createElement('b');
     newB.appendChild(document.createTextNode('MP'));
@@ -2130,7 +2123,7 @@ function setInfosTrolls() {
     // x_trolls[1].parentNode.parentNode.childNodes[0].childNodes[0].childNodes[0].setAttribute('colspan','11');
     //setAllTags=ZZsetAllTags;    //on veride a cause de la collone supplémentaire 
 
-    // inserer le troll dans la vue (le tableau d'entré est trié par distance croissante
+    // inserer le troll dans la vue (le tableau d'entrée est trié par distance croissante)
     var infosTrollID = new Array();
     var nbIT = 0;
     for (var key in infosTrolls) {
@@ -2139,10 +2132,8 @@ function setInfosTrolls() {
     }
     var zzTroll = 0;
 
-	for (var i = 0	; i < x_trolls.length - 1; i++) {
-//alert('ici');
+    for (var i = 0	; i < x_trolls.length - 1; i++) {
         var num = x_trolls[1 + i].childNodes[1].childNodes[0].nodeValue;
-//alert(num);
         var newTd = document.createElement('td'); // Pour la box MP
         newTd.setAttribute('width', '5');
         newTd.setAttribute('align', 'center');
@@ -2152,35 +2143,48 @@ function setInfosTrolls() {
         var PosY = x_trolls[1 + i].childNodes[5 + incT].childNodes[0].nodeValue;
         var PosN = x_trolls[1 + i].childNodes[6 + incT].childNodes[0].nodeValue;
         bookedCase[PosX + ',' + PosY + ',' + PosN] = true;
-//alert(i+': '+num);
 
-        if(1==0){//if (!setCheckBoxCookie(checkBoxDiplo, "NODIPLO")) { // affichage de la diplo si demandé
-            if (ct[num]) { //Diplo des trolls
-                if (isStyleClass && ct[num] == '#AAFFAA') x_trolls[1 + i].setAttribute('class', 'mh_trolls_amis');
-                else if (isStyleClass && ct[num] == '#FFAAAA') x_trolls[1 + i].setAttribute('class', 'mh_trolls_ennemis');
-                else if (isStyleClass && ct[num] == '#FFD3D3') x_trolls[1 + i].setAttribute('class', 'mh_trolls_conflit');
-                else {
+        if(1==1){//if (!setCheckBoxCookie(checkBoxDiplo, "NODIPLO")) { // affichage de la diplo si demandé
+            // ct contient les couleurs pour les diplo des troll (amis persos ZZ, ...)
+            if (ct[num]) { // On regarde d'abord si le troll est un ami/ennemi
+                if (isStyleClass && ct[num] == '#AAFFAA') {
+                    x_trolls[1 + i].setAttribute('class', 'mh_trolls_amis');
+                } else if (isStyleClass && ct[num] == '#FFAAAA') {
+                    x_trolls[1 + i].setAttribute('class', 'mh_trolls_ennemis');
+                } else if (isStyleClass && ct[num] == '#FFD3D3') {
+                    x_trolls[1 + i].setAttribute('class', 'mh_trolls_conflit');
+                } else {
+                    // La plupart du temps isStyleClass est false, donc on pousse directement la couleur dans le DOM
                     x_trolls[1 + i].setAttribute('class', '');
                     x_trolls[1 + i].style.backgroundColor = ct[num];
                 }
             } else if (x_trolls[1 + i].childNodes[5].childNodes[0].nodeName == "A") {
-                var lien = x_trolls[1 + i].childNodes[5].childNodes[0].getAttribute('href');
-                lien = lien.substring(lien.indexOf('(') + 1, lien.indexOf(','));
-                if (cg[lien]) {
-                    if (isStyleClass && cg[lien] == '#AAFFAA') x_trolls[1 + i].setAttribute('class', 'mh_guildes_amis');
-                    else if (isStyleClass && cg[lien] == '#FFAAAA') x_trolls[1 + i].setAttribute('class', 'mh_guildes_ennemis');
-                    else if (isStyleClass && cg[lien] == '#BBBBFF') x_trolls[1 + i].setAttribute('class', 'mh_guildes_perso');
-                    else if (isStyleClass && cg[lien] == '#FFD3D3') x_trolls[1 + i].setAttribute('class', 'mh_guildes_conflit');
-                    else {
+                // Ensuite on regarde si sa guilde est amie/ennemie
+                var lienGuilde = x_trolls[1 + i].childNodes[5].childNodes[0].getAttribute('href');
+                var numeroDeGuilde = lienGuilde.substring(lienGuilde.indexOf('(') + 1, lienGuilde.indexOf(','));
+                // cg contient la diplomatie de guilde
+                if (cg[numeroDeGuilde]) {
+                    if (isStyleClass && cg[numeroDeGuilde] == '#AAFFAA') {
+                        x_trolls[1 + i].setAttribute('class', 'mh_guildes_amis');
+                    } else if (isStyleClass && cg[numeroDeGuilde] == '#FFAAAA') {
+                        x_trolls[1 + i].setAttribute('class', 'mh_guildes_ennemis');
+                    } else if (isStyleClass && cg[numeroDeGuilde] == '#BBBBFF') {
+                        x_trolls[1 + i].setAttribute('class', 'mh_guildes_perso');
+                    } else if (isStyleClass && cg[numeroDeGuilde] == '#FFD3D3') {
+                        x_trolls[1 + i].setAttribute('class', 'mh_guildes_conflit');
+                    } else {
+                        // La plupart du temps isStyleClass est false, donc on pousse directement la couleur dans le DOM
                         x_trolls[1 + i].setAttribute('class', '');
-                        x_trolls[1 + i].style.backgroundColor = cg[lien];
+                        x_trolls[1 + i].style.backgroundColor = cg[numeroDeGuilde];
                     }
+//                } else if (numeroDeGuilde == '1900') { // TODO AThimel remplacer par la guilde du troll
+//                    x_trolls[1 + i].setAttribute('class', '');
+//                    x_trolls[1 + i].style.backgroundColor = "#B1E1DD";
                 }
             }
         }
 
-        if (infosTrolls[num])
-        {
+        if (infosTrolls[num]) {
             used = true;
             var infosTroll = infosTrolls[num];
             infosTroll[9] = -1; // si on le voit, le troll n'est pas camouflé ou est sur notre case
@@ -2192,15 +2196,17 @@ function setInfosTrolls() {
             var lien = x_trolls[1 + i].childNodes[5].innerHTML;
             lien = lien.substring(lien.indexOf('(') + 1, lien.indexOf(')'));
             var eITM = document.createElement('A');
-            eITM.innerHTML = '<SPAN TITLE="' + guilde + '"><FONT COLOR=#000000><I>' + infosTroll[2] + '</I>:<B></FONT><FONT COLOR=#990000> ' + infosTroll[4] + '</B></FONT><FONT COLOR=#000000> PA=> </FONT><FONT COLOR=#990000><B>' + infosTroll[3] + '</B></FONT></SPAN>';
+            eITM.innerHTML = '<SPAN TITLE="' + guilde + '"><FONT COLOR=#000000><I>'
+                    + infosTroll[2] + '</I>:<B></FONT><FONT COLOR=#990000> ' 
+                    + infosTroll[4] + '</B></FONT><FONT COLOR=#000000> PA=> </FONT><FONT COLOR=#990000><B>' 
+                    + infosTroll[3] + '</B></FONT></SPAN>';
             eITM.setAttribute('href', 'javascript:EAV(' + lien + ')');
             x_trolls[1 + i].childNodes[5].replaceChild(eITM, x_trolls[1 + i].childNodes[5].firstChild);
 
             var myTable = createBarrePV(0, infosTroll[0], infosTroll[1], '');
             x_trolls[1 + i].insertBefore(document.createElement('td'), x_trolls[1 + i].childNodes[6]);
             x_trolls[1 + i].childNodes[6].appendChild(myTable);
-        } else
-        {
+        } else {
             x_trolls[1 + i].insertBefore(document.createElement('td'), x_trolls[1 + i].childNodes[6]);
         }
 
@@ -2208,15 +2214,12 @@ function setInfosTrolls() {
         var cb = document.createElement('INPUT');
         cb.setAttribute('type', 'checkbox');
         cb.setAttribute('name', 'mp_' + num);
-//alert('name', 'mp_' + num);
         x_trolls[1 + i].childNodes[2].appendChild(cb);
-
     }
+
     for (var i = 0; i < x_trolls.length-1; i++) {
         // on ajoute les copain si pas en vue
-        while (zzTroll < nbIT)
-        {
-//alert(zzTroll+'   '+ nbIT);
+        while (zzTroll < nbIT) {
             var flagNewTroll = false;
             var key = infosTrollID[zzTroll];
             //  		if (key==num) { zzTroll++;  if (zzTroll>=nbIT) break; key=infosTrollID[zzTroll]; }
@@ -2230,13 +2233,18 @@ function setInfosTrolls() {
             if (zzTroll >= nbIT) break;
             var dist = Math.max(Math.abs(ZPOSX - infosTroll[6]), Math.abs(ZPOSY - infosTroll[7]), Math.abs(ZPOSN - infosTroll[8]));
             var xdist = x_trolls[1 + i].childNodes[0].childNodes[0].nodeValue;
-            if (dist < xdist) flagNewTroll = true;
-            else if (dist == xdist) {
-                if (x_trolls[1 + i].childNodes[10].childNodes[0].nodeValue >= infosTroll[8]) flagNewTroll = true;
-                else if (x_trolls[1 + i].childNodes[10].childNodes[0].nodeValue == infosTroll[8]) {
-                    if (x_trolls[1 + i].childNodes[8].childNodes[0].nodeValue <= infosTroll[6]) flagNewTroll = true;
-                    else if (x_trolls[1 + i].childNodes[8].childNodes[0].nodeValue == infosTroll[6]) {
-                        if (x_trolls[1 + i].childNodes[9].childNodes[0].nodeValue < infosTroll[7]) flagNewTroll = true;
+            if (dist < xdist) {
+                flagNewTroll = true;
+            } else if (dist == xdist) {
+                if (x_trolls[1 + i].childNodes[10].childNodes[0].nodeValue >= infosTroll[8]) {
+                    flagNewTroll = true;
+                } else if (x_trolls[1 + i].childNodes[10].childNodes[0].nodeValue == infosTroll[8]) {
+                    if (x_trolls[1 + i].childNodes[8].childNodes[0].nodeValue <= infosTroll[6]) {
+                        flagNewTroll = true;
+                    } else if (x_trolls[1 + i].childNodes[8].childNodes[0].nodeValue == infosTroll[6]) {
+                        if (x_trolls[1 + i].childNodes[9].childNodes[0].nodeValue < infosTroll[7]) {
+                            flagNewTroll = true;
+                        }
                     }
                 }
             }
@@ -2255,8 +2263,7 @@ function setInfosTrolls() {
     } // fin de boucle sur la liste des trolls
 
     // afficher tous ceux qui sont trop loin donc hors vue!
-    while (zzTroll < nbIT)
-    {
+    while (zzTroll < nbIT) {
         used = true;
         var key = infosTrollID[zzTroll];
         var infosTroll = infosTrolls[key];

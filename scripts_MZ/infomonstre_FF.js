@@ -622,7 +622,11 @@ if (monstre="Ce Monstre n'existe pas ou a été Tué.") { // recherche via dernier 
     var nodes = document.evaluate("//a[@class='mh_monstres']/text()", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	if (nodes.snapshotLength>0)	{
 	   var node = nodes.snapshotItem(0).nodeValue;
-	   if (node.slice(0,3)=='une') monstre=node.slice(4); else monstre=node.slice(3); 
+	   if (node.slice(0,3)=='une') {
+           monstre=node.slice(4);
+       } else {
+           monstre=node.slice(3);
+       }
 	}
 }
 
@@ -641,8 +645,8 @@ var _eventAttaque = new Array();
 var totaltab=document.getElementsByTagName('table');
 //if (listeCDM.length>0) var x_events = totaltab[4].childNodes[1].childNodes; else 
 var x_events = totaltab[3].getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-var toDate=x_events[2].childNodes[1].childNodes[0].nodeValue;
-var fromDate=x_events[x_events.length-2].childNodes[1].childNodes[0].nodeValue;
+var toDate=x_events[0].childNodes[1].childNodes[0].nodeValue;
+var fromDate=x_events[x_events.length-1].childNodes[1].childNodes[0].nodeValue;
 
 var url = ZZDB+"/mzMEvent.php?&num="+numTroll+"&fromDate="+fromDate+"&toDate="+toDate+"&MeID="+MeID+str;
 MZ_xmlhttpRequest({
@@ -684,7 +688,7 @@ MZ_xmlhttpRequest({
 								} 
 						}
 	 					putEventMonstre();
-	 					if (listeCDM.length>0) {
+	 					if (listeCDM.length > 0) {
                             putBestiaireInfo();
                         }
 					}

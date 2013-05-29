@@ -90,52 +90,64 @@ function putEventMonstre() {
 	//if (listeCDM.length>0) { // Décalage d'un tableau par la CDM de MZ  (on ne l'affiche plus!!!!
 	//	var x_events = totaltab[4].childNodes[1].childNodes;
 	//} else {	
-		var x_events = totaltab[3].childNodes[1].childNodes;
+        var x_events_headers = totaltab[3].getElementsByTagName('thead')[0].getElementsByTagName('tr');
+		var x_events = totaltab[3].getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 		MZshift=2;
 	//}
 
-	var dNode=3;
+	var dNode=5;
 	var iNode=3;
-	var tNode=2;
+	var tNode=3;
 	var invStr='DEPLACEMENT';
 	ZZinitPopup();	
 			
 	//=== partie commune à infomonstres_FF.js
-	var newB = document.createElement( 'b' );
-	newB.appendChild( document.createTextNode( 'Info' ) );
-	var newTd = document.createElement( 'td' );
-	newTd.setAttribute( 'width', '60' );
-	newTd.appendChild( newB );
-	x_events[0].insertBefore( newTd, x_events[0].childNodes[iNode] );
+	var infoTh = document.createElement( 'th' );
+	infoTh.setAttribute( 'width', '60' );
+	infoTh.appendChild( document.createTextNode( 'Info' ) );
+	x_events_headers[0].insertBefore( infoTh, x_events_headers[0].childNodes[iNode] );
 	
 	//var iCdM=eventCdM.length-1; 
 	//var iIns=eventInsulte.length-1; 
 	//var iAtt=eventAttaque.length-1; 
-	var fInfo=false;
-	var fcInfo=false;
+	var infoCellUsed=false;
+	var infoColumnUsed=false;
 	var DescEvt=""; 
-	for (var i=2;i<x_events.length;i+=2) {
-  	  fInfo=false;
 
-	  DescEvt=x_events[i].childNodes[dNode].childNodes[1].nodeValue;	// en cas de piege le sens des dégat est inversé "piégé par piegeur" au lieu de "frappeur sur frappé"
-	  if ((x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf(invStr)>=0) && (x_events[i].childNodes[dNode].childNodes[3])) DescEvt=x_events[i].childNodes[dNode].childNodes[3].nodeValue;
+    // Enrichissement des lignes d'event
+	for (var i=0;i<x_events.length;i++) {
+  	  infoCellUsed=false;
+      var eventRow = x_events[i];
+
+      var eventTypeCell = eventRow.childNodes[tNode].childNodes[0];
+      var eventType = eventTypeCell.nodeValue;
+
+	  DescEvt=eventRow.childNodes[dNode].childNodes[1].nodeValue;
+      // en cas de piege le sens des dégat est inversé "piégé par piegeur" au lieu de "frappeur sur frappé"
+	  if ((eventType.indexOf(invStr)>=0) && (eventRow.childNodes[dNode].childNodes[3])) {
+          DescEvt=eventRow.childNodes[dNode].childNodes[3].nodeValue;
+      }
 	                         
 	  //if (DescEvt.slice(DescEvt.indexOf('\(')+2, DescEvt.indexOf('\)')-1)==evtTroll) {    // 	différence 	 infomonstres_FF.js  et PJView_Events.js  (controle supplémentaire)
-	  if (x_events[i].childNodes[dNode].childNodes[3]) {
-	  	if (x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf(invStr)>=0) DescEvt=x_events[i].childNodes[dNode].childNodes[3].nodeValue;
- 	    else DescEvt=x_events[i].childNodes[dNode].childNodes[1].nodeValue; 				// différence 	 infomonstres_FF.js  et PJView_Events.js (Changement de sens pour les monstres)       
+	  if (eventRow.childNodes[dNode].childNodes[3]) {
+	  	if (eventType.indexOf(invStr)>=0) {
+           DescEvt=eventRow.childNodes[dNode].childNodes[3].nodeValue;
+ 	    } else {
+            DescEvt=eventRow.childNodes[dNode].childNodes[1].nodeValue; 				// différence 	 infomonstres_FF.js  et PJView_Events.js (Changement de sens pour les monstres)       
+        }
 		var iAtt=eventAttaque.length-1; 
 		var iCdM=eventCdM.length-1; 
 		var iIns=eventInsulte.length-1; 
 
- 	    while ((iIns>=0) && (fInfo==false)) {
-		 	    if (roundDate(eventInsulte[iIns][0], x_events[i].childNodes[1].childNodes[0].nodeValue)==0) {
+        // Affichage des insultes
+ 	    while ((iIns>=0) && (infoCellUsed==false)) {
+		 	    if (roundDate(eventInsulte[iIns][0], eventRow.childNodes[1].childNodes[0].nodeValue)==0) {
 			 	// Controle du N° de Troll/Comp
-			    if (    (x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf('COMPETENCE')>=0)
+			    if (    (eventType.indexOf('COMPETENCE')>=0)
 			         && (DescEvt.slice(DescEvt.indexOf('\(')+2, DescEvt.indexOf('\)')-1)==eventInsulte[iIns][4]))
 				{
-					fInfo=true;
-					x_events[i].childNodes[tNode].childNodes[0].nodeValue='Insulte';
+					infoCellUsed=true;
+					eventTypeCell.nodeValue='Insulte';
 					var newB = document.createElement( 'h' );
 					if (eventInsulte[iIns][1]==1) 
 						newB.appendChild( document.createTextNode( 'Réussie' ) );
@@ -151,26 +163,28 @@ function putEventMonstre() {
 					newTd.addEventListener("mouseout", ZZhidePopup,true);
 			  		
 					newTd.appendChild( newB );
-					x_events[i].insertBefore( newTd , x_events[i].childNodes[iNode] );	
+					eventRow.insertBefore( newTd , eventRow.childNodes[iNode] );	
 					eventInsulte.splice(iAtt,1);	//iIns--; (on retire l'élément du tableau plutot que de décrémenter					
 		 	        break;
 		 	    } else {
 					iIns--;
 		 	    }
-	 	    } else if (roundDate(eventInsulte[iIns][0], x_events[i].childNodes[1].childNodes[0].nodeValue)<0) {
+	 	    } else if (roundDate(eventInsulte[iIns][0], eventRow.childNodes[1].childNodes[0].nodeValue)<0) {
 	 	        break;
 	 	    } else {
 				iIns--;
 	 	    }
 	 	} 		
- 	    while ((iCdM>=0) && (fInfo==false)) {
-			if  (roundDate(eventCdM[iCdM][0], x_events[i].childNodes[1].childNodes[0].nodeValue)==0) { 
+
+        // Affichage des CdM
+ 	    while ((iCdM>=0) && (infoCellUsed==false)) {
+			if  (roundDate(eventCdM[iCdM][0], eventRow.childNodes[1].childNodes[0].nodeValue)==0) { 
 			 	// Controle du N° de Troll/Comp
-			    if (    (x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf('COMPETENCE')>=0)
+			    if (    (eventType.indexOf('COMPETENCE')>=0)
 			         && (DescEvt.slice(DescEvt.indexOf('\(')+2, DescEvt.indexOf('\)')-1)==eventCdM[iCdM][4]))
 				{
-					fInfo=true;
-					x_events[i].childNodes[tNode].childNodes[0].nodeValue='CdM';
+					infoCellUsed=true;
+					eventTypeCell.nodeValue='CdM';
 					var newB = document.createElement( 'h' );
 					newB.appendChild( document.createTextNode( eventCdM[iCdM][3]+'%' ) );
 					var newTd = document.createElement( 'td' );
@@ -183,28 +197,30 @@ function putEventMonstre() {
 					newTd.addEventListener("mouseout", ZZhidePopup,true);
 			  		
 					newTd.appendChild( newB );
-					x_events[i].insertBefore( newTd , x_events[i].childNodes[iNode] );	
+					eventRow.insertBefore( newTd , eventRow.childNodes[iNode] );	
 					eventCdM.splice(iAtt,1);	//iCdM--; (on retire l'élément du tableau plutot que de décrémenter
 		 	        break;
 		 	    } else {
 					iCdM--;
 		 	    }
-	 	    } else if (roundDate(eventCdM[iCdM][0],x_events[i].childNodes[1].childNodes[0].nodeValue)<0) {
+	 	    } else if (roundDate(eventCdM[iCdM][0],eventRow.childNodes[1].childNodes[0].nodeValue)<0) {
 	 	        break;
 	 	    } else {
 				iCdM--;
 	 	    }
 	 	} 
- 	    while ((iAtt>=0) && (fInfo==false)) {
-	 	    if (roundDate(eventAttaque[iAtt][0],x_events[i].childNodes[1].childNodes[0].nodeValue)==0) {
-			    if ((  ((x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf('SORTILEGE')>=0) && (eventAttaque[iAtt][3]=='Explosion'))
-					   || (x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf('COMBAT')>=0)||(x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf('MORT')>=0)||(x_events[i].childNodes[tNode].childNodes[0].nodeValue.indexOf('DEPLACEMENT')>=0))
+
+        // Affichage des attaques
+ 	    while ((iAtt>=0) && (infoCellUsed==false)) {
+	 	    if (roundDate(eventAttaque[iAtt][0],eventRow.childNodes[1].childNodes[0].nodeValue)==0) {
+			    if ((  ((eventType.indexOf('SORTILEGE')>=0) && (eventAttaque[iAtt][3]=='Explosion'))
+					   || (eventType.indexOf('COMBAT')>=0)||(eventType.indexOf('MORT')>=0)||(eventType.indexOf('DEPLACEMENT')>=0))
 			         && (DescEvt.slice(DescEvt.indexOf('\(')+2, DescEvt.indexOf('\)')-1)==Math.abs(eventAttaque[iAtt][1])))
 				{
 
 			 	// Controle du N° de Troll/Combat (deplacementpourles pieges)
-					fInfo=true;
-					x_events[i].childNodes[tNode].childNodes[0].nodeValue=eventAttaque[iAtt][3];
+					infoCellUsed=true;
+					eventTypeCell.nodeValue=eventAttaque[iAtt][3];
 					var newB = document.createElement( 'h' );
 					if ((eventAttaque[iAtt][9]>0) && (eventAttaque[iAtt][7]==0)&&(eventAttaque[iAtt][2]==0)) {
 						newB.appendChild( document.createTextNode( "Raté" ) );				
@@ -238,27 +254,31 @@ function putEventMonstre() {
 					newTd.addEventListener("mouseout", ZZhidePopup,true);
 
 					newTd.appendChild( newB );
-					x_events[i].insertBefore( newTd , x_events[i].childNodes[iNode] );	
+					eventRow.insertBefore( newTd , eventRow.childNodes[iNode] );	
 					eventAttaque.splice(iAtt,1);	//iAtt--; (on retire l'élément du tableau plutot que de décrémenter
 		 	        break;
 		 	    } else {
 					iAtt--;
 		 	    }
-	 	    } else if (roundDate(eventAttaque[iAtt][0],x_events[i].childNodes[1].childNodes[0].nodeValue)<0) {
+	 	    } else if (roundDate(eventAttaque[iAtt][0],eventRow.childNodes[1].childNodes[0].nodeValue)<0) {
 	 	        break;
 	 	    } else {
 				iAtt--;
 	 	    }
 	 	}}//} 		différence 	//infomonstres_FF.js  et PJView_Events.js 
-		if (fInfo==false) {
-			x_events[i].insertBefore( document.createElement('td') , x_events[i].childNodes[iNode] );	
+
+		if (infoCellUsed==false) { // Ne rentre dans aucun des cas précédents
+			eventRow.insertBefore( document.createElement('td') , eventRow.childNodes[iNode] );	
 		} else {
-		 	fcInfo=true;
+		 	infoColumnUsed=true; // Au moins un event contient des infos
 		}
 	}
-	if (fcInfo==false) {  // pas d'info on démonte la colonne
-		for (var i=0;i<x_events.length;i+=2) {
-			x_events[i].removeChild( x_events[i].childNodes[iNode] );	
+
+
+	if (infoColumnUsed==false) {  // pas d'info on démonte la colonne
+        x_events_headers[0].removeChild( infoTh ); // On retire le th "Info"
+		for (var k=0;k<x_events.length;k++) { // On retire chaque cellule
+			x_events[k].removeChild( x_events[k].childNodes[iNode] );	
 		}
 	//=== Fin partie commune à infomonstres_FF.js => qui affiche un tableau récap
 	} else {  // Récap./Summarize
@@ -589,7 +609,6 @@ function putBestiaireInfo() {
     }
 }
 
-
 // Début Du script ITM Event
 var NIV_TROLL = MZ_getValue("NIV_TROLL");	
 var NUM_TROLL=numTroll;			// Id du Troll
@@ -612,21 +631,23 @@ var MeID=document.getElementsByName('ai_IDPJ')[0].value;
 //var MeID=document.ActionForm.ai_IDPJ.value;
 var fullname=monstre.slice(0,monstre.indexOf(']')+1); 
 var str='&nom[]='+escape(fullname)+'$'+MeID;
+
 var eventCdM = new Array();
 var eventInsulte = new Array(); 
 var eventAttaque = new Array();
 var _eventCdM = new Array();
 var _eventAttaque = new Array();
+
 var totaltab=document.getElementsByTagName('table');
 //if (listeCDM.length>0) var x_events = totaltab[4].childNodes[1].childNodes; else 
-var x_events = totaltab[3].childNodes[1].childNodes;
+var x_events = totaltab[3].getElementsByTagName('tbody')[0].getElementsByTagName('tr');
 var toDate=x_events[2].childNodes[1].childNodes[0].nodeValue;
 var fromDate=x_events[x_events.length-2].childNodes[1].childNodes[0].nodeValue;
 
-//alert(ZZDB+"/mzMEvent.php?&num="+numTroll+"&fromDate="+fromDate+"&toDate="+toDate+"&MeID="+MeID+str);
+var url = ZZDB+"/mzMEvent.php?&num="+numTroll+"&fromDate="+fromDate+"&toDate="+toDate+"&MeID="+MeID+str;
 MZ_xmlhttpRequest({
 				method: 'GET',
-				url: ZZDB+"/mzMEvent.php?&num="+numTroll+"&fromDate="+fromDate+"&toDate="+toDate+"&MeID="+MeID+str,
+				url: url,
 				headers : {
 					'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
 					'Accept': 'application/atom+xml,application/xml,text/xml'
@@ -663,7 +684,9 @@ MZ_xmlhttpRequest({
 								} 
 						}
 	 					putEventMonstre();
-	 					if (listeCDM.length>0) putBestiaireInfo();
+	 					if (listeCDM.length>0) {
+                            putBestiaireInfo();
+                        }
 					}
 					catch(e)
 					{

@@ -232,37 +232,51 @@ function getDataAttaque(SortComp, mm, Code) {
 	var sr=0;
   	var lines = Code.split("<p>");
 	MeID=Number(lines[0].substring(lines[0].indexOf("(")+1,lines[0].indexOf(")")));	//Id négatif pour les trolls, positif pour les monstres
-	if(lines[0].indexOf("le Troll")==0)	
+	if (lines[0].indexOf("le Troll")==0) {
 		MeID=-MeID;
-	else 
+	} else {
 		ageM=lines[0].slice(lines[0].indexOf("[")+1, lines[0].indexOf("]"));
-  	for(var j=1;j<lines.length;j++) {
-      	var line=lines[j].split('<br>'); 
-	  	for(var i=0;i<line.length;i++) {
-      		var l=line[i];
-	  		if (l.indexOf("Esquive de votre adversaire est de")>0) ESQ_Cible=parseInt(l.slice(48));
-	  		else if (l.indexOf("lui avez infligé")>0) DEG_Cible=parseInt(l.substr(25), "point");
-	  		else if (l.indexOf("Armure le protège")>0) ARM_Cible=parseInt(l.substr(45), "point");
-	  		else if (l.indexOf("de Résistance de la Cible")>0) sr=parseInt(l.substr(41), "%");
-	  }
-   }
+	}
+  	for (var j=1; j<lines.length; j++) {
+	      	var line=lines[j].split('<br>');
+	  	for (var i=0;i<line.length;i++) {
+	      		var l=line[i];
+	  		if (l.indexOf("Esquive de votre adversaire est de")>0) {
+				ESQ_Cible=parseInt(l.slice(48));
+	  		} else if (l.indexOf("lui avez infligé")>0) {
+				DEG_Cible=parseInt(l.substr(25), "point");
+	  		} else if (l.indexOf("Armure le protège")>0) {
+				ARM_Cible=parseInt(l.substr(45), "point");
+	  		} else if (l.indexOf("de Résistance de la Cible")>0) {
+				sr=parseInt(l.substr(41), "%");
+			}
+		}
+	}
   
-   if (sr>0) // le 0 est impossible, c'est que ce n'est pas une attaque magique
-   {	
+	if (sr>0) // le 0 est impossible, c'est que ce n'est pas une attaque magique
+	{	
 		SR_Cible=sr;
-  		if(sr==10) RM_Cible="<"+Math.round((sr*mm)/50);  			
-		else if(sr<=50) RM_Cible="="+Math.round((sr*mm)/50);   			
-		else if(sr<90) RM_Cible="="+Math.round(50*mm/(100-sr));  			
-		else RM_Cible=">"+Math.round(50*mm/(100-sr));
-   }					  
+  		if (sr==10) {
+			RM_Cible="<"+Math.round((sr*mm)/50);  			
+		} else if (sr<=50) {
+			RM_Cible="="+Math.round((sr*mm)/50);   			
+		} else if (sr<90) {
+			RM_Cible="="+Math.round(50*mm/(100-sr));  			
+		} else {
+			RM_Cible=">"+Math.round(50*mm/(100-sr));
+		}
+	}					  
 	if (ARM_Cible==-1) {
 		ARM_Cible=0;
 	} else {
 	  	ARM_Cible=DEG_Cible-ARM_Cible;
 	  	DEG_Cible=DEG_Cible-ARM_Cible; 
 	}
-   if (SortComp=='IdComp1') ARM_Cible=2*ARM_Cible;	// Pour BS: seulement 50% de l'armure physique est prose en compte
-   return "&MeID[]="+MeID+"&AGE[]="+ageM+"&ESQ[]="+ESQ_Cible+"&DEG[]="+DEG_Cible+"&ARM[]="+ARM_Cible+"&SR[]="+SR_Cible+"&RM[]="+RM_Cible;
+	if (SortComp=='IdComp1') {
+		ARM_Cible=2*ARM_Cible;	// Pour BS: seulement 50% de l'armure physique est prose en compte
+	}
+        var result = "&MeID[]="+MeID+"&AGE[]="+ageM+"&ESQ[]="+ESQ_Cible+"&DEG[]="+DEG_Cible+"&ARM[]="+ARM_Cible+"&SR[]="+SR_Cible+"&RM[]="+RM_Cible;
+	return result;
 }  
   
 function catchAttaque() {
@@ -315,64 +329,80 @@ function catchAttaque() {
   		}
 		// recherche du malus de GdS
   		nodes = document.evaluate("//text()[contains(.,'malus de Poison')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-  		for (var i = 0; i < nodes.snapshotLength; i++)
-  		{
-    		var node = nodes.snapshotItem(i);
-    		sReg=node.nodeValue;
-    		REG_Cible=REG_Cible+parseInt(sReg.slice(19), "PV");
-    		var xnodes = document.evaluate("//text()[contains(.,'prochain')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    		var xnode = xnodes.snapshotItem(0);
+  		for (var i = 0; i < nodes.snapshotLength; i++) {
+	    		var node = nodes.snapshotItem(i);
+	    		sReg=node.nodeValue;
+	    		REG_Cible=REG_Cible+parseInt(sReg.slice(19), "PV");
+	    		var xnodes = document.evaluate("//text()[contains(.,'prochain')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	    		var xnode = xnodes.snapshotItem(0);
   			if (nodes.snapshotLength==1) {
-	    		sReg=xnode.nodeValue;
-	    		if (sReg.indexOf("pour ses")>0) {
-		    		REG_Cible=String(parseInt(sReg.slice(9), "prochain"))+"x"+REG_Cible;	//poison sur plusieuer tours
+	    			sReg=xnode.nodeValue;
+		    		if (sReg.indexOf("pour ses")>0) {
+			    		REG_Cible=String(parseInt(sReg.slice(9), "prochain"))+"x"+REG_Cible;	//poison sur plusieuer tours
 				} else {
-	    			REG_Cible="1x"+REG_Cible;	// poison pendant 1 tour
+		    			REG_Cible="1x"+REG_Cible;	// poison pendant 1 tour
 				}
 			} 
   		}
   
-  		// détermination de la compt/sort
+  		// détermination de la compt/sorti
    		var nodes = document.evaluate("//div/text()[contains(.,'Résultat')]", document, null,XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
    		if (nodes) {
 			ATTAQUE=IdAttaque[nodes.nodeValue.substring(nodes.nodeValue.indexOf(":")+2)];
-			if (!ATTAQUE) ATTAQUE=0;
+			if (!ATTAQUE) {
+				ATTAQUE=0;
+			}
 		} 
 		if (ATTAQUE==0) {
-	  		// recherche des la compétense ou sortilège utilisé (on tente l'ancienne méthode si la nouvelle n'e fonctionne pas)
+	  		// recherche des la compétense ou sortilège utilisé (on tente l'ancienne méthode si la nouvelle ne fonctionne pas)
 	  		var url=document.referrer;
 	  		url=url.substring(url.indexOf('/Actions')+9);
-	  		if(url.indexOf("ai_IdComp") != -1)
-	  		{
-	      		url=url.substring(url.indexOf('ai_IdComp')+10)
-	      		url=url.substring(0,url.indexOf('&'));
-	      		ATTAQUE="IdComp"+url;
+	  		if(url.indexOf("ai_IdComp") != -1) {
+		      		url=url.substring(url.indexOf('ai_IdComp')+10)
+		      		url=url.substring(0,url.indexOf('&'));
+		      		ATTAQUE="IdComp"+url;
 		  	} else if(url.indexOf("ai_IdSort") != -1) {
-	      		url=url.substring(url.indexOf('ai_IdSort')+10)
-	      		ATTAQUE="IdSort"+url;
+		      		url=url.substring(url.indexOf('ai_IdSort')+10)
+		      		ATTAQUE="IdSort"+url;
 	  		}  
   		}
   		
-		// recherche des données de l'ttaque, Cible(s), esquive, etc...
+		// recherche des données de l'attaque, Cible(s), esquive, etc...
   		var DataAttaque=""; 
+//alert("tables: " + document.getElementsByTagName('table').length);
    		var Code=document.getElementsByTagName('table')[0].innerHTML;
+//alert("Code: " + Code);
   		//var Code=document.getElementsByName('ActionForm')[0].innerHTML;
   		//Code=Code.substr(0, Code.indexOf("<input name"));
   		var bloc = Code.split("Vous avez attaqué ");
-  		if (bloc.length>1) 
-		{
-      		for(var i=1;i<bloc.length;i++) DataAttaque+=getDataAttaque(ATTAQUE, mm, bloc[i]); 
+//alert("bloc.length: " + bloc.length);
+  		if (bloc.length>1) {
+	      		for(var i=1;i<bloc.length;i++) {
+//alert("bloc["+i+"]: " + bloc[i]);
+				var iData = getDataAttaque(ATTAQUE, mm, bloc[i]);
+//alert("bloc["+i+"] (DA): " + iData);
+				DataAttaque+=iData ;
+			}
   		} else {
-      		var bloc = Code.split("a eu l'effet suivant :");
-      		for(var i=1;i<bloc.length;i++) DataAttaque+=getDataSort(ATTAQUE, mm, bloc[i]); 
+	      		var bloc = Code.split("a eu l'effet suivant :");
+//alert("bloc2.length: " + bloc.length);
+	      		for(var i=1;i<bloc.length;i++) {
+//alert("bloc2["+i+"]: " + bloc[i]);
+				var iData = getDataSort(ATTAQUE, mm, bloc[i]);
+//alert("bloc2["+i+"] (DA): " + iData);
+				DataAttaque+=iData; 
+			}
   		}
 		// envoyé le résultat à ZZ
-  		if (DataAttaque!="") 
-		{	
+  		if (DataAttaque!="") {	
 	  		var data="&TypeData=Attaque";
-	 		var totaltab=document.getElementsByTagName( 'table' );
-	 		var TimeStamp=totaltab[totaltab.length-1].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue;
-	  		TimeStamp=TimeStamp.substr(TimeStamp.indexOf("/")-2, 19).replace(" ", "_");
+//	 		var totaltab=document.getElementsByTagName( 'table' );
+//	 		var TimeStamp=totaltab[totaltab.length-1].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue;
+//	  		TimeStamp=TimeStamp.substr(TimeStamp.indexOf("/")-2, 19).replace(" ", "_");
+                        var footer2=document.getElementById( 'footer2' );  
+		        var ts = footer2.innerHTML;
+		        var TimeStamp=ts.substr(ts.indexOf('GMT')-20, 19);
+		        TimeStamp=TimeStamp.replace(" ", "_");
 	  		data+="&TimeStamp="+TimeStamp;
 	  		data+="&TiD="+numTroll;
 	  		data+="&Attaque="+ATTAQUE;
@@ -380,7 +410,7 @@ function catchAttaque() {
 	  		data+="&NIV="+NIV_Cible;
 	  		data+=DataAttaque;
 	  
-	  		//alert(ZZDB+'/mzData.php?'+data);
+//alert(data);
 	  		MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
   		}
 	}  

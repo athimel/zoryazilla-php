@@ -554,7 +554,7 @@ function retrieveCDMs() {
 						if (i >= max) setInfosMonstres(1);
                     } catch (e)
                     {
-                        alert(e + "\n" + url + "\n" + texte);
+                        alert("h1 ?" + e + "\n" + url + "\n" + texte);
                     }
                 }
             });
@@ -861,8 +861,13 @@ function set2DViewSystem() { // choix de la vue sans passer par les options
 
     viewForm = document.createElement('form');
     refresh2DViewButton();
-
-    var center = document.getElementById('titre2').nextSibling;
+    var MA_VUE_titre2 = document.getElementById('titre2');
+    var center;
+    if (MA_VUE_titre2) {
+      center = MA_VUE_titre2.nextSibling;
+    } else {
+      center = document.getElementsByTagName('center')[0];
+    }
     var myTab = document.createElement('tab');
     var myTR = document.createElement('tr');
     myTab.appendChild(myTR);
@@ -999,7 +1004,7 @@ function putFiltresBoutons() {
             toggleTableauInfos();
         } catch (e)
         {
-            alert(e);
+            alert("h2 ?" + e);
         }
     }
 }
@@ -1030,7 +1035,7 @@ function appendSearch(td, text, buttonValue, buttonOnClick) {
                 button.click();
             }
         } catch (e) {
-            alert(e)
+            alert("h3 ?" + e)
         }
     }, true);
     td.appendChild(nobr);
@@ -1182,7 +1187,7 @@ function getVueScript()
         }
         return txt + "#FIN CHAMPIGNONS\n#DEBUT ORIGINE\n" + getVue()[0] + ";" + getPositionStr(getPosition()) + "\n#FIN ORIGINE\n";
     } catch (e) {
-        alert(e)
+        alert("h4 ?" + e)
     }
 }
 
@@ -1254,7 +1259,7 @@ function putInfosTrolls() {
         }
     } catch (e)
     {
-        alert(e + " " + i + "\n" + x_trolls[i].innerHTML);
+        alert("h5 ?" + e + " " + i + "\n" + x_trolls[i].innerHTML);
     }
 }
 
@@ -1417,7 +1422,7 @@ function analyseTagFile(data)
             }
         } catch (e)
         {
-            alert(e);
+            alert("h6 ?" + e);
             break;
         }
     }
@@ -1452,14 +1457,14 @@ function computeTag()
                             analyseTagFile(responseDetails.responseText);
                         } catch (e)
                         {
-                            alert(e);
+                            alert("h7 ?" + e);
                         }
                     }
                 });
             }
         }
     } catch (e) {
-        alert(e);
+        alert("h8 ?" + e);
     }
 }
 
@@ -1600,7 +1605,7 @@ function computeTactique(begin, end)  {
             }
         }
     } catch (e) {
-        alert(j + " " + e)
+        alert("h9 ?" + j + " " + e)
     }
     filtreMonstres();
 }
@@ -1790,6 +1795,7 @@ function savePosition() {
 
 try
 {
+
     start_script(31);
 
 
@@ -1825,6 +1831,7 @@ try
         if (noTrou)
             filtreLieux();
     }
+
     //refreshDiplo();	  // Diplo faite par ZZ dans sa version Fusion
     initPXTroll();
     computeTag();
@@ -1835,7 +1842,7 @@ try
     displayScriptTime();
 } catch (e)
 {
-    alert(e);
+    alert(externalVue + "h10 ?" + e);
 }
 //============================ ZZ POST CODE ======================================
 
@@ -2381,7 +2388,7 @@ function requestTresors() {
                 }
                 setInfosTresorsIdent();
             } catch (e) {
-                alert(e);
+                alert("h11 ?" + e);
             }
         }
     });

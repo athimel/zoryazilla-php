@@ -273,7 +273,7 @@ function getDataAttaque(SortComp, mm, Code) {
 	  	DEG_Cible=DEG_Cible-ARM_Cible; 
 	}
 	if (SortComp=='IdComp1') {
-		ARM_Cible=2*ARM_Cible;	// Pour BS: seulement 50% de l'armure physique est prose en compte
+		ARM_Cible=2*ARM_Cible;	// Pour BS: seulement 50% de l'armure physique est prise en compte
 	}
         var result = "&MeID[]="+MeID+"&AGE[]="+ageM+"&ESQ[]="+ESQ_Cible+"&DEG[]="+DEG_Cible+"&ARM[]="+ARM_Cible+"&SR[]="+SR_Cible+"&RM[]="+RM_Cible;
 	return result;

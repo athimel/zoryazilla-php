@@ -791,8 +791,8 @@ function competences(comp,niveau) {
 			+ 'avec le texte de son choix.';
 		}
 	else if (comp.indexOf('Botte Secrete')!=-1) {
-		texte = 'Attaque : <b>'+Math.floor(att/2)+'</b> D6 '+aff( Math.floor((attbonus+attbmm)/2) )
-			+ ' => <b>'+arrondi(3.5*Math.floor(att/2)+Math.floor((attbonus+attbmm)/2))+'</b><br/>'
+		texte = 'Attaque : <b>'+Math.floor(att*2/3)+'</b> D6 '+aff( Math.floor((attbonus+attbmm)/2) )
+			+ ' => <b>'+arrondi(3.5*Math.floor(att*2/3)+Math.floor((attbonus+attbmm)/2))+'</b><br/>'
 			+ 'Dégâts : <b>'+Math.floor(att/2)+'</b> D3 '+aff( Math.floor((degbonus+degbmm)/2) )
 			+ ' => <b>'+(2*Math.floor(att/2)+Math.floor((degbonus+degbmm)/2))
 			+ '/'+(2*Math.floor(1.5*Math.floor(att/2))+Math.floor((degbonus+degbmm)/2))+'</b>';
@@ -1383,189 +1383,355 @@ saveProfil();
 displayScriptTime();
 }
 catch(e) {alert(e)}
-//============================ ZZ POST CODE ======================================
-//var ZZCRON='<img src="'+ZZDB+'/Cron/zzcron.php">';
-
-function setNewsZZ(news) {
-    IdNewZZ=news*1;
-    if (zzlink) {
-	 	var cnews=MZ_getValue(TiD+".ZZ_NewzID");
-		if (news<0) {
-		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<img height=18 SRC='"+SkinZZ+"/Bullet-yeux.gif'> <A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
- 		} else if ((!cnews) ||(cnews<news)) {
-		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A><img height=18 SRC='"+SkinZZ+"/New.gif'>)</FONT>";
-		}
-    }
-} 
-
-function initProfil() {//mainTab = document.getElementsByClassName('mh_tdborder');
+//============================ ZZ POST CODE ======================================
+
+//var ZZCRON='<img src="'+ZZDB+'/Cron/zzcron.php">';
+
+
+
+function setNewsZZ(news) {
+
+    IdNewZZ=news*1;
+
+    if (zzlink) {
+
+	 	var cnews=MZ_getValue(TiD+".ZZ_NewzID");
+
+		if (news<0) {
+
+		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<img height=18 SRC='"+SkinZZ+"/Bullet-yeux.gif'> <A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
+
+ 		} else if ((!cnews) ||(cnews<news)) {
+
+		 	zzlink.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A><img height=18 SRC='"+SkinZZ+"/New.gif'>)</FONT>";
+
+		}
+
+    }
+
+} 
+
+
+
+function initProfil() {
+//mainTab = document.getElementsByClassName('mh_tdborder');
 //mainTR = document.evaluate("./tbody/tr", mainTab[0], null, 7, null);
 //test: mainTR= document.evaluate("./tbody/tr", document.getElementsByClassName('mh_tdborder')[0], null, 7, null).snapshotItem();
 
 	//TiD=arrTR[4].childNodes[3].childNodes[1].getAttribute('href');
 	//TiD=TiD.slice(TiD.indexOf('(')+1,TiD.indexOf(','));
 	troll=mainTR.snapshotItem(0).childNodes[3].childNodes[1].childNodes[0].nodeValue;
-	troll=troll.substring(troll.indexOf('-')+2);
-	//race=arrTR[4].childNodes[3].childNodes[4].nodeValue.split(':')[1];
+	troll=troll.substring(troll.indexOf('-')+2);
+
+	//race=arrTR[4].childNodes[3].childNodes[4].nodeValue.split(':')[1];
+
 	race = mainTR.snapshotItem(0).childNodes[3].childNodes[4].nodeValue;
 	race = race.substring(race.indexOf(":")+1);
-//alert(typeof(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2].childNodes[2].nodeValue));
+//alert(typeof(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2].childNodes[2].nodeValue));
+
 	    if((typeof(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2]))!='undefined'){
 			if(mainTR.snapshotItem(2).childNodes[3].childNodes[1].childNodes[1].childNodes[2].nodeValue.indexOf('[Camouflé]')>0) {
 				camou=1; // Le troll est Camouflé
 			}
 		}
-}
-
-
-// override infoBulle pour ajout des images
-function ZZinfoBulle(evt) {
-   var nom=this.getAttribute("nom");
-   var fonction=this.getAttribute("fonction");
-   var img=SkinZZ+'/'+fonction+'/'+skinIMG[nom];
-   element = document.getElementById( 'bulle' );
-   if( element ) {
-   		element.childNodes[0].childNodes[0].innerHTML = '<TABLE><TR><TD><IMG SRC="'+img+'"><TD><TD valign=center> <b>'+nom+'</b></TD></TR></TABLE>';
-	}
-}
-
-function ZZcreerInfoBulle(noeud) {
-    //noeud.removeEventListener("mouseover", infoBulle,true);
-	noeud.addEventListener("mouseover", ZZinfoBulle,true);
-}
-
-function ZZcreerInfoBulles(liste) {
-	var i = 0;
-	while (liste.childNodes[i] != null) {
-		if (liste.childNodes[i].childNodes[3] != null) {
-			ZZcreerInfoBulle(liste.childNodes[i].childNodes[3].childNodes[0]);
-		}
-		i += 2;
-	}
-}
-
-function overrideInfoBulles() {
- 	//var node = arrTable[8].childNodes[1];		// Le DOM est altéré par le tableau d'AM des kastars, il faut ré-évaluer le bon noeud!
-    var node = document.evaluate("//tr/td/b/text()[contains(.,'Compétences')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.parentNode;
-    if (!node) return;
-	var listeComp = node.childNodes[2].childNodes[1].childNodes[0].childNodes[1];
-	var listeSort = node.childNodes[2].childNodes[3].childNodes[0].childNodes[1];
-	ZZcreerInfoBulles(listeComp);
-	ZZcreerInfoBulles(listeSort);	
-}
-
-// Fonction concoter par Breizhou13 modifié par Zo avec la réforme sur le balayage
-// Calcul du nombre de PA pour se relever lorsque le troll est à terre
-function Morphologie(typeaff) { // version Dabihul
-   var node = document.evaluate("//tr/td/p/b/i/text()[contains(.,'Caractéristiques Déduites')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-   var chiffres = node.innerHTML.match(/\d+/g);
-   var corpulence = chiffres[0];
-   var agilite = chiffres[1];
-   var stabilite = Math.floor((esq+reg)*2/3)+" D6 "+aff(esqbonus)+" (moyenne : "+(7*Math.floor((esq+reg)/3)+esqbonus)+")";
-      
-   // Création de la table d'affichage
-   if (typeaff==1) {
-      var string = '<table border="0" cellspacing="1" cellpadding="2" class="mh_tdborder">';
-      string += '<tr class="mh_tdtitre">';
-      string += '<td colspan="2" align="center"><b>Caractéristiques Déduites</b></td>';
-      string += '<td align="center"><b>Stabilité</b></td></tr>';
-      string += '<tr class="mh_tdpage">';
-      string += '<td align="center">Corpulence</td><td align="center">'+corpulence+'</td>';
-      string += '<td rowspan="2" align="center">'+stabilite+'</td></tr>';
-      string += '<tr class="mh_tdpage">';
-      string += '<td align="center">Agilité</td><td align="center">'+agilite+'</td></tr>';
-      string += '</table>';
-      }
-   else if (typeaff==2) {
-      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
-      string += '<table><tr><td>-  Corpulence.....:</td><td align=left>'+corpulence+' points</td></tr>';
-      string += '<tr><td>- Agilité.............:</td><td>'+agilite+' points</td></tr>';
-      string += '<tr><td>- Stabilité...........:</td><td>'+stabilite+'</td></tr></table>';
-      }
-   else {
-      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
-      string += '- Corpulence.....: '+corpulence+' points<br>';
-      string += '- Agilité.............: '+agilite+' points<br>';
-      string += '- Stabilité..........: '+stabilite;
-      }
-   node.innerHTML = string;
-}  
-   
-
-
-// Fonction concoter par Breizhou13
-function CaracEnTab() { // version Dabihul
-   //recuperation des emplacements
-   var base = document.evaluate("//tr/td/b/text()[contains(.,'Caractéristiques')]/../../../td[2]/table", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-   var nombre_TR = base.getElementsByTagName('TR');
-   
-   //mise en forme du tableau et nettoyage des noms des caracs
-   base.setAttribute('class','mh_tdborder');
-   var tr = document.createElement('tr');
-   tr.setAttribute('class','mh_tdtitre')
-   for(i=0 ; i<nombre_TR.length ; i++) {
-      nombre_TR[i].setAttribute('class','mh_tdpage');
-      var nombre_TD = nombre_TR[i].getElementsByTagName('TD');
-      nombre_TD[0].innerHTML = nombre_TD[0].innerHTML.substr(0,nombre_TD[0].innerHTML.indexOf('.', 0));
-      var len = nombre_TD.length;
-      for(j=0 ; j<len ; j++) {
-         nombre_TD[j].setAttribute('align','center');
-         }
-      var moy = nombre_TD[len-1].textContent;
-      nombre_TD[len-1].firstChild.nodeValue = moy.substring(11,moy.length-1);
-      }
-   
-   //insertion des entetes du tableau
-   insertBefore(base.firstChild, tr);
-   appendTdText(tr, "", true);
-   appendTdText(tr, "Nombre de dés", true);
-   appendTdText(tr, "Bonus physique", true);
-   appendTdText(tr, "Bonus magique", true);
-   appendTdText(tr, "Moyenne", true);
-}
-   
-
-   
-//=====================================================================
-var TiD=numTroll;
-var SkinZZ=MZ_getValue(TiD+".pref.SkinZZ"); if (!SkinZZ) SkinZZ=ZZDB+"/skin";
-var troll="";
-var race="";
-var camou=0;
-var PG="";
-var nodesPG = document.evaluate("//img[contains(@src,'contenu/header.jpg')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-if (nodesPG.snapshotLength==1) {
-	PG=nodesPG.snapshotItem(0).src;
-	PG=URLencode(PG.substring(0, PG.length-19));
-}
-initProfil();
-overrideInfoBulles();
+}
+
+
+
+
+
+// override infoBulle pour ajout des images
+
+function ZZinfoBulle(evt) {
+
+   var nom=this.getAttribute("nom");
+
+   var fonction=this.getAttribute("fonction");
+
+   var img=SkinZZ+'/'+fonction+'/'+skinIMG[nom];
+
+   element = document.getElementById( 'bulle' );
+
+   if( element ) {
+
+   		element.childNodes[0].childNodes[0].innerHTML = '<TABLE><TR><TD><IMG SRC="'+img+'"><TD><TD valign=center> <b>'+nom+'</b></TD></TR></TABLE>';
+
+	}
+
+}
+
+
+
+function ZZcreerInfoBulle(noeud) {
+
+    //noeud.removeEventListener("mouseover", infoBulle,true);
+
+	noeud.addEventListener("mouseover", ZZinfoBulle,true);
+
+}
+
+
+
+function ZZcreerInfoBulles(liste) {
+
+	var i = 0;
+
+	while (liste.childNodes[i] != null) {
+
+		if (liste.childNodes[i].childNodes[3] != null) {
+
+			ZZcreerInfoBulle(liste.childNodes[i].childNodes[3].childNodes[0]);
+
+		}
+
+		i += 2;
+
+	}
+
+}
+
+
+
+function overrideInfoBulles() {
+
+ 	//var node = arrTable[8].childNodes[1];		// Le DOM est altéré par le tableau d'AM des kastars, il faut ré-évaluer le bon noeud!
+
+    var node = document.evaluate("//tr/td/b/text()[contains(.,'Compétences')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.parentNode;
+
+    if (!node) return;
+
+	var listeComp = node.childNodes[2].childNodes[1].childNodes[0].childNodes[1];
+
+	var listeSort = node.childNodes[2].childNodes[3].childNodes[0].childNodes[1];
+
+	ZZcreerInfoBulles(listeComp);
+
+	ZZcreerInfoBulles(listeSort);	
+
+}
+
+
+
+// Fonction concoter par Breizhou13 modifié par Zo avec la réforme sur le balayage
+
+// Calcul du nombre de PA pour se relever lorsque le troll est à terre
+
+function Morphologie(typeaff) { // version Dabihul
+
+   var node = document.evaluate("//tr/td/p/b/i/text()[contains(.,'Caractéristiques Déduites')]/../../..", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+   var chiffres = node.innerHTML.match(/\d+/g);
+
+   var corpulence = chiffres[0];
+
+   var agilite = chiffres[1];
+
+   var stabilite = Math.floor((esq+reg)*2/3)+" D6 "+aff(esqbonus)+" (moyenne : "+(7*Math.floor((esq+reg)/3)+esqbonus)+")";
+
+      
+
+   // Création de la table d'affichage
+
+   if (typeaff==1) {
+
+      var string = '<table border="0" cellspacing="1" cellpadding="2" class="mh_tdborder">';
+
+      string += '<tr class="mh_tdtitre">';
+
+      string += '<td colspan="2" align="center"><b>Caractéristiques Déduites</b></td>';
+
+      string += '<td align="center"><b>Stabilité</b></td></tr>';
+
+      string += '<tr class="mh_tdpage">';
+
+      string += '<td align="center">Corpulence</td><td align="center">'+corpulence+'</td>';
+
+      string += '<td rowspan="2" align="center">'+stabilite+'</td></tr>';
+
+      string += '<tr class="mh_tdpage">';
+
+      string += '<td align="center">Agilité</td><td align="center">'+agilite+'</td></tr>';
+
+      string += '</table>';
+
+      }
+
+   else if (typeaff==2) {
+
+      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
+
+      string += '<table><tr><td>-  Corpulence.....:</td><td align=left>'+corpulence+' points</td></tr>';
+
+      string += '<tr><td>- Agilité.............:</td><td>'+agilite+' points</td></tr>';
+
+      string += '<tr><td>- Stabilité...........:</td><td>'+stabilite+'</td></tr></table>';
+
+      }
+
+   else {
+
+      var string = '<b><i>Caractéristiques Déduites  :</i></b><br>';
+
+      string += '- Corpulence.....: '+corpulence+' points<br>';
+
+      string += '- Agilité.............: '+agilite+' points<br>';
+
+      string += '- Stabilité..........: '+stabilite;
+
+      }
+
+   node.innerHTML = string;
+
+}  
+
+   
+
+
+
+
+
+// Fonction concoter par Breizhou13
+
+function CaracEnTab() { // version Dabihul
+
+   //recuperation des emplacements
+
+   var base = document.evaluate("//tr/td/b/text()[contains(.,'Caractéristiques')]/../../../td[2]/table", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+   var nombre_TR = base.getElementsByTagName('TR');
+
+   
+
+   //mise en forme du tableau et nettoyage des noms des caracs
+
+   base.setAttribute('class','mh_tdborder');
+
+   var tr = document.createElement('tr');
+
+   tr.setAttribute('class','mh_tdtitre')
+
+   for(i=0 ; i<nombre_TR.length ; i++) {
+
+      nombre_TR[i].setAttribute('class','mh_tdpage');
+
+      var nombre_TD = nombre_TR[i].getElementsByTagName('TD');
+
+      nombre_TD[0].innerHTML = nombre_TD[0].innerHTML.substr(0,nombre_TD[0].innerHTML.indexOf('.', 0));
+
+      var len = nombre_TD.length;
+
+      for(j=0 ; j<len ; j++) {
+
+         nombre_TD[j].setAttribute('align','center');
+
+         }
+
+      var moy = nombre_TD[len-1].textContent;
+
+      nombre_TD[len-1].firstChild.nodeValue = moy.substring(11,moy.length-1);
+
+      }
+
+   
+
+   //insertion des entetes du tableau
+
+   insertBefore(base.firstChild, tr);
+
+   appendTdText(tr, "", true);
+
+   appendTdText(tr, "Nombre de dés", true);
+
+   appendTdText(tr, "Bonus physique", true);
+
+   appendTdText(tr, "Bonus magique", true);
+
+   appendTdText(tr, "Moyenne", true);
+
+}
+
+   
+
+
+
+   
+
+//=====================================================================
+
+var TiD=numTroll;
+
+var SkinZZ=MZ_getValue(TiD+".pref.SkinZZ"); if (!SkinZZ) SkinZZ=ZZDB+"/skin";
+
+var troll="";
+
+var race="";
+
+var camou=0;
+
+var PG="";
+
+var nodesPG = document.evaluate("//img[contains(@src,'contenu/header.jpg')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+
+if (nodesPG.snapshotLength==1) {
+
+	PG=nodesPG.snapshotItem(0).src;
+
+	PG=URLencode(PG.substring(0, PG.length-19));
+
+}
+
+initProfil();
+
+overrideInfoBulles();
+
 Morphologie(1);
 
-CaracEnTab();
-document.getElementById('titre2').childNodes[0].parentNode.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
-var IdNewZZ=0;
-var PVMax=pvmax;
-var pvactuels=pv;
-var data="&TypeData=Profil";
-data=data+"&Troll="+escape(trim(troll))+"&Race="+trim(race)+"&Niveau="+nivTroll;
-data=data+"&TiD="+TiD+"&PVMax="+PVMax+"&PV="+pvactuels;
-data=data+"&PA="+trim(mainTR.snapshotItem(1).childNodes[3].childNodes[5].firstChild.nodeValue).substr(0,1);
+CaracEnTab();
+
+document.getElementById('titre2').childNodes[0].parentNode.innerHTML="MON PROFIL <FONT SIZE=-1>(<A HREF='"+ZZDB+"/zoryazilla.php?Source=MH&action=Newzz&PG="+PG+"'>Info ZZ</A>)</FONT>";
+
+var IdNewZZ=0;
+
+var PVMax=pvmax;
+
+var pvactuels=pv;
+
+var data="&TypeData=Profil";
+
+data=data+"&Troll="+escape(trim(troll))+"&Race="+trim(race)+"&Niveau="+nivTroll;
+
+data=data+"&TiD="+TiD+"&PVMax="+PVMax+"&PV="+pvactuels;
+
+data=data+"&PA="+trim(mainTR.snapshotItem(1).childNodes[3].childNodes[5].firstChild.nodeValue).substr(0,1);
+
 data=data+"&DLA="+trim(mainTR.snapshotItem(1).childNodes[3].childNodes[1].firstChild.nodeValue).replace(" ", "_");
-
-//data=data+"&TimeStamp="+trim(arrTable[10].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue).substr(27,19).replace(" ", "_");
+
+
+//data=data+"&TimeStamp="+trim(arrTable[10].childNodes[1].childNodes[0].childNodes[1].childNodes[3].nodeValue).substr(27,19).replace(" ", "_");
+
 var TimeStamp = document.getElementById('footer2').childNodes[5].nodeValue;
 TimeStamp = TimeStamp.substring(TimeStamp.indexOf("Heure")+15);
 TimeStamp = TimeStamp.substring(TimeStamp.indexOf(": ")+2,TimeStamp.indexOf("]")-9).replace(" ", "_");
 
-data=data+"&TimeStamp="+TimeStamp;
-data=data+"&X="+posX+"&Y="+posY+"&N="+posN+"&Camoufle="+camou;  
-//alert(ZZDB+'/mzData.php?'+data);
-MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
-
-
-
-
-
-
-
+data=data+"&TimeStamp="+TimeStamp;
+
+data=data+"&X="+posX+"&Y="+posY+"&N="+posN+"&Camoufle="+camou;  
+
+//alert(ZZDB+'/mzData.php?'+data);
+
+MZ_appendNewScript(ZZDB+'/mzData.php?'+data);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

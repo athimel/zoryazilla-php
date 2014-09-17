@@ -617,7 +617,8 @@ var RM_TROLL = MZ_getValue("RM_TROLL");
 
 var totaltab=document.getElementsByTagName('table');
 var monstre=totaltab[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].nodeValue;
-if (monstre="Ce Monstre n'existe pas ou a été Tué.") { // recherche via dernier évenement
+
+if (monstre.lastIndexOf("Ce Monstre n'existe pas ou a ",0) === 0) { // recherche via dernier évenement
   //  var nodes = document.evaluate("//text()[contains(.,'a débarrassé le Monde Souterrain')]", document, null,XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     var nodes = document.evaluate("//a[@class='mh_monstres']/text()", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
 	if (nodes.snapshotLength>0)	{
@@ -645,10 +646,17 @@ var _eventAttaque = new Array();
 var totaltab=document.getElementsByTagName('table');
 //if (listeCDM.length>0) var x_events = totaltab[4].childNodes[1].childNodes; else 
 var x_events = totaltab[3].getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-var toDate=x_events[0].childNodes[1].childNodes[0].nodeValue;
-var fromDate=x_events[x_events.length-1].childNodes[1].childNodes[0].nodeValue;
+var fromDate="01/01/1980 00:00:00"; // Need fromDate even if no event is present
+var toDate="31/12/2199 23:59:59"; // Need fromDate even if no event is present
+try {
+  toDate=x_events[0].childNodes[1].childNodes[0].nodeValue;
+} catch(err) {}
+try {
+  fromDate=x_events[x_events.length-1].childNodes[1].childNodes[0].nodeValue;
+} catch(err) {} 
 
 var url = ZZDB+"/mzMEvent.php?&num="+numTroll+"&fromDate="+fromDate+"&toDate="+toDate+"&MeID="+MeID+str;
+//console.log(url);
 MZ_xmlhttpRequest({
 				method: 'GET',
 				url: url,
@@ -694,7 +702,8 @@ MZ_xmlhttpRequest({
 					}
 					catch(e)
 					{
-						alert(e+"/"+xl);
+					        console.error(e+"/"+xl);
+//						alert(e+"/"+xl);
 					} 
 				}
 				});

@@ -308,9 +308,17 @@ if ($num!=$ZZ_TID) {
 	        $Color=mysql_result($result5i,$i,"Color");
 	        $TG=mysql_result($result5i,$i,"TG");
 	        if ($TG=='T') {
-				if (!$ct[$tgId]) $ct[$tgId]=$Color; else if ($ct[$tgId]<>$Color) $ct[$tgId]="#FFD3D3"; 
+				if (!$ct[$tgId]) {
+				  $ct[$tgId]=$Color; 
+				} else if ($ct[$tgId]<>$Color) {
+  				  $ct[$tgId]="#FFD3D3"; 
+				}
 			} else { 
-				if (!$cg[$tgId]) $cg[$tgId]=$Color; else if ($cg[$tgId]<>$Color) $cg[$tgId]="#FFD3D3"; 
+				if (!$cg[$tgId]) {
+				  $cg[$tgId]=$Color; 
+                                } else if ($cg[$tgId]<>$Color) {
+                                  $cg[$tgId]="#FFD3D3"; 
+                                }
 			}
       }
   }

@@ -31,7 +31,7 @@ function _sqlconnect() { #Ouverture de la DB
   	if ($mysql <= 0) {DIE("DataBase non disponible");}
 
     $SQL_SI_TimeSQL=microtime();			// on démarre le timer....
-  	$SQL_SI_Open=true; $SQL_SI_mysql=mysql;	// la session est maintenant ouverte  	
+  	$SQL_SI_Open=true; $SQL_SI_mysql=$mysql;	// la session est maintenant ouverte  	
   	return $mysql;
 }
 
@@ -99,7 +99,7 @@ function _sqllogTiD($TiD, $Comment) {
 
 	$TimeStamp=date("Y-m-d H:i:s"); 
 	$DateStamp=date("Y-m-d"); 
-	if ($_SERVER["HTTP_CLIENT_IP"]!="")
+	if (array_key_exists ("HTTP_CLIENT_IP", $_SERVER) && $_SERVER["HTTP_CLIENT_IP"]!="")
 		$ipaddr=mysql_real_escape_string($_SERVER["HTTP_CLIENT_IP"]);		// en cas de proxy.
 	else if ($_SERVER["HTTP_X_FORWARDED_FOR"]!="")
 		$ipaddr=mysql_real_escape_string($_SERVER["HTTP_X_FORWARDED_FOR"]);		// en cas de proxy.

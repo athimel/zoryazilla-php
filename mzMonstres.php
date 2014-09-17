@@ -27,7 +27,14 @@ $TiD=$ZZ_TID;
 #-----------------------------------------------------------------------------------
 function GROUP_SPLIT($str){
 	$exp=@split('#', $str);
-	if ($exp[0]<>"") return $exp[0]; else return $exp[1];
+//	echo "".$str.": ".count($exp);
+        if ($exp[0]<>"") {
+	    return $exp[0]; 
+        } else if (count($exp) > 1) {
+            return $exp[1];
+        } else {
+            return "";
+        }
 }
 
 
@@ -58,7 +65,7 @@ function LimiteMaxi($Var, $cdmVarMin, $cdmVarMax, $VarMinInf, $VarMinSup, $VarMa
 
 //print_r($nom);
 //print("/* */ ");
-$IdList=$AgeNameList="";
+$IdList=""; $AgeNameList=""; $AgeIdList="";
 $nMonstres=sizeof($nom);
 
 for ($i=0; $i<$nMonstres;$i++) {	# On explose chaque monstres en tableau id/age/nom
@@ -143,12 +150,22 @@ $AgeIdList=substr($AgeIdList, 0, strlen($AgeIdList)-1);
 
 #-----------------------------------------------------------------------------------
 # Tableau des recherches inversées
+$CdmPUB = array(); $CdmPRIV = array(); $Bestiaire = array();
 $nData = @MySQL_NUM_ROWS($result1);
-for ($i=0; $i<$nData;$i++) { $Id=mysql_result($result1,$i,"Id"); $CdmPUB[$Id]=$i+1; } 
+for ($i=0; $i<$nData;$i++) {
+    $Id=mysql_result($result1,$i,"Id"); 
+    $CdmPUB[$Id]=$i+1; 
+} 
 $nData = @MySQL_NUM_ROWS($result2);
-for ($i=0; $i<$nData;$i++) { $Id=mysql_result($result2,$i,"Id"); $CdmPRIV[$Id]=$i+1; } 
+for ($i=0; $i<$nData;$i++) {
+    $Id=mysql_result($result2,$i,"Id"); 
+    $CdmPRIV[$Id]=$i+1; 
+} 
 $nData = @MySQL_NUM_ROWS($result3);
-for ($i=0; $i<$nData;$i++) { $Id=mysql_result($result3,$i,"Id"); $Bestiaire[$Id]=$i+1; } 
+for ($i=0; $i<$nData;$i++) { 
+    $Id=mysql_result($result3,$i,"Id"); 
+    $Bestiaire[$Id]=$i+1; 
+} 
 #-----------------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------------
@@ -171,7 +188,10 @@ for ($i=0; $i<$nMonstres;$i++) {
 
 	/*=============== Aggloméra des CdM publique======================================================================*/
 	#On commence par chercher si on a pas des CdMs du Monstre dans la DB PUBlic
-	$idx=$CdmPUB[$Id]-1;
+	$idx=-1;
+	if (array_key_exists($Id, $CdmPUB)) {
+	    $idx=$CdmPUB[$Id]-1;
+        }
 	if ($idx>=0) {
        $fData=true;
        #$TimeStamp=mysql_result($result1,$idx,"TimeStamp");		// TimeStamp indique s'il s'agit d'une CdM réel ou du bestaire, l'agloméra public est considéré comme bestaire.
@@ -213,7 +233,10 @@ for ($i=0; $i<$nMonstres;$i++) {
 
 	/*=============== Aggloméra des CdM Privé======================================================================*/
 	#On affine le résultat avec la DB PRIVée
-	$idx=$CdmPRIV[$Id]-1;
+	$idx=-1;
+        if (array_key_exists($Id, $CdmPRIV)) {
+            $idx=$CdmPRIV[$Id]-1;
+        }
 	if ($idx>=0) {
 		  $TimeStamp=mysql_result($result2,$idx,"TimeStamp");
 		  $Blessure=mysql_result($result2,$idx,"Blessure");

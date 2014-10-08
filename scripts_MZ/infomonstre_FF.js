@@ -496,6 +496,7 @@ function createBarrePV(color, pvr, pv, comment) { //color: 0=red, 1=gris
 
 //----------------------------------------------------------------------------------------------------
 function putBestiaireInfo() {
+
    var cmdMonstre=listeCDM[MeID];
    var id=MeID;
    var Bestiaire="BESTIAIRE"; 
@@ -536,22 +537,30 @@ function putBestiaireInfo() {
 		var v=0;
 		var mrm=1*cmdMonstre[9].slice(cmdMonstre[9].indexOf("[b]")+3,  cmdMonstre[9].indexOf("[/b]"));
 		var tmm=MM_TROLL*1;
-		if(tmm<0) v="10";
-		else if(mrm<tmm) v=Math.max(10,Math.floor((mrm/tmm)*50));
-		else v=Math.min(90,Math.floor(100-(tmm/mrm)*50));
+		if(tmm<0) {
+                    v="10";
+		} else if(mrm<tmm) {
+                    v=Math.max(10,Math.floor((mrm/tmm)*50));
+		} else {
+                    v=Math.min(90,Math.floor(100-(tmm/mrm)*50));
+                }
 	    cdmRM+=" <font size=-2>("+v+"%)</font>";
    }   
 
    var cdmMM="";
    // information de SR
    var cdmMM=cmdMonstre[18];
-   if((cmdMonstre[18].indexOf("[b]")!=-1) && (RM_TROLL!="")) {
+   if ((cmdMonstre[18].indexOf("[b]")!=-1) && (RM_TROLL!="")) {
 		var v=0;
-		var mmm=1*cmdMonstre[12].slice(cmdMonstre[12].indexOf("[b]")+3,  cmdMonstre[12].indexOf("[/b]"));
+		var mmm=1*cmdMonstre[18].slice(cmdMonstre[18].indexOf("[b]")+3,  cmdMonstre[18].indexOf("[/b]"));
 		var trm=RM_TROLL*1;
-		if(trm<0) v="90";
-		else if(trm<mmm) v=Math.max(10,Math.floor((trm/mmm)*50));
-		else v=Math.min(90,Math.floor(100-(mmm/trm)*50));
+		if(trm<0) { 
+                    v="90";
+                } else if(trm<mmm) { 
+                    v=Math.max(10,Math.floor((trm/mmm)*50));
+                } else {
+                    v=Math.min(90,Math.floor(100-(mmm/trm)*50));
+                }
 	    cdmMM=bbcode(cdmMM)+" <font size=-2>("+v+"%)</font>";
    }   
 
@@ -612,8 +621,18 @@ function putBestiaireInfo() {
 // Début Du script ITM Event
 var NIV_TROLL = MZ_getValue("NIV_TROLL");	
 var NUM_TROLL=numTroll;			// Id du Troll
-var MM_TROLL = MZ_getValue("MM_TROLL");	
-var RM_TROLL = MZ_getValue("RM_TROLL");	
+//var MM_TROLL = MZ_getValue("MM_TROLL");	
+//var RM_TROLL = MZ_getValue("RM_TROLL");	
+var MM_TROLL=MZ_getValue(numTroll + ".caracs.mm");
+var RM_TROLL=MZ_getValue(numTroll + ".caracs.rm");
+
+//console.log("NIV_TROLL: " + NIV_TROLL);
+//console.log("RM: " + RM_TROLL);
+//console.log("MM: " + MM_TROLL);
+//console.log(MZ_getValue(numTroll + ".caracs.rm"));
+//console.log(MZ_getValue(numTroll + ".caracs.rm.bm"));
+//console.log(MZ_getValue(numTroll + ".caracs.mm"));
+//console.log(MZ_getValue(numTroll + ".caracs.mm.bm"));
 
 var totaltab=document.getElementsByTagName('table');
 var monstre=totaltab[0].childNodes[1].childNodes[0].childNodes[1].childNodes[1].childNodes[0].nodeValue;
@@ -657,13 +676,35 @@ try {
 
 var url = ZZDB+"/mzMEvent.php?&num="+numTroll+"&fromDate="+fromDate+"&toDate="+toDate+"&MeID="+MeID+str;
 //console.log(url);
+//try {
+//console.log("toto");
+//var xhr = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
+//                        .createInstance(Components.interfaces.nsIXMLHttpRequest);
+//console.log(xhr);
+//xhr.open("GET", url, false);
+
+//xhr.send(null);
+//if(xhr.status == 200)
+//  console.log(xhr.responseText);
+//} catch (eee) {
+//console.error(eee);
+//}
+  
+//console.log(MZ_xmlhttpRequest);
+//try {
 MZ_xmlhttpRequest({
 				method: 'GET',
 				url: url,
 				headers : {
 					'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
-					'Accept': 'application/atom+xml,application/xml,text/xml'
+					'Accept': 'application/atom+xml,application/xml,text/xml,text/html'
 				},
+//				onerror: function() {
+//        				console.log("onerror: ");
+//				},
+//				onreadystatechange: function() {
+//				        console.log("onreadystatechange: ");
+//                                },
 				onload: function(responseDetails) {
 					try
 					{
@@ -707,4 +748,8 @@ MZ_xmlhttpRequest({
 					} 
 				}
 				});
+
+//} catch (err) {
+//console.errot(err);
+//}
 

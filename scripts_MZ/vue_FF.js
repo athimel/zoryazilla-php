@@ -41,8 +41,11 @@ var flowVueCtrl = "Mon"; // Pour traitement du flux VUE
 var flowVueCtrlId = 1; // Pour traitement du flux VUE // AThimel 24/05/2013 Mis à 1, était: 3
 var flowVueCtrlMaxId = 0; // Pour traitement du flux VUE (affichage)
 var isStyleClass = MZ_getValue("USECSS") == "true";
-var MM_TROLL = MZ_getValue("MM_TROLL");
-var RM_TROLL = MZ_getValue("RM_TROLL");
+//var MM_TROLL = MZ_getValue("MM_TROLL");
+//var RM_TROLL = MZ_getValue("RM_TROLL");
+var MM_TROLL=MZ_getValue(numTroll + ".caracs.mm");
+var RM_TROLL=MZ_getValue(numTroll + ".caracs.rm");
+
 //var ITM_HandiZilla=MZ_getValue(NUM_TROLL+".pref.ITM_HandiZilla");
 //var SkinZZ=MZ_getValue(NUM_TROLL+".pref.SkinZZ"); if (!SkinZZ) SkinZZ=ZZDB+"/skin/";			// => dans libs_FF.js
 var totaltab = document.getElementsByTagName('table');
@@ -2733,8 +2736,8 @@ function createNewLieu(dist, infosLieu) {
 
     var chance = "";
     var _mm = infosLieu[5] * 1;
-    if ((MZ_getValue("RM_TROLL") != "") && (_mm > 0)) {
-        var _rm = MZ_getValue("RM_TROLL") * 1;
+    if ((RM_TROLL != "") && (_mm > 0)) {
+        var _rm = RM_TROLL * 1;
         if (_mm < 0) _sr = "10";
         else if (_rm < _mm) _sr = Math.max(10, Math.floor((_rm / _mm) * 50));
         else _sr = Math.min(90, Math.floor(100 - (_mm / _rm) * 50));
@@ -2860,9 +2863,13 @@ function analyseCDM(idx) {
         var v = 0;
         var mrm = 1 * cmdMonstre[9].slice(cmdMonstre[9].indexOf("[b]") + 3, cmdMonstre[9].indexOf("[/b]"));
         var tmm = MM_TROLL * 1;
-        if (tmm < 0) v = "10";
-        else if (mrm < tmm) v = Math.max(10, Math.floor((mrm / tmm) * 50));
-        else v = Math.min(90, Math.floor(100 - (tmm / mrm) * 50));
+        if (tmm < 0) {
+            v = "10";
+        } else if (mrm < tmm) {
+            v = Math.max(10, Math.floor((mrm / tmm) * 50));
+        } else {
+	    v = Math.min(90, Math.floor(100 - (tmm / mrm) * 50));
+	}
         cdmRM += " <font size=-2>(" + v + "%)</font>";
     }
 
@@ -2871,11 +2878,15 @@ function analyseCDM(idx) {
     var cdmMM = cmdMonstre[18];
     if ((cmdMonstre[18].indexOf("[b]") != -1) && (RM_TROLL != "")) {
         var v = 0;
-        var mmm = 1 * cmdMonstre[12].slice(cmdMonstre[12].indexOf("[b]") + 3, cmdMonstre[12].indexOf("[/b]"));
+        var mmm = 1 * cmdMonstre[18].slice(cmdMonstre[18].indexOf("[b]") + 3, cmdMonstre[18].indexOf("[/b]"));
         var trm = RM_TROLL * 1;
-        if (trm < 0) v = "90";
-        else if (trm < mmm) v = Math.max(10, Math.floor((trm / mmm) * 50));
-        else v = Math.min(90, Math.floor(100 - (mmm / trm) * 50));
+        if (trm < 0) { 
+            v = "90";
+        } else if (trm < mmm) {
+            v = Math.max(10, Math.floor((trm / mmm) * 50));
+        } else {
+            v = Math.min(90, Math.floor(100 - (mmm / trm) * 50));
+        }
         cdmMM = bbcode(cdmMM) + " <font size=-2>(" + v + "%)</font>";
     }
 
@@ -3466,7 +3477,7 @@ var ZPOS = getPosition();
 var ZPOSX = ZPOS[0];
 var ZPOSY = ZPOS[1];
 var ZPOSN = ZPOS[2];
-var MM_TROLL = MZ_getValue("MM_TROLL");
+//var MM_TROLL = MZ_getValue("MM_TROLL");
 
 
 

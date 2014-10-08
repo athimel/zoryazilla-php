@@ -42,7 +42,7 @@ function traiteMouches() {
 										null, 9, null).singleNodeValue; }
 	var index_type = getMyID(node_type); // 7 -> 7	
 	
-	var mouchesLa = document.evaluate("./tbody/tr/td["+td_etat+"]/img[@alt='La Mouche est  là']"
+	var mouchesLa = document.evaluate("./tbody/tr/td["+td_etat+"]/img[@alt='La Mouche est là']"
 										+"/../../td["+td_effet+"]/nobr[1]", mainTab, null, 7, null);
 
 	var listePouvoirs = [], listeTypes = [];
@@ -50,28 +50,33 @@ function traiteMouches() {
 		// pour décompte final type de mouches
 		var node = mouchesLa.snapshotItem(i);
 		var type = trim(node.parentNode.parentNode.childNodes[index_type].textContent);
-		if (!listeTypes[type])
-			{ listeTypes[type] = 1; }
-		else
-			{ listeTypes[type]++; }
-		if (!node.textContent)
-			{ continue; }
+		if (!listeTypes[type]) {
+			listeTypes[type] = 1;
+		} else {
+			listeTypes[type]++;
+		}		
+		if (!node.textContent) {
+			continue;
+		}
 		
 		// gestion bonus (multiples pour pogées)
 		var texte = node.textContent;
-		if (texte.indexOf('|')!=-1)
-			{ var caracs = texte.split(' | '); }
-		else
-			{ var caracs = [ texte ]; }
+		if (texte.indexOf('|')!=-1) {
+                    var caracs = texte.split(' | ');
+		} else {
+		    var caracs = [ texte ]; 
+                }
+
 		for (var j=0 ; j<caracs.length ; j++) {
 			var valeur = parseInt(caracs[j].match(/-?\d+/));
 			var carac = caracs[j].substring(0,caracs[j].indexOf(':')-1);
-			if (!listePouvoirs[carac])
-				{ listePouvoirs[carac] = valeur; }
-			else
-				{ listePouvoirs[carac] += valeur; }
-			}
+			if (!listePouvoirs[carac]) { 
+                            listePouvoirs[carac] = valeur;
+			} else { 
+			    listePouvoirs[carac] += valeur;
+                        }
 		}
+	}
 	// récup Effet total et affichage variations
 	var footerNode = document.getElementsByTagName('tfoot')[0];
 	if (!footerNode) {return;}
@@ -86,16 +91,20 @@ function traiteMouches() {
 			texte += ' | ';
 		var carac = trim(effetsmax[i].substring(0,effetsmax[i].indexOf(':')-1));
 		var bonus = effetsmax[i].match(/-?\d+/);
-		if (!listePouvoirs[carac])
-			{ listePouvoirs[carac]=0; }
+
+		if (!listePouvoirs[carac]) {
+                    listePouvoirs[carac]=0;
+                }
 		if (listePouvoirs[carac]!=bonus) {
 			texte += '<b>'+carac+' : '+aff(listePouvoirs[carac]);
-			if (carac=='TOUR') {texte += ' min';}
+			if (carac=='TOUR') {
+                            texte += ' min';
+                        }
 			texte += '</b>';
-			}
-		else
+		} else {
 			texte += effetsmax[i];
 		}
+	}
 	span = document.createElement('span');
 	span.innerHTML = texte;
 	node.parentNode.replaceChild(span, node);

@@ -54,7 +54,8 @@ for (i = 0; i < totaltab.length; i++) {
     try {
        //ttab = totaltab[i].childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].childNodes[0].nodeValue;
 	   ttab = totaltab[i].childNodes[1].childNodes[0].childNodes[0].childNodes[1].childNodes[0].childNodes[0].childNodes[2].childNodes[0].childNodes[0].childNodes[0].nodeValue;
-    } catch (e) {}
+    } catch (e) {
+}
     try {
         //ttest = totaltab[i].childNodes[0].childNodes[0].childNodes[2].childNodes[0].childNodes[0].childNodes[0].nodeValue;
     } catch (e) {}
@@ -86,6 +87,7 @@ for (i = 0; i < totaltab.length; i++) {
         itbid = i;
     }
 }
+
 // Pointeurs sur Tableaux Infos, Monstres, Trolls, Trésors, Champis et Lieux
 if (itbid > 0) var tbid = totaltab[itbid];
 var tinf = totaltab[itinf];
@@ -204,16 +206,30 @@ var oldNOEM = true;
 
 // Différents tableaux
 var mainTabs = document.getElementsByClassName('mh_tdborder');
-var x_monstres = mainTabs[2].getElementsByTagName('tr');
+
+//console.log(mainTabs);
+// Change mainTabs[2] to mainTabs[mainTabs.length - 11] in case a div is added before MONSTRES.
+// Normal length is 13
+
+var monstresIndex = mainTabs.length - 11;
+//var x_monstres = mainTabs[2].getElementsByTagName('tr');
+var x_monstres = mainTabs[monstresIndex].getElementsByTagName('tr');
 var nbMonstres = x_monstres.length - 1;
-var x_trolls = mainTabs[4].getElementsByTagName('tr');
+//var x_trolls = mainTabs[4].getElementsByTagName('tr');
+var x_trolls = mainTabs[mainTabs.length - 9].getElementsByTagName('tr');
 var nbTrolls = x_trolls.length - 1;
-var x_tresors = mainTabs[6].getElementsByTagName('tr');
+//var x_tresors = mainTabs[6].getElementsByTagName('tr');
+var x_tresors = mainTabs[mainTabs.length - 7].getElementsByTagName('tr');
 var nbTresors = x_tresors.length - 1;
-var x_champis = mainTabs[8].getElementsByTagName('tr');
+//var x_champis = mainTabs[8].getElementsByTagName('tr');
+var x_champis = mainTabs[mainTabs.length - 5].getElementsByTagName('tr');
 var nbChampis = x_champis.length - 1;
-var x_lieux = mainTabs[10].getElementsByTagName('tr');
+//var x_lieux = mainTabs[10].getElementsByTagName('tr');
+var x_lieux = mainTabs[mainTabs.length - 3].getElementsByTagName('tr');
 var nbLieux = x_lieux.length - 1;
+
+//console.log("nbMonstres: " + nbMonstres);
+//console.log("nbTrolls: " + nbTrolls);
 
 var isCDMsRetrieved = false; // = si les CdM ont déjà été DL (affichées ou non)
 var isDiploComputed = false;
@@ -388,7 +404,7 @@ function filtreMonstres() {
             strfilter += ' >= ' + niveau_min;
         }
     }
-    mainTabs[1].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
+    mainTabs[mainTabs.length - 12].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
         'MONSTRES ERRANTS' + (isFiltreOn ? ' (filtrés sur ' + filtreMonstre + ') ' : ' ') + strfilter;
     for (var i = nbMonstres; i > 0; i--) {
         var pos = getMonstrePosition(i);
@@ -537,6 +553,7 @@ function retrieveCDMs() {
                             if (infos.length < 4)
                                 continue;
                             var idMonstre = infos[0];
+//console.log(idMonstre + ": " + line);
                             var isCDM = infos[1];
                             index = parseInt(infos[2]);
                             var level = infos[3];
@@ -545,16 +562,18 @@ function retrieveCDMs() {
                                 begin2 = index;
                             end2 = index;
                             listeCDM[idMonstre] = infos;
-                            if (isCDM == 1)
+                            if (isCDM == 1) {
                                 x_monstres[index].childNodes[2].innerHTML = "<i>" + level + "</i>";
-                            else
+                            } else {
                                 x_monstres[index].childNodes[2].innerHTML = level;
+                            }
                         }
                         computeMission(begin2, end2); /*ZZ: appel de setInfosMonstres */
-						if (i >= max) setInfosMonstres(1);
-                    } catch (e)
-                    {
-                        alert("h1 ?" + e + "\n" + url + "\n" + texte);
+                        if (i >= max) {
+                            setInfosMonstres(1);
+                        }
+                    } catch (e) {
+                        console.err("h1 ?" + e + "\n" + url + "\n" + texte);
                     }
                 }
             });
@@ -567,8 +586,8 @@ function retrieveCDMs() {
 }
 
 function removeLevelColumn() {
-    if (mainTabs[2].rows[0].cells[2].firstChild.innerHTML == 'Niveau')
-        mainTabs[2].removeChild(mainTabs[2].rows[0].cells[2]);
+    if (mainTabs[monstresIndex].rows[0].cells[2].firstChild.innerHTML == 'Niveau')
+        mainTabs[monstresIndex].removeChild(mainTabs[monstresIndex].rows[0].cells[2]);
 }
 
 function insertLevelColumn() {
@@ -617,7 +636,7 @@ function filtreTrolls() {
     var noIntangibles = saveCheckBoxStatus(checkBoxIntangibles, 'NOINT');
     var isFTOn = (filtreTroll != '');
     var isFGOn = (filtreGuilde != '');
-    mainTabs[3].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
+    mainTabs[mainTabs.length - 10].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
             'TRÕLLS' + (isFTOn ? ' (filtrés sur ' + filtreTroll + ')' : '')
             + (isFGOn ? ' (guildes filtrées sur ' + filtreGuilde + ')' : '');
 
@@ -705,7 +724,7 @@ function filtreTresors() {
         }
         isEngagesComputed = true;
     }
-    mainTabs[5].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
+    mainTabs[mainTabs.length - 8].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
     'TRESORS' + (filtre ? ' (filtrés sur ' + filtreTresor + ')' : '');
     for (var i = nbTresors; i > 0; i--) {
         var nom = getTresorNom(i);
@@ -737,7 +756,7 @@ function getDistanceLieu(i) {
 function filtreLieux() {
     var noTrou = saveCheckBoxStatus(checkBoxTrou, 'NOTROU');
     var filtre = filtreLieu != '';
-    mainTabs[9].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
+    mainTabs[mainTabs.length - 4].rows[0].cells[0].childNodes[1].rows[0].cells[1].firstChild.firstChild.innerHTML =
     'LIEUX PARTICULIERS' + (filtre ? ' (filtrés sur ' + filtreLieu + ')' : '');
     for (var i = nbLieux + 1; --i >= 1;)
         x_lieux[i].style.display = ((filtre && getLieuNom(i).toLowerCase().indexOf(filtreLieu) == -1)
@@ -911,7 +930,7 @@ function putMonstresBouton() {
 
 function putLieuxBouton() {
     var tdTitle = document.evaluate(".//text()[contains(.,'LIEUX')]/../../..",
-    mainTabs[9], null, 9, null).singleNodeValue;
+    mainTabs[mainTabs.length - 4], null, 9, null).singleNodeValue;
     if (!tdTitle) {
         return;
     }
@@ -1804,6 +1823,7 @@ try
     putExternalLinks(); // inutilisé ? cf Options
     set2DViewSystem();
     putLieuxBouton();
+
     putMonstresBouton();
 
 
@@ -1823,7 +1843,9 @@ try
         var noTresorsEngages = saveCheckBoxStatus(checkBoxTresorsNonLibres, "NOTRESORSNONLIBRES");
         var noTrou = saveCheckBoxStatus(checkBoxTrou, "NOTROU");
         var noIntangibles = saveCheckBoxStatus(checkBoxIntangibles, "NOINT");
+
         filtreMonstres();
+
         if (noIntangibles)
             filtreTrolls();
         if (noGG || noCompos || noBidouilles || noTresorsEngages)
@@ -1840,9 +1862,8 @@ try
     //putScriptExterne();
 
     displayScriptTime();
-} catch (e)
-{
-    alert(externalVue + "h10 ?" + e);
+} catch (e) {
+    console.err(externalVue + "h10 ?" + e);
 }
 //============================ ZZ POST CODE ======================================
 
@@ -3447,6 +3468,8 @@ var ZPOSY = ZPOS[1];
 var ZPOSN = ZPOS[2];
 var MM_TROLL = MZ_getValue("MM_TROLL");
 
+
+
 var tabletroll = document.getElementsByName('trolls')[0].parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;
 putMsgPXBouton(tabletroll); //totaltab[8]); 	// les bouton de distribution de PX, MP et partage
 //creerZZThead( itmon ); //creerZZThead( ittro ); creerZZThead( ittre ); creerZZThead( itcha ); creerZZThead( itlie );
@@ -3461,7 +3484,11 @@ for (var i = 1; i < x_monstres.length; i++) {
 var TimeStamp = document.getElementById('footer2').childNodes[5].nodeValue;
 TimeStamp = TimeStamp.substring(TimeStamp.indexOf("Heure") + 15);
 TimeStamp = TimeStamp.substring(TimeStamp.indexOf(": ") + 2, TimeStamp.indexOf("]") - 9).replace(" ", "_");
-//alert(ZZDB + "/mzVue.php?&TimeStamp=" + TimeStamp + "&num=" + numTroll + "&X=" + ZPOSX + "&Y=" + ZPOSY + "&N=" + ZPOSN + idMonstres + ZPREF);
+
+
+//console.log(ZZDB + "/mzVue.php?&TimeStamp=" + TimeStamp + "&num=" + numTroll + "&X=" + ZPOSX + "&Y=" + ZPOSY + "&N=" + ZPOSN + idMonstres + ZPREF);
+
+
 MZ_xmlhttpRequest({
     method: 'GET',
     url: ZZDB + "/mzVue.php?&TimeStamp=" + TimeStamp + "&num=" + numTroll + "&X=" + ZPOSX + "&Y=" + ZPOSY + "&N=" + ZPOSN + idMonstres + ZPREF,
